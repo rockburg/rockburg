@@ -70,7 +70,8 @@ class ArtistGeneratorService
             { role: "system", content: system_prompt },
             { role: "user", content: "Generate a single artist profile" }
           ],
-          temperature: 0.5
+          temperature: 0.5,
+          response_format: { type: "json_object" }
         }
       )
 
@@ -91,7 +92,7 @@ class ArtistGeneratorService
             { role: "system", content: system_prompt },
             { role: "user", content: "Generate #{count} artist profiles" }
           ],
-          temperature: 0.9,
+          temperature: 0.5,
           response_format: { type: "json_object" }
         }
       )
@@ -217,7 +218,6 @@ class ArtistGeneratorService
     end
 
     Artist.create!(
-      user: @user,
       name: data["name"],
       genre: data["genre"],
       energy: data["energy"],

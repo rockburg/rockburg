@@ -1,0 +1,5 @@
+maintain_artist_pool:
+  cron: '0 */4 * * *' # Run every 4 hours
+  class: MaintainArtistPoolJob
+  queue: default
+  description: "Ensures there are enough artists available in the selection pool" 

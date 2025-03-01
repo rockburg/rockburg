@@ -3,10 +3,9 @@ require "sidekiq/web"
 Rails.application.routes.draw do
   mount Sidekiq::Web => "/sidekiq"
 
-  # Artist Generator
-  get "artist_generator/new", as: :new_artist_generator
-  post "artist_generator/create", as: :create_artist_generator
-  post "artist_generator/batch", to: "artist_generator#batch", as: :batch_artist_generator
+  # Artist Selection - new routes
+  get "artist_selections", to: "artist_selections#index", as: :artist_selections
+  post "artist_selections/:id/select", to: "artist_selections#select", as: :select_artist
 
   # Static pages
   root "pages#home"
