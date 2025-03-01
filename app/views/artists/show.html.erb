@@ -25,7 +25,7 @@
           <p class="text-sm text-gray-500">Energy</p>
           <div class="flex items-center gap-2">
             <div class="w-full h-2 rounded-full bg-gray-100">
-              <div class="h-full rounded-full bg-blue-500" style="width: <%= @artist.energy %>%;"></div>
+              <div class="h-full rounded-full bg-blue-500" style="width: <%= [@artist.energy, 100].min %>%;"></div>
             </div>
             <span class="text-sm font-medium"><%= @artist.energy %></span>
           </div>

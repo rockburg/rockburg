@@ -241,6 +241,11 @@ class Artist < ApplicationRecord
     performances.successful.sum(:net_revenue)
   end
 
+  def energy=(value)
+    capped_value = [ value.to_i, max_energy.to_i, 100 ].compact.min
+    super(capped_value)
+  end
+
   private
 
   # Custom validation to ensure energy doesn't exceed max_energy
