@@ -1,5 +1,6 @@
 module Admin
-  class VenuesController < Admin::ApplicationController
+  class VenuesController < ApplicationController
+    include AdminAuthentication
     before_action :set_venue, only: [ :show, :edit, :update, :destroy ]
 
     def index
