@@ -1,7 +1,7 @@
 ---
 description: The tone of the game and copy
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 # MUSIC INDUSTRY TYCOON: TONE DOCUMENT
 

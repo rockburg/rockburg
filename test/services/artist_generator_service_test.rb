@@ -355,4 +355,49 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     assert_equal "First indie band with no user.", artists[0].background
     assert_equal "Second indie band with no user.", artists[1].background
   end
+
+  test "initializes skill based on talent" do
+    # Mock artist data with different talent levels
+    talent_levels = [ 20, 50, 80 ]
+
+    talent_levels.each do |talent|
+      mock_artist_data = {
+        "name" => "Talent Test Band",
+        "genre" => "Rock",
+        "energy" => 75,
+        "talent" => talent,
+        "traits" => {
+          "charisma" => 70,
+          "creativity" => 80,
+          "resilience" => 60,
+          "discipline" => 55
+        },
+        "background" => "A band testing talent-to-skill conversion."
+      }
+
+      # Stub the fetch_artist_data method to return our mock data
+      ArtistGeneratorService.any_instance.stubs(:fetch_artist_data).returns(mock_artist_data)
+
+      # Call the service
+      artist = ArtistGeneratorService.generate(nil)
+
+      # Assert that skill was initialized appropriately
+      assert artist.skill > 0, "Skill should be greater than 0"
+
+      # Calculate expected minimum and maximum skill based on our updated formula
+      # Our new formula is more complex, with talent (50%), discipline (20%), creativity (20%), and random (10%)
+      min_expected_skill = (talent * 0.5).to_i + (55 * 0.2).to_i + (80 * 0.2).to_i + 1
+
+      # The max possible is capped by talent tier in our implementation
+      max_expected_skill = case
+      when talent > 80 then 80
+      when talent > 60 then 70
+      when talent > 40 then 60
+      else 50
+      end
+
+      assert artist.skill >= min_expected_skill, "Skill should be at least #{min_expected_skill} for talent #{talent}"
+      assert artist.skill <= max_expected_skill, "Skill should be at most #{max_expected_skill} for talent #{talent}"
+    end
+  end
 end

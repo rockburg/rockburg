@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_173000) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_01_174510) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -35,6 +35,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_173000) do
     t.decimal "signing_cost", precision: 10, scale: 2, default: "0.0", null: false
     t.decimal "revenue", precision: 10, scale: 2, default: "0.0", null: false
     t.integer "required_level", default: 1, null: false
+    t.integer "max_energy", default: 100, null: false
     t.index ["cost"], name: "index_artists_on_cost"
     t.index ["manager_id"], name: "index_artists_on_manager_id"
     t.index ["name"], name: "index_artists_on_name"

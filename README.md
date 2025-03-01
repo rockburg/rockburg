@@ -64,6 +64,46 @@ The game uses OpenAI's API to generate realistic artist profiles. Artists are ge
 
 The generation process runs in the background using Sidekiq to avoid blocking the UI.
 
+## Development Tools
+
+### Rake Tasks
+
+This project includes several rake tasks to help with development:
+
+#### Reset Game State
+
+For development and testing, you can reset the entire game state:
+
+```
+# Reset with default number of artists (50)
+bundle exec rake dev:reset
+
+# Reset with custom number of artists
+ARTIST_COUNT=100 bundle exec rake dev:reset
+```
+
+This task:
+- Deactivates all existing seasons
+- Resets all managers to their initial state (Level 1, $1000, 0 XP)
+- Clears all scheduled actions and transactions
+- Removes all existing artists
+- Creates a new active season
+- Generates new artists in the background
+
+#### Regenerate Artists
+
+To regenerate artists without resetting the entire game state:
+
+```
+# Regenerate default number of artists (50)
+bundle exec rake dev:regenerate_artists
+
+# Regenerate custom number of artists
+COUNT=100 bundle exec rake dev:regenerate_artists
+```
+
+See `lib/tasks/README.md` for more details on available rake tasks.
+
 ## Testing
 
 This project follows Test-Driven Development (TDD) principles. Run the tests with:

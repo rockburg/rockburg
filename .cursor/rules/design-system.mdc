@@ -1,7 +1,7 @@
 ---
 description: UI classes and styling
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 <!DOCTYPE html>
 <html lang="en">

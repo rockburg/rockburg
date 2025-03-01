@@ -8,10 +8,12 @@ class Artist < ApplicationRecord
 
   validates :name, presence: true
   validates :genre, presence: true
-  validates :energy, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+  validates :energy, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :talent, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   validates :required_level, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :signing_cost, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :max_energy, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 100 }
+  validate :energy_cannot_exceed_max_energy
 
   # Default values for new records
   attribute :skill, :integer, default: 0
@@ -27,12 +29,17 @@ class Artist < ApplicationRecord
   # Calculate signing cost based on talent and required level
   def calculate_signing_cost
     return if signing_cost.present? && signing_cost > 0
+    return self.signing_cost = 1000 if talent.nil? || required_level.nil?
 
     base_cost = 1000
     talent_multiplier = (talent / 10.0) + 0.5
     level_multiplier = required_level * 0.5
 
     self.signing_cost = (base_cost * talent_multiplier * level_multiplier).round(2)
+  rescue => e
+    # If there's an error in the calculation, set a default value
+    Rails.logger.error("Error calculating signing cost: #{e.message}")
+    self.signing_cost = 1000
   end
 
   # Check if artist is signed
@@ -180,6 +187,15 @@ class Artist < ApplicationRecord
 
   private
 
+  # Custom validation to ensure energy doesn't exceed max_energy
+  def energy_cannot_exceed_max_energy
+    return unless energy.present? && max_energy.present?
+
+    if energy > max_energy
+      errors.add(:energy, "cannot exceed max_energy (#{max_energy})")
+    end
+  end
+
   # Practice: increases skill, decreases energy
   def practice!
     return false if energy < 10
@@ -245,8 +261,8 @@ class Artist < ApplicationRecord
       energy_gain += (traits["resilience"] / 20.0).ceil
     end
 
-    # Cap energy at 100
-    self.energy = [ energy + energy_gain, 100 ].min
+    # Cap energy at max_energy
+    self.energy = [ energy + energy_gain, max_energy ].min
     save
   end
 end
