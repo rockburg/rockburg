@@ -7,8 +7,7 @@
       </p>
       <div class="mt-10 flex items-center justify-center gap-x-6">
         <% if Current.user %>
-          <%= link_to "My Artists", artists_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
-          <%= link_to "Create New Artist", new_artist_path, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+          <%= link_to "Dashboard", dashboard_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
         <% else %>
           <%= link_to "Sign In", new_session_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
           <%= link_to "Sign Up", new_registration_path, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
