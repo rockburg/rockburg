@@ -3,11 +3,11 @@ namespace :dev do
   task reset: :environment do
     puts "Resetting game state..."
 
-    # Get artist count from environment or default to 50
-    artist_count = ENV.fetch("ARTIST_COUNT", "50").to_i
+    # Get artist count from environment or default to 250
+    artist_count = ENV.fetch("ARTIST_COUNT", "250").to_i
 
-    # Get venue count from environment or default to 25
-    venue_count = ENV.fetch("VENUE_COUNT", "25").to_i
+    # Get venue count from environment or default to 50
+    venue_count = ENV.fetch("VENUE_COUNT", "50").to_i
 
     # Always ensure diversity in artist traits and costs
     puts "Generating artists with wide diversity in traits and costs"
