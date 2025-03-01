@@ -32,7 +32,9 @@ class ArtistSelectionsController < ApplicationController
   end
 
   def select
-    artist = Artist.find(params[:id])
+    artist = Artist.find_by_nano_id(params[:id])
+
+    raise ActiveRecord::RecordNotFound, "Couldn't find Artist with nano_id=#{params[:id]}" unless artist
 
     if artist.manager.present?
       redirect_to artists_path, alert: "This artist has already been signed."
