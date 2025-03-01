@@ -1,4 +1,4 @@
-<div class="max-w-6xl mx-auto p-6">
+<div class="max-w-6xl mx-auto p-6" data-controller="artist-filter">
   <h1 class="text-3xl font-bold mb-6">Select an Artist</h1>
   
   <div class="mb-6">
@@ -17,6 +17,61 @@
     </div>
   </div>
   
+  <form data-artist-filter-target="filterForm" action="<%= artist_selections_path %>" method="get" class="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
+    <h3 class="text-lg font-bold mb-4">Filter Artists</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Genre</label>
+        <input 
+          type="text" 
+          name="genre" 
+          placeholder="Search genres like 'rock', 'pop', etc..." 
+          data-artist-filter-target="genreInput"
+          class="w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+          value="<%= params[:genre] %>"
+        >
+        <p class="mt-1 text-xs text-gray-500">Finds all genres containing your search term</p>
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700">Sort By</label>
+        <select 
+          name="sort" 
+          class="w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+        >
+          <option value="">No Sorting</option>
+          <option value="cost" <%= 'selected' if params[:sort] == 'cost' %>>Cost (Low to High)</option>
+          <option value="level" <%= 'selected' if params[:sort] == 'level' %>>Level (Low to High)</option>
+          <option value="talent" <%= 'selected' if params[:sort] == 'talent' %>>Talent (High to Low)</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col justify-end">
+        <div class="space-y-3">
+          <label class="flex items-center">
+            <input 
+              type="checkbox" 
+              name="affordable" 
+              class="h-4 w-4 rounded border-gray-300 text-purple-500 focus:ring-purple-500 mr-2"
+              <%= 'checked' if params[:affordable].present? %>
+            >
+            <span class="text-sm text-gray-700">Show Only Affordable</span>
+          </label>
+
+          <label class="flex items-center">
+            <input 
+              type="checkbox" 
+              name="eligible" 
+              class="h-4 w-4 rounded border-gray-300 text-purple-500 focus:ring-purple-500 mr-2"
+              <%= 'checked' if params[:eligible].present? %>
+            >
+            <span class="text-sm text-gray-700">Show Only Eligible for My Level</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </form>
+  
   <% if @artists.empty? %>
     <div class="rounded-lg bg-blue-50 p-4">
       <div class="flex">
@@ -31,81 +86,8 @@
       </div>
     </div>
   <% else %>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% @artists.each do |artist| %>
-        <% 
-          manager = Current.user.ensure_manager
-          can_afford = artist.affordable_for?(manager)
-          meets_level = artist.eligible_for?(manager)
-          can_sign = can_afford && meets_level
-        %>
-        <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md relative">
-          <h3 class="font-bold text-lg"><%= artist.name %></h3>
-          <p class="text-sm text-gray-500 mb-2"><%= artist.genre %></p>
-          
-          <% if artist.background.present? %>
-            <div class="text-sm text-gray-700 mb-3 italic">
-              "<%= artist.background %>"
-            </div>
-          <% end %>
-          
-          <div class="mt-4 space-y-2">
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-500">Talent</span>
-              <span><%= artist.talent %>/100</span>
-            </div>
-            <div class="h-2 rounded-full bg-gray-100">
-              <div class="h-full rounded-full bg-purple-500" style="width: <%= artist.talent %>%;"></div>
-            </div>
-            
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-500">Energy</span>
-              <span><%= artist.energy %>/100</span>
-            </div>
-            <div class="h-2 rounded-full bg-gray-100">
-              <div class="h-full rounded-full bg-blue-500" style="width: <%= artist.energy %>%;"></div>
-            </div>
-          </div>
-          
-          <div class="mt-3">
-            <h4 class="font-medium text-sm mb-2">Traits:</h4>
-            <div class="grid grid-cols-2 gap-2">
-              <% if artist.traits.present? %>
-                <% artist.traits.each do |trait_name, trait_value| %>
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs text-gray-500 capitalize"><%= trait_name %></span>
-                    <span class="text-xs font-medium"><%= trait_value %></span>
-                  </div>
-                <% end %>
-              <% else %>
-                <p class="text-xs text-gray-500 col-span-2">No known traits</p>
-              <% end %>
-            </div>
-          </div>
-          
-          <div class="mt-4 border-t pt-4">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-sm font-medium">Signing Cost:</span>
-              <span class="text-sm font-bold <%= can_afford ? 'text-green-600' : 'text-red-600' %>">
-                <%= number_to_currency(artist.signing_cost) %>
-              </span>
-            </div>
-            <div class="flex justify-between items-center mb-4">
-              <span class="text-sm font-medium">Required Level:</span>
-              <span class="text-sm font-bold <%= meets_level ? 'text-green-600' : 'text-red-600' %>">
-                <%= artist.required_level %>
-              </span>
-            </div>
-          </div>
-          
-          <div class="mt-2 flex justify-end">
-            <%= button_to "Sign Artist", select_artist_path(artist), method: :post, 
-                class: "rounded-lg #{can_sign ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-gray-300 cursor-not-allowed'} px-4 py-2 text-sm font-medium text-white transition-all hover:opacity-90",
-                disabled: !can_sign,
-                title: !can_sign ? (can_afford ? "Your level is too low" : "You can't afford this artist") : nil %>
-          </div>
-        </div>
-      <% end %>
+    <div id="artist-filter-artistList" data-artist-filter-target="artistList">
+      <%= render partial: "artists", locals: { artists: @artists } %>
     </div>
   <% end %>
 </div> 

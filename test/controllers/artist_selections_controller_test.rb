@@ -54,4 +54,44 @@ class ArtistSelectionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to artists_path
     assert_match "already been signed", flash[:alert]
   end
+
+  test "should filter artists by affordability" do
+    get artist_selections_url, params: { affordable: true }
+    assert_response :success
+    assert assigns(:artists).all? { |artist| artist.affordable_for?(@user.manager) }
+  end
+
+  test "should filter artists by eligibility level" do
+    get artist_selections_url, params: { eligible: true }
+    assert_response :success
+    assert assigns(:artists).all? { |artist| artist.eligible_for?(@user.manager) }
+  end
+
+  test "should filter artists by genre" do
+    genre = "Rock"
+    get artist_selections_url, params: { genre: genre }
+    assert_response :success
+    assert assigns(:artists).all? { |artist| artist.genre == genre }
+  end
+
+  test "should sort artists by cost" do
+    get artist_selections_url, params: { sort: "cost" }
+    assert_response :success
+    sorted_artists = assigns(:artists).sort_by(&:signing_cost)
+    assert_equal sorted_artists, assigns(:artists)
+  end
+
+  test "should sort artists by level" do
+    get artist_selections_url, params: { sort: "level" }
+    assert_response :success
+    sorted_artists = assigns(:artists).sort_by(&:required_level)
+    assert_equal sorted_artists, assigns(:artists)
+  end
+
+  test "should sort artists by talent" do
+    get artist_selections_url, params: { sort: "talent" }
+    assert_response :success
+    sorted_artists = assigns(:artists).sort_by(&:talent).reverse
+    assert_equal sorted_artists, assigns(:artists)
+  end
 end

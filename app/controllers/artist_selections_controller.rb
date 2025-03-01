@@ -1,41 +1,44 @@
 class ArtistSelectionsController < ApplicationController
   include ActionView::Helpers::NumberHelper
+  before_action :require_current_user
 
   def index
-    # Ensure there are artists available for selection
-    # ArtistPoolService.ensure_minimum_artists_available
+    @artists = Artist.all
 
-    # Get unassigned artists (artists not belonging to any manager)
-    @artists = Artist.where(manager_id: nil).order(created_at: :desc).limit(30)
+    if params[:affordable].present?
+      @artists = @artists.select { |artist| artist.affordable_for?(Current.user.manager) }
+    end
+
+    if params[:eligible].present?
+      @artists = @artists.select { |artist| artist.eligible_for?(Current.user.manager) }
+    end
+
+    if params[:genre].present?
+      # Use case-insensitive partial matching for genre search
+      # This will match any genre that contains the search term
+      # e.g., "rock" will match "Indie Rock", "Rock and Roll", "Garage Rock", etc.
+      genre_query = params[:genre].downcase
+      @artists = @artists.select { |artist| artist.genre.downcase.include?(genre_query) }
+    end
+
+    case params[:sort]
+    when "cost"
+      @artists = @artists.sort_by(&:signing_cost)
+    when "level"
+      @artists = @artists.sort_by(&:required_level)
+    when "talent"
+      @artists = @artists.sort_by(&:talent).reverse
+    end
   end
 
   def select
-    @artist = find_resource(Artist)
-    @manager = Current.user.ensure_manager
+    artist = Artist.find(params[:id])
 
-    # Check if artist is already signed
-    if @artist.signed?
-      redirect_to artists_path, alert: "This artist has already been signed by another manager."
-      return
-    end
-
-    # Check if manager meets level requirements
-    unless @artist.eligible_for?(@manager)
-      redirect_to artists_path, alert: "Your manager level is too low to sign this artist. You need to be level #{@artist.required_level} or higher."
-      return
-    end
-
-    # Check if manager can afford the signing cost
-    unless @artist.affordable_for?(@manager)
-      redirect_to artists_path, alert: "You don't have enough funds to sign this artist. You need #{number_to_currency(@artist.signing_cost)}."
-      return
-    end
-
-    # Sign the artist using the manager's sign_artist method
-    if @manager.sign_artist(@artist)
-      redirect_to artist_path(@artist), notice: "You've successfully signed #{@artist.name} to your label for #{number_to_currency(@artist.signing_cost)}!"
+    if artist.manager.present?
+      redirect_to artists_path, alert: "This artist has already been signed."
     else
-      redirect_to artists_path, alert: "There was an error signing this artist. Please try again."
+      artist.update!(manager: Current.user.manager)
+      redirect_to artist_path(artist), notice: "Artist successfully signed!"
     end
   end
 end
