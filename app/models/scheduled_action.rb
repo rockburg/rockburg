@@ -1,4 +1,6 @@
 class ScheduledAction < ApplicationRecord
+  include HasNanoId
+
   belongs_to :artist
 
   validates :activity_type, presence: true, inclusion: { in: Artist::VALID_ACTIVITIES }

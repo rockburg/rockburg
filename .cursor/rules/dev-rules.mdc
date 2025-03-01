@@ -16,3 +16,5 @@ alwaysApply: true
 - Write and run tests as you go to verify functionality in small pieces
 - Focus on simple solutions
 - Use `gpt-4o-mini` model from OpenAI unless otherwise noted.
+- Don't use `cat` in terminal commands
+- Use nano id's for all models

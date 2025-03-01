@@ -60,7 +60,7 @@ class Admin::SeasonsController < ApplicationController
   private
 
   def set_season
-    @season = Season.find(params[:id])
+    @season = find_resource(Season)
   end
 
   def process_artist_count

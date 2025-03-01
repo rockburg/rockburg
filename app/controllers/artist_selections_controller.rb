@@ -8,7 +8,7 @@ class ArtistSelectionsController < ApplicationController
   end
 
   def select
-    @artist = Artist.find(params[:id])
+    @artist = find_resource(Artist)
 
     if @artist.user.present?
       redirect_to artists_path, alert: "This artist has already been selected by another player."

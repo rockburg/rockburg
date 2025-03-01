@@ -1,4 +1,6 @@
 class Artist < ApplicationRecord
+  include HasNanoId
+
   belongs_to :user, optional: true
   has_many :scheduled_actions, dependent: :destroy
 

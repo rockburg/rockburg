@@ -1,4 +1,6 @@
 class Season < ApplicationRecord
+  include HasNanoId
+
   # Validations
   validates :name, presence: true
   validate :only_one_active_season, if: :active?
