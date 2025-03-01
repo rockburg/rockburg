@@ -1,4 +1,6 @@
 class ArtistSelectionsController < ApplicationController
+  include ActionView::Helpers::NumberHelper
+
   def index
     # Ensure there are artists available for selection
     # ArtistPoolService.ensure_minimum_artists_available
