@@ -1,5 +1,6 @@
 class Manager < ApplicationRecord
   include HasNanoId
+  include HasGeneratedName
 
   belongs_to :user
   has_many :artists, dependent: :nullify
@@ -9,6 +10,7 @@ class Manager < ApplicationRecord
   validates :level, presence: true, numericality: { greater_than_or_equal_to: 1 }
   validates :xp, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :skill_points, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :name, presence: true, on: :update
 
   # XP required for each level
   LEVEL_XP_REQUIREMENTS = {

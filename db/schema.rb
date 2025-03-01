@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_214042) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_01_235110) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,6 +56,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_214042) do
     t.string "nano_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "name"
     t.index ["budget"], name: "index_managers_on_budget"
     t.index ["level"], name: "index_managers_on_level"
     t.index ["nano_id"], name: "index_managers_on_nano_id", unique: true

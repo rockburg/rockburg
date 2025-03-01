@@ -55,4 +55,19 @@ class ManagerTest < ActiveSupport::TestCase
     artist.reload
     assert_equal manager, artist.manager
   end
+
+  test "should generate a name on creation" do
+    user = users(:one)
+    manager = user.create_manager(
+      budget: 1000.00,
+      level: 1,
+      xp: 0,
+      skill_points: 0,
+      traits: {},
+      nano_id: SecureRandom.alphanumeric(10)
+    )
+
+    assert_not_nil manager.name
+    assert_match(/\A[\w']+ [\w']+\z/, manager.name)
+  end
 end
