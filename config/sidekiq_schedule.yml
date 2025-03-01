@@ -2,4 +2,10 @@ maintain_artist_pool:
   cron: '0 */4 * * *' # Run every 4 hours
   class: MaintainArtistPoolJob
   queue: default
-  description: "Ensures there are enough artists available in the selection pool" 
+  description: "Ensures there are enough artists available in the selection pool"
+
+check_expired_artist_actions:
+  cron: '*/5 * * * *' # Run every 5 minutes
+  class: CheckExpiredArtistActionsJob
+  queue: default
+  description: "Checks for any artist actions that may have expired but weren't completed" 

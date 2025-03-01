@@ -1,5 +1,6 @@
 class Artist < ApplicationRecord
   belongs_to :user, optional: true
+  has_many :scheduled_actions, dependent: :destroy
 
   validates :name, presence: true
   validates :genre, presence: true
@@ -16,14 +17,129 @@ class Artist < ApplicationRecord
   # List of valid activities
   VALID_ACTIVITIES = %w[practice record promote rest].freeze
 
-  # Perform an activity and update artist attributes
-  def perform_activity!(activity)
+  # Activity durations in minutes
+  ACTIVITY_DURATIONS = {
+    "practice" => 30,  # 30 minutes
+    "record" => 60,    # 1 hour
+    "promote" => 45,   # 45 minutes
+    "rest" => 20       # 20 minutes
+  }.freeze
+
+  # Check if artist is currently busy with an action
+  def busy?
+    current_action.present? && action_ends_at.present? && action_ends_at > Time.current
+  end
+
+  # Returns the time remaining for the current action in seconds
+  def time_remaining
+    return 0 unless busy?
+
+    (action_ends_at - Time.current).to_i
+  end
+
+  # Returns a formatted string of time remaining (e.g., "15m 30s")
+  def formatted_time_remaining
+    seconds = time_remaining
+    return "Completed" if seconds <= 0
+
+    minutes = seconds / 60
+    remaining_seconds = seconds % 60
+
+    if minutes > 0
+      "#{minutes}m #{remaining_seconds}s"
+    else
+      "#{remaining_seconds}s"
+    end
+  end
+
+  # Returns progress percentage for the current action
+  def action_progress_percentage
+    return 0 unless busy?
+    return 100 if time_remaining <= 0
+
+    total_duration = ACTIVITY_DURATIONS[current_action] * 60
+    elapsed = total_duration - time_remaining
+    (elapsed.to_f / total_duration * 100).to_i
+  end
+
+  # Start a new activity for the artist
+  def start_activity!(activity)
     unless VALID_ACTIVITIES.include?(activity)
       raise ArgumentError, "Invalid activity: #{activity}. Valid activities are: #{VALID_ACTIVITIES.join(', ')}"
     end
 
-    # Call the appropriate method based on the activity
-    send("#{activity}!")
+    # Check if the artist is already busy
+    if busy?
+      return false
+    end
+
+    # Check energy requirements
+    energy_required = case activity
+    when "practice" then 10
+    when "record" then 15
+    when "promote" then 20
+    when "rest" then 0
+    end
+
+    return false if energy < energy_required
+
+    # Set action timing
+    duration_minutes = ACTIVITY_DURATIONS[activity]
+    self.current_action = activity
+    self.action_started_at = Time.current
+    self.action_ends_at = Time.current + duration_minutes.minutes
+
+    # Schedule the completion job
+    CompleteArtistActionJob.set(wait: duration_minutes.minutes).perform_later(id)
+
+    save
+  end
+
+  # Alias for backward compatibility with tests
+  alias perform_activity! start_activity!
+
+  # Complete the current activity and apply its effects
+  def complete_activity!
+    return false unless current_action.present?
+
+    # Apply the effects of the action
+    activity_result = send("#{current_action}!")
+
+    # Clear the action status
+    self.current_action = nil
+    self.action_started_at = nil
+    self.action_ends_at = nil
+    save
+
+    activity_result
+  end
+
+  # Schedule an activity to start at a future time
+  def schedule_activity!(activity, start_time)
+    unless VALID_ACTIVITIES.include?(activity)
+      raise ArgumentError, "Invalid activity: #{activity}. Valid activities are: #{VALID_ACTIVITIES.join(', ')}"
+    end
+
+    scheduled_action = scheduled_actions.create!(
+      activity_type: activity,
+      start_at: start_time
+    )
+
+    # Schedule the job to start this activity
+    StartScheduledActionJob.set(wait_until: start_time).perform_later(scheduled_action.id)
+
+    scheduled_action
+  end
+
+  # Cancel a scheduled action
+  def cancel_scheduled_action!(scheduled_action_id)
+    action = scheduled_actions.find(scheduled_action_id)
+    action.destroy
+  end
+
+  # Get upcoming scheduled actions
+  def upcoming_scheduled_actions
+    scheduled_actions.upcoming
   end
 
   private

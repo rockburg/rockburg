@@ -29,9 +29,12 @@ Rails.application.routes.draw do
   end
 
   # Artists
-  resources :artists do
+  resources :artists, except: [ :edit, :update, :destroy ] do
     member do
       post :perform_activity
+      post :cancel_activity
+      post :schedule_activity
+      delete :cancel_scheduled_activity
     end
   end
 

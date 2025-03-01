@@ -126,6 +126,8 @@ class ArtistTest < ActiveSupport::TestCase
     original_energy = artist.energy
 
     artist.perform_activity!("practice")
+    # Manually complete the activity for testing
+    artist.complete_activity!
 
     assert artist.skill > original_skill, "Practice should increase skill"
     assert artist.energy < original_energy, "Practice should decrease energy"
@@ -136,6 +138,8 @@ class ArtistTest < ActiveSupport::TestCase
     original_energy = artist.energy
 
     artist.perform_activity!("record")
+    # Manually complete the activity for testing
+    artist.complete_activity!
 
     assert artist.energy < original_energy, "Recording should decrease energy"
   end
@@ -146,6 +150,8 @@ class ArtistTest < ActiveSupport::TestCase
     original_energy = artist.energy
 
     artist.perform_activity!("promote")
+    # Manually complete the activity for testing
+    artist.complete_activity!
 
     assert artist.popularity > original_popularity, "Promotion should increase popularity"
     assert artist.energy < original_energy, "Promotion should decrease energy"
@@ -159,6 +165,8 @@ class ArtistTest < ActiveSupport::TestCase
     original_energy = artist.energy
 
     artist.perform_activity!("rest")
+    # Manually complete the activity for testing
+    artist.complete_activity!
 
     assert artist.energy > original_energy, "Rest should increase energy"
   end
@@ -179,6 +187,9 @@ class ArtistTest < ActiveSupport::TestCase
 
     # Rest should still work
     assert artist.perform_activity!("rest"), "Rest should work even with low energy"
+    # Manually complete the activity for testing
+    artist.complete_activity!
+
     assert artist.energy > 5, "Energy should increase after rest"
   end
 
@@ -188,5 +199,51 @@ class ArtistTest < ActiveSupport::TestCase
     assert_raises ArgumentError do
       artist.perform_activity!("invalid_activity")
     end
+  end
+
+  setup do
+    @artist = Artist.create!(
+      name: "Test Artist",
+      genre: "Rock",
+      energy: 100,
+      talent: 70
+    )
+  end
+
+  test "can schedule a future action" do
+    # Current functionality doesn't support scheduling
+    # This test should fail initially (RED)
+    start_time = 2.hours.from_now
+
+    assert_changes -> { @artist.scheduled_actions.count }, from: 0, to: 1 do
+      @artist.schedule_activity!("practice", start_time)
+    end
+
+    scheduled = @artist.scheduled_actions.last
+    assert_equal "practice", scheduled.activity_type
+    assert_equal start_time.to_i, scheduled.start_at.to_i
+  end
+
+  test "scheduled actions don't make artist busy" do
+    @artist.schedule_activity!("record", 3.hours.from_now)
+    assert_not @artist.busy?, "Artist shouldn't be busy when action is only scheduled"
+  end
+
+  test "can cancel a scheduled action" do
+    @artist.schedule_activity!("practice", 2.hours.from_now)
+    scheduled_id = @artist.scheduled_actions.last.id
+
+    assert_changes -> { @artist.scheduled_actions.count }, from: 1, to: 0 do
+      @artist.cancel_scheduled_action!(scheduled_id)
+    end
+  end
+
+  test "can view upcoming scheduled actions" do
+    @artist.schedule_activity!("practice", 2.hours.from_now)
+    @artist.schedule_activity!("record", 4.hours.from_now)
+
+    upcoming = @artist.upcoming_scheduled_actions
+    assert_equal 2, upcoming.count
+    assert_equal "practice", upcoming.first.activity_type
   end
 end

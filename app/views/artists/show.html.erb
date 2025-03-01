@@ -1,6 +1,9 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-  <div class="md:col-span-2">
-    <h1 class="text-3xl font-bold mb-6"><%= @artist.name %></h1>
+  <div class="md:col-span-3">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold"><%= @artist.name %></h1>
+      <%= link_to "Back to Artists", artists_path, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+    </div>
     
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm mb-6">
       <h2 class="text-xl font-bold mb-4">Artist Stats</h2>
@@ -58,26 +61,51 @@
       </div>
     <% end %>
     
+    <% if @artist.busy? %>
+      <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm mb-6">
+        <h2 class="text-xl font-bold mb-4">Current Activity</h2>
+        <div class="mb-4">
+          <p class="text-sm text-gray-500">Action</p>
+          <p class="font-medium capitalize"><%= @artist.current_action %></p>
+        </div>
+        
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm text-gray-500">Progress</p>
+            <p class="text-sm font-medium"><%= @artist.formatted_time_remaining %> remaining</p>
+          </div>
+          <div class="w-full h-4 rounded-full bg-gray-100 overflow-hidden">
+            <div class="h-full rounded-full bg-indigo-500 transition-all" style="width: <%= @artist.action_progress_percentage %>%;"></div>
+          </div>
+        </div>
+        
+        <%= button_to "Cancel Activity", cancel_activity_artist_path(@artist), method: :post, class: "rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 transition-all hover:bg-red-200" %>
+      </div>
+    <% end %>
+    
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
       <h2 class="text-xl font-bold mb-4">Daily Actions</h2>
-      <p class="text-gray-600 mb-4">Choose one action for your artist to perform today:</p>
+      <p class="text-gray-600 mb-4">Choose one action for your artist to perform:</p>
       
-      <div class="flex flex-wrap gap-3">
-        <%= button_to "Practice", perform_activity_artist_path(@artist, activity: "practice"), method: :post, class: "rounded-lg bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700 transition-all hover:bg-purple-200" %>
-        <%= button_to "Record", perform_activity_artist_path(@artist, activity: "record"), method: :post, class: "rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition-all hover:bg-green-200" %>
-        <%= button_to "Promote", perform_activity_artist_path(@artist, activity: "promote"), method: :post, class: "rounded-lg bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 transition-all hover:bg-blue-200" %>
-        <%= button_to "Rest", perform_activity_artist_path(@artist, activity: "rest"), method: :post, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50" %>
-      </div>
-    </div>
-  </div>
-  
-  <div class="md:col-span-1">
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-      <h2 class="text-xl font-bold mb-4">Actions</h2>
-      <div class="space-y-3">
-        <%= link_to "Edit Artist", edit_artist_path(@artist), class: "block w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-center font-medium text-gray-700 transition-all hover:bg-gray-50" %>
-        <%= link_to "Back to Artists", artists_path, class: "block w-full rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 text-center font-medium text-white transition-all hover:opacity-90" %>
-      </div>
+      <% if @artist.busy? %>
+        <p class="text-amber-700 mb-4">Your artist is currently busy. Please wait until they finish their current activity or cancel it.</p>
+      <% else %>
+        <div class="flex flex-wrap gap-3">
+          <%= button_to "Practice (30m)", perform_activity_artist_path(@artist, activity: "practice"), method: :post, class: "rounded-lg bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700 transition-all hover:bg-purple-200" %>
+          <%= button_to "Record (1h)", perform_activity_artist_path(@artist, activity: "record"), method: :post, class: "rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition-all hover:bg-green-200" %>
+          <%= button_to "Promote (45m)", perform_activity_artist_path(@artist, activity: "promote"), method: :post, class: "rounded-lg bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 transition-all hover:bg-blue-200" %>
+          <%= button_to "Rest (20m)", perform_activity_artist_path(@artist, activity: "rest"), method: :post, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
+
+<% if @artist.busy? %>
+  <script>
+    // Auto-refresh the page every 5 seconds when an action is in progress
+    setTimeout(function() {
+      location.reload();
+    }, 5000);
+  </script>
+<% end %>

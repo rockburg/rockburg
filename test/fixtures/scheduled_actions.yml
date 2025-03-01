@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  activity_type: MyString
+  start_at: 2025-03-01 11:07:52
+  artist: one
+
+two:
+  activity_type: MyString
+  start_at: 2025-03-01 11:07:52
+  artist: two

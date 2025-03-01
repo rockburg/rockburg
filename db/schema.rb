@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_145903) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_01_160752) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,10 +26,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_145903) do
     t.datetime "updated_at", null: false
     t.jsonb "traits", default: {}, null: false
     t.text "background"
+    t.string "current_action"
+    t.datetime "action_started_at"
+    t.datetime "action_ends_at"
     t.index ["name"], name: "index_artists_on_name"
     t.index ["popularity"], name: "index_artists_on_popularity"
     t.index ["traits"], name: "index_artists_on_traits", using: :gin
     t.index ["user_id"], name: "index_artists_on_user_id"
+  end
+
+  create_table "scheduled_actions", force: :cascade do |t|
+    t.string "activity_type"
+    t.datetime "start_at"
+    t.bigint "artist_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artist_id"], name: "index_scheduled_actions_on_artist_id"
   end
 
   create_table "seasons", force: :cascade do |t|
@@ -65,5 +77,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_145903) do
   end
 
   add_foreign_key "artists", "users"
+  add_foreign_key "scheduled_actions", "artists"
   add_foreign_key "sessions", "users"
 end

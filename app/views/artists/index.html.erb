@@ -20,7 +20,13 @@
 <% else %>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <% @artists.each do |artist| %>
-      <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+      <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md relative">
+        <% if artist.busy? %>
+          <div class="absolute top-3 right-3 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+            <%= artist.current_action.capitalize %> (<%= artist.formatted_time_remaining %>)
+          </div>
+        <% end %>
+        
         <h3 class="font-bold"><%= artist.name %></h3>
         <p class="text-sm text-gray-500"><%= artist.genre %></p>
         
@@ -50,12 +56,19 @@
           </div>
         </div>
         
-        <div class="mt-6 flex gap-2">
+        <div class="mt-6">
           <%= link_to "View", artist, class: "rounded-lg bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 transition-all hover:bg-purple-200" %>
-          <%= link_to "Edit", edit_artist_path(artist), class: "rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50" %>
-          <%= link_to "Delete", artist, method: :delete, data: { confirm: "Are you sure?" }, class: "rounded-lg bg-red-100 px-3 py-1 text-sm font-medium text-red-700 transition-all hover:bg-red-200" %>
         </div>
       </div>
     <% end %>
   </div>
+<% end %>
+
+<% if @artists.any? { |artist| artist.busy? } %>
+  <script>
+    // Auto-refresh the page every 10 seconds if any artist is busy
+    setTimeout(function() {
+      location.reload();
+    }, 10000);
+  </script>
 <% end %>
