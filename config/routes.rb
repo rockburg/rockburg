@@ -16,6 +16,10 @@ Rails.application.routes.draw do
   get "privacy" => "pages#privacy"
   get "terms" => "pages#terms"
 
+  # Dashboard
+  get "dashboard" => "dashboard#index", as: :dashboard
+  post "dashboard/recalculate_venue_stats" => "dashboard#recalculate_venue_stats", as: :recalculate_venue_stats
+
   # Authentication
   resource :session
   resource :registration

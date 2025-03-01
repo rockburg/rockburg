@@ -1,10 +1,9 @@
 class DashboardController < ApplicationController
-  before_action :authenticate_manager!
+  include ManagerAuthentication
   before_action :check_for_season
 
   def index
     @artists = current_manager.artists.order("name ASC")
-    @bands = current_manager.bands.order("name ASC")
 
     # Get upcoming performances for the manager's artists
     @upcoming_performances = current_manager.upcoming_performances.limit(5)
