@@ -22,3 +22,4 @@ alwaysApply: true
 - Don't use `:authenticate_user!`, instead use `:require_current_user` and/or `:require_current_manager`
 - Don't use `current_user`, instead use `Current.user`
 - Don't use `current_manager`, instead use `Current.manager`
+- Keep commit messages short
