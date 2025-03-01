@@ -4,9 +4,11 @@ export default class extends Controller {
   static targets = ["filterForm", "artistList", "genreInput"]
 
   connect() {
-    this.filterFormTarget.querySelectorAll("select, input[type='checkbox']").forEach(element => {
-      element.addEventListener("change", () => this.updateArtists())
-    })
+    if (this.hasFilterFormTarget) {
+      this.filterFormTarget.querySelectorAll("select, input[type='checkbox']").forEach(element => {
+        element.addEventListener("change", () => this.updateArtists())
+      })
+    }
     
     // Add debounce for genre search input
     if (this.hasGenreInputTarget) {
@@ -17,6 +19,8 @@ export default class extends Controller {
   }
 
   updateArtists() {
+    if (!this.hasFilterFormTarget) return;
+    
     const url = new URL(window.location.href)
     const formData = new FormData(this.filterFormTarget)
     
@@ -36,7 +40,11 @@ export default class extends Controller {
     })
     .then(response => response.text())
     .then(html => {
-      Turbo.renderStreamMessage(html)
+      if (typeof Turbo !== 'undefined') {
+        Turbo.renderStreamMessage(html)
+      } else {
+        console.error("Turbo is not defined")
+      }
     })
     .catch(error => console.error("Error fetching artists:", error))
   }
