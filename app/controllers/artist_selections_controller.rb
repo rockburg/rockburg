@@ -11,7 +11,7 @@ class ArtistSelectionsController < ApplicationController
 
   def select
     @artist = find_resource(Artist)
-    @manager = Current.user.manager
+    @manager = Current.user.ensure_manager
 
     # Check if artist is already signed
     if @artist.signed?

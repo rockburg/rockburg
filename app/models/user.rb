@@ -6,6 +6,8 @@ class User < ApplicationRecord
   has_many :artists, dependent: :destroy
   has_one :manager, dependent: :destroy
 
+  after_create :ensure_manager
+
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
   validates :email_address, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
