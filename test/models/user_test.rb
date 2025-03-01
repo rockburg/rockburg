@@ -35,4 +35,15 @@ class UserTest < ActiveSupport::TestCase
     user = User.create(email_address: "test@example.com", password: "password", password_confirmation: "password")
     assert_not user.authenticate("wrong_password")
   end
+
+  # Admin functionality tests
+  test "user should default to non-admin" do
+    user = User.create(email_address: "test@example.com", password: "password", password_confirmation: "password")
+    assert_not user.admin?
+  end
+
+  test "admin? should return true for admin users" do
+    user = User.create(email_address: "admin@example.com", password: "password", password_confirmation: "password", admin: true)
+    assert user.admin?
+  end
 end
