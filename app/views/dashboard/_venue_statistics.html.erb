@@ -192,7 +192,7 @@
                 </div>
               </div>
             <% else %>
-              <%= link_to "Create Artist First", new_artist_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+              <%= link_to "Select Artist First", artist_selections_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
             <% end %>
           <% end %>
         </div>
@@ -201,7 +201,7 @@
       <div class="rounded-lg bg-blue-50 p-4 text-blue-700">
         <% if current_manager.artists.empty? %>
           You need to sign artists before you can book venues.
-          <%= link_to "Create your first artist", new_artist_path, class: "font-medium text-blue-700 underline hover:text-blue-800" %>
+          <%= link_to "Select your first artist", artist_selections_path, class: "font-medium text-blue-700 underline hover:text-blue-800" %>
         <% else %>
           No venues are available for your artists yet. Keep developing your artists to unlock venues.
         <% end %>

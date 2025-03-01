@@ -2,29 +2,13 @@ class ArtistsController < ApplicationController
   before_action :set_artist, only: [ :show, :edit, :update, :perform_activity, :cancel_activity, :schedule_activity, :cancel_scheduled_activity, :sign ]
   before_action :ensure_owner, only: [ :perform_activity, :cancel_activity, :schedule_activity, :cancel_scheduled_activity ]
   before_action :require_current_user, only: [ :sign ]
-  before_action :require_current_manager, only: [ :new, :create, :index ]
+  before_action :require_current_manager, only: [ :index ]
 
   def index
     @artists = current_manager.artists
   end
 
   def show
-  end
-
-  def new
-    @artist = Artist.new
-  end
-
-  def create
-    # Create the artist through the manager to ensure proper associations
-    @artist = current_manager.create_artist(artist_params)
-    process_traits_params
-
-    if @artist.persisted?
-      redirect_to @artist, notice: "Artist was successfully created."
-    else
-      render :new, status: :unprocessable_entity
-    end
   end
 
   def edit
