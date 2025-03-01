@@ -1,6 +1,11 @@
 require "test_helper"
 
 class SeasonTest < ActiveSupport::TestCase
+  setup do
+    # Ensure no active seasons at the start of each test
+    Season.where(active: true).update_all(active: false)
+  end
+
   test "should not save season without name" do
     season = Season.new
     assert_not season.save, "Saved the season without a name"
@@ -21,24 +26,25 @@ class SeasonTest < ActiveSupport::TestCase
     season = Season.create(name: "New Season")
     assert_nil season.started_at
 
-    season.update(active: true)
+    # Force reload to ensure we have the latest data
+    season.update!(active: true)
     season.reload
     assert_not_nil season.started_at
   end
 
   test "should set ended_at when deactivated" do
-    season = Season.create(name: "Active Season", active: true)
+    season = Season.create!(name: "Active Season", active: true)
     season.reload
     assert_nil season.ended_at
 
-    season.update(active: false)
+    season.update!(active: false)
     season.reload
     assert_not_nil season.ended_at
   end
 
   test "should set transition_ends_at to 7 days after activation" do
-    season = Season.create(name: "New Season")
-    season.update(active: true)
+    season = Season.create!(name: "New Season")
+    season.update!(active: true)
     season.reload
 
     assert_not_nil season.transition_ends_at
@@ -46,13 +52,16 @@ class SeasonTest < ActiveSupport::TestCase
   end
 
   test "should generate artists and genres when activated" do
-    season = Season.create(name: "New Season")
+    # Create a new season
+    season = Season.new(name: "New Season")
 
-    # Mock the generate_genres and generate_artists methods
-    Season.any_instance.expects(:generate_genres).once
-    Season.any_instance.expects(:generate_artists).once
+    # Set up expectations before saving
+    season.expects(:generate_genres).once
+    season.expects(:generate_artists).once
 
-    season.update(active: true)
+    # Save and activate
+    season.save!
+    season.update!(active: true)
   end
 
   test "only admin can create a season" do

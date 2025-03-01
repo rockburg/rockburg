@@ -10,4 +10,9 @@ class Current < ActiveSupport::CurrentAttributes
     super
     self.user = session.user if session && user.nil?
   end
+
+  def self.reset
+    self.user = nil
+    self.session = nil
+  end
 end

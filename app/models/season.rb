@@ -30,6 +30,7 @@ class Season < ApplicationRecord
   end
 
   def complete_activation
+    # These methods will be mocked in tests
     generate_genres
     generate_artists
   end
