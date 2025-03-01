@@ -72,4 +72,7 @@ Rails.application.configure do
   # config.generators.apply_rubocop_autocorrect_after_generate!
 
   config.hosts << "rockburg.ngrok.dev"
+
+  # Add Hotwire Livereload configuration
+  config.hotwire_livereload.debounce_delay_ms = 300 # in milliseconds
 end

@@ -39,8 +39,21 @@ class ArtistSelectionsController < ApplicationController
     if artist.manager.present?
       redirect_to artists_path, alert: "This artist has already been signed."
     else
-      artist.update!(manager: Current.user.manager)
-      redirect_to artist_path(artist), notice: "Artist successfully signed!"
+      # Use the sign_artist method to properly deduct funds
+      if Current.user.manager.sign_artist(artist)
+        redirect_to artist_path(artist), notice: "Artist successfully signed!"
+      else
+        # Get specific error reason
+        if !Current.user.manager.can_afford?(artist.signing_cost)
+          message = "You cannot afford to sign this artist."
+        elsif Current.user.manager.level < artist.required_level
+          message = "Your manager level is too low to sign this artist."
+        else
+          message = "Unable to sign this artist."
+        end
+
+        redirect_to artist_selections_path, alert: message
+      end
     end
   end
 end
