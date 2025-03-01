@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+  ip_address: "127.0.0.1"
+
+two:
+  user: two
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+  ip_address: "127.0.0.1" 

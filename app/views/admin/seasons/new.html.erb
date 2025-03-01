@@ -1,0 +1,23 @@
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+  <div class="mb-6">
+    <%= link_to "← Back to Seasons", admin_seasons_path, class: "text-indigo-600 hover:text-indigo-900" %>
+  </div>
+
+  <div class="md:grid md:grid-cols-3 md:gap-6">
+    <div class="md:col-span-1">
+      <div class="px-4 sm:px-0">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Create New Season</h3>
+        <p class="mt-1 text-sm text-gray-600">
+          Create a new season with the settings below. Only one season can be active at any time.
+        </p>
+      </div>
+    </div>
+    <div class="mt-5 md:mt-0 md:col-span-2">
+      <div class="shadow sm:rounded-md sm:overflow-hidden">
+        <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+          <%= render "form", season: @season %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,14 +1,19 @@
 Rails.application.routes.draw do
   # Static pages
   root "pages#home"
-  get "about", to: "pages#about", as: :about
-  get "privacy", to: "pages#privacy", as: :privacy
-  get "terms", to: "pages#terms", as: :terms
+  get "about" => "pages#about"
+  get "privacy" => "pages#privacy"
+  get "terms" => "pages#terms"
 
   # Authentication
   resource :session
-  resources :passwords, param: :token
-  resource :registration, only: [ :new, :create ]
+  resource :registration
+
+  # Admin routes
+  namespace :admin do
+    root to: "dashboard#index"
+    resources :seasons
+  end
 
   # Artists
   resources :artists do

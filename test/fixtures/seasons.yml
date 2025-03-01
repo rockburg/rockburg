@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: "Season One"
+  active: false
+  started_at: <%= 3.months.ago %>
+  ended_at: <%= 1.month.ago %>
+  transition_ends_at: <%= 3.months.ago + 7.days %>
+  genre_trends: {}
+  settings: {}
+  description: "The first test season"
+
+two:
+  name: "Season Two"
+  active: true
+  started_at: <%= 1.month.ago %>
+  ended_at: 
+  transition_ends_at: <%= 1.month.ago + 7.days %>
+  genre_trends: {}
+  settings: {}
+  description: "The second test season"

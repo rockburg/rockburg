@@ -1,0 +1,70 @@
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Seasons</h1>
+    <%= link_to "New Season", new_admin_season_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+  </div>
+
+  <% if notice.present? %>
+    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-green-700"><%= notice %></p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Started</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ended</th>
+          <th scope="col" class="relative px-6 py-3">
+            <span class="sr-only">Actions</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @seasons.each do |season| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900"><%= season.name %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if season.active? %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+              <% else %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= season.started_at&.strftime("%b %d, %Y") || "Not started" %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= season.ended_at&.strftime("%b %d, %Y") || "Ongoing" %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <%= link_to "View", admin_season_path(season), class: "text-indigo-600 hover:text-indigo-900 mr-3" %>
+              <%= link_to "Edit", edit_admin_season_path(season), class: "text-indigo-600 hover:text-indigo-900 mr-3" %>
+              <%= link_to "Delete", admin_season_path(season), method: :delete, data: { confirm: "Are you sure you want to delete this season?" }, class: "text-red-600 hover:text-red-900" %>
+            </td>
+          </tr>
+        <% end %>
+        
+        <% if @seasons.empty? %>
+          <tr>
+            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No seasons found. Create a new one to get started!</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div> 

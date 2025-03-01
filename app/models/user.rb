@@ -7,4 +7,8 @@ class User < ApplicationRecord
 
   validates :email_address, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 6 }, if: -> { password.present? }
+
+  def admin?
+    admin
+  end
 end

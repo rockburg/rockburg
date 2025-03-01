@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_130409) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_01_131722) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,6 +27,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_130409) do
     t.index ["name"], name: "index_artists_on_name"
     t.index ["popularity"], name: "index_artists_on_popularity"
     t.index ["user_id"], name: "index_artists_on_user_id"
+  end
+
+  create_table "seasons", force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "active", default: false, null: false
+    t.datetime "transition_ends_at"
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.jsonb "genre_trends", default: {}, null: false
+    t.jsonb "settings", default: {}, null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_seasons_on_active"
   end
 
   create_table "sessions", force: :cascade do |t|
