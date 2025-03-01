@@ -1,0 +1,64 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="md:col-span-2">
+    <h1 class="text-3xl font-bold mb-6"><%= @artist.name %></h1>
+    
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm mb-6">
+      <h2 class="text-xl font-bold mb-4">Artist Stats</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Genre</p>
+          <p class="font-medium"><%= @artist.genre %></p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500">Talent</p>
+          <div class="flex items-center gap-2">
+            <div class="w-full h-2 rounded-full bg-gray-100">
+              <div class="h-full rounded-full bg-purple-500" style="width: <%= @artist.talent %>%;"></div>
+            </div>
+            <span class="text-sm font-medium"><%= @artist.talent %></span>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500">Energy</p>
+          <div class="flex items-center gap-2">
+            <div class="w-full h-2 rounded-full bg-gray-100">
+              <div class="h-full rounded-full bg-blue-500" style="width: <%= @artist.energy %>%;"></div>
+            </div>
+            <span class="text-sm font-medium"><%= @artist.energy %></span>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500">Popularity</p>
+          <div class="flex items-center gap-2">
+            <div class="w-full h-2 rounded-full bg-gray-100">
+              <div class="h-full rounded-full bg-green-500" style="width: <%= @artist.popularity %>%;"></div>
+            </div>
+            <span class="text-sm font-medium"><%= @artist.popularity %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <h2 class="text-xl font-bold mb-4">Daily Actions</h2>
+      <p class="text-gray-600 mb-4">Choose one action for your artist to perform today:</p>
+      
+      <div class="flex flex-wrap gap-3">
+        <%= button_to "Practice", perform_activity_artist_path(@artist, activity: "practice"), method: :post, class: "rounded-lg bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700 transition-all hover:bg-purple-200" %>
+        <%= button_to "Record", perform_activity_artist_path(@artist, activity: "record"), method: :post, class: "rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition-all hover:bg-green-200" %>
+        <%= button_to "Promote", perform_activity_artist_path(@artist, activity: "promote"), method: :post, class: "rounded-lg bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 transition-all hover:bg-blue-200" %>
+        <%= button_to "Rest", perform_activity_artist_path(@artist, activity: "rest"), method: :post, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="md:col-span-1">
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <h2 class="text-xl font-bold mb-4">Actions</h2>
+      <div class="space-y-3">
+        <%= link_to "Edit Artist", edit_artist_path(@artist), class: "block w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-center font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+        <%= link_to "Back to Artists", artists_path, class: "block w-full rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 text-center font-medium text-white transition-all hover:opacity-90" %>
+      </div>
+    </div>
+  </div>
+</div>

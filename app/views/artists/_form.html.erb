@@ -1,0 +1,50 @@
+<%= form_with(model: artist) do |form| %>
+  <% if artist.errors.any? %>
+    <div class="rounded-lg bg-red-50 p-4 mb-6">
+      <div class="flex">
+        <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800"><%= pluralize(artist.errors.count, "error") %> prohibited this artist from being saved:</h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc list-inside">
+              <% artist.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="space-y-6">
+    <div>
+      <%= form.label :name, class: "mb-1 block text-sm font-medium text-gray-700" %>
+      <%= form.text_field :name, class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500" %>
+    </div>
+
+    <div>
+      <%= form.label :genre, class: "mb-1 block text-sm font-medium text-gray-700" %>
+      <%= form.text_field :genre, class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500" %>
+    </div>
+
+    <div>
+      <%= form.label :talent, class: "mb-1 block text-sm font-medium text-gray-700" %>
+      <%= form.number_field :talent, class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500", min: 1, max: 100 %>
+      <p class="mt-1 text-sm text-gray-500">Talent level (1-100)</p>
+    </div>
+
+    <div>
+      <%= form.label :energy, class: "mb-1 block text-sm font-medium text-gray-700" %>
+      <%= form.number_field :energy, class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500", min: 1, max: 100 %>
+      <p class="mt-1 text-sm text-gray-500">Energy level (1-100)</p>
+    </div>
+
+    <div class="flex gap-3 mt-8">
+      <%= form.submit class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+      <%= link_to "Cancel", artist.new_record? ? artists_path : artist_path(artist), class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+    </div>
+  </div>
+<% end %> 
