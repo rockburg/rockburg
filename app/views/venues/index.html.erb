@@ -1,0 +1,87 @@
+<%
+  tier_descriptions = {
+    1 => "Small local venues with capacities of 10-50 people. Perfect for new artists.",
+    2 => "Medium-sized local venues with capacities of 50-200 people. Good for artists gaining a following.",
+    3 => "Regional venues with capacities of 200-500 people. Suitable for established local acts.",
+    4 => "Large venues with capacities of 500-1,000 people. For artists with significant regional popularity.",
+    5 => "Major venues with capacities over 1,000 people. Only accessible to highly popular artists."
+  }
+%>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Venues</h1>
+    <p class="mt-2 text-sm text-gray-700">
+      Book performances at these venues to build your artist's popularity and earn revenue.
+      Higher tier venues require more experienced artists but offer better rewards.
+    </p>
+  </div>
+
+  <% if @available_venues.present? %>
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Available Venues</h2>
+      <p class="mb-4 text-sm text-gray-700">
+        These venues are currently available for your artists based on their level.
+      </p>
+      
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <% @available_venues.each do |venue| %>
+          <%= link_to venue_path(venue), class: "flex flex-col rounded-lg shadow-md overflow-hidden bg-white hover:shadow-lg transition-shadow duration-300" do %>
+            <div class="px-6 py-5">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900"><%= venue.name %></h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  Tier <%= venue.tier %>
+                </span>
+              </div>
+              <div class="mt-2">
+                <p class="text-sm text-gray-600">Capacity: <%= venue.capacity %></p>
+                <p class="text-sm text-gray-600">Booking Cost: <%= number_to_currency(venue.booking_cost) %></p>
+                <p class="text-sm text-gray-600">Prestige: <%= venue.prestige %>/10</p>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="space-y-10">
+    <% @venues_by_tier.each do |tier, venues| %>
+      <% next if venues.empty? %>
+      
+      <section>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-gray-900">Tier <%= tier %> Venues</h2>
+          <span class="px-3 py-1 rounded-full text-xs font-medium text-purple-800 bg-purple-100">
+            <%= venues.count %> venues
+          </span>
+        </div>
+        
+        <p class="mb-4 text-sm text-gray-700"><%= tier_descriptions[tier] %></p>
+        
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <% venues.each do |venue| %>
+            <%= link_to venue_path(venue), class: "flex flex-col rounded-lg shadow-md overflow-hidden bg-white hover:shadow-lg transition-shadow duration-300" do %>
+              <div class="px-6 py-5">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-gray-900"><%= venue.name %></h3>
+                  <% if @available_venues&.include?(venue) %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Available
+                    </span>
+                  <% end %>
+                </div>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-600">Capacity: <%= venue.capacity %></p>
+                  <p class="text-sm text-gray-600">Booking Cost: <%= number_to_currency(venue.booking_cost) %></p>
+                  <p class="text-sm text-gray-600">Prestige: <%= venue.prestige %>/10</p>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  </div>
+</div> 

@@ -135,4 +135,70 @@
       <% end %>
     <% end %>
   </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">
+      <i class="fas fa-building mr-2"></i> Venue Opportunities
+    </h5>
+  </div>
+  <div class="card-body">
+    <% 
+      venue_count = Venue.count
+      available_venues = current_manager&.available_venues&.count || 0
+      percentage = (available_venues.to_f / venue_count * 100).round if venue_count > 0
+    %>
+    
+    <div class="mb-3">
+      <p class="mb-1 text-sm font-medium text-gray-700">Venues Available</p>
+      <div class="flex items-center">
+        <div class="flex-grow">
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: <%= percentage %>%;" 
+                 aria-valuenow="<%= percentage %>" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+        <span class="ml-2 text-sm font-medium text-gray-700"><%= available_venues %>/<%= venue_count %></span>
+      </div>
+      <p class="mt-1 text-xs text-gray-500">
+        Your manager level determines which venues your artists can perform at.
+      </p>
+    </div>
+    
+    <% if current_manager.artists.present? && current_manager.available_venues.present? %>
+      <div class="mt-4">
+        <h6 class="text-sm font-semibold mb-2">Recommended Venues</h6>
+        <div class="space-y-2">
+          <% current_manager.available_venues.order(prestige: :desc).limit(3).each do |venue| %>
+            <%= link_to venue_path(venue), class: "flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200" do %>
+              <div>
+                <p class="font-medium text-gray-900"><%= venue.name %></p>
+                <p class="text-xs text-gray-500">Tier <%= venue.tier %>, <%= venue.capacity %> capacity</p>
+              </div>
+              <span class="badge bg-info text-white">Prestige: <%= venue.prestige %></span>
+            <% end %>
+          <% end %>
+        </div>
+        
+        <div class="mt-4 text-center">
+          <%= link_to "View All Venues", venues_path, class: "btn btn-sm btn-outline-primary" %>
+          <% if current_manager.upcoming_performances.any? %>
+            <%= link_to "View Performances", performances_path, class: "btn btn-sm btn-primary" %>
+          <% else %>
+            <%= link_to "Book Performance", new_performance_path, class: "btn btn-sm btn-primary" %>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="alert alert-info mb-0">
+        <% if current_manager.artists.empty? %>
+          You need to sign artists before you can book venues.
+          <%= link_to "Create your first artist", new_artist_path, class: "alert-link" %>
+        <% else %>
+          No venues are available for your artists yet. Keep developing your artists to unlock venues.
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 </div> 

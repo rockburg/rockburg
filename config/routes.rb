@@ -49,6 +49,9 @@ Rails.application.routes.draw do
     resources :performances, only: [ :new, :create ]
   end
 
+  # Venues
+  resources :venues, only: [ :index, :show ]
+
   # Performances
   resources :performances, only: [ :index, :show ] do
     member do
