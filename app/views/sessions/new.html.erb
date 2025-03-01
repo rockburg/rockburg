@@ -1,0 +1,40 @@
+<div class="mx-auto md:w-2/3 w-full max-w-md">
+  <% if alert = flash[:alert] %>
+    <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
+  <% end %>
+
+  <% if notice = flash[:notice] %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <h1 class="text-2xl font-bold mb-6 text-center">Sign in to Rockburg</h1>
+
+    <%= form_with url: session_url, class: "contents" do |form| %>
+      <div class="my-5">
+        <label class="mb-1 block text-sm font-medium text-gray-700">Email Address</label>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500" %>
+      </div>
+
+      <div class="my-5">
+        <label class="mb-1 block text-sm font-medium text-gray-700">Password</label>
+        <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500" %>
+      </div>
+
+      <div class="mt-6">
+        <%= form.submit "Sign in", class: "w-full rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+      </div>
+    <% end %>
+
+    <div class="mt-6 text-center">
+      <%= link_to "Forgot password?", new_password_path, class: "text-sm text-purple-600 hover:text-purple-800" %>
+    </div>
+  </div>
+
+  <div class="mt-6 text-center">
+    <p class="text-sm text-gray-600">
+      Don't have an account yet? 
+      <%= link_to "Sign up", new_registration_path, class: "text-purple-600 hover:text-purple-800" %>
+    </p>
+  </div>
+</div>

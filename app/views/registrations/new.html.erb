@@ -1,0 +1,53 @@
+<div class="mx-auto md:w-2/3 w-full max-w-md">
+  <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <h1 class="text-2xl font-bold mb-6 text-center">Sign up for Rockburg</h1>
+
+    <%= form_with(model: @user, url: registration_path, class: "contents") do |form| %>
+      <% if @user.errors.any? %>
+        <div id="error_explanation" class="rounded-lg bg-red-50 p-4 mb-6">
+          <div class="flex">
+            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800"><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <ul class="list-disc pl-5 space-y-1">
+                  <% @user.errors.each do |error| %>
+                    <li><%= error.full_message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="my-5">
+        <label class="mb-1 block text-sm font-medium text-gray-700">Email Address</label>
+        <%= form.email_field :email_address, class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500" %>
+      </div>
+
+      <div class="my-5">
+        <label class="mb-1 block text-sm font-medium text-gray-700">Password</label>
+        <%= form.password_field :password, class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500" %>
+      </div>
+
+      <div class="my-5">
+        <label class="mb-1 block text-sm font-medium text-gray-700">Password Confirmation</label>
+        <%= form.password_field :password_confirmation, class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500" %>
+      </div>
+
+      <div class="mt-6">
+        <%= form.submit "Sign up", class: "w-full rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-6 text-center">
+    <p class="text-sm text-gray-600">
+      Already have an account? 
+      <%= link_to "Sign in", new_session_path, class: "text-purple-600 hover:text-purple-800" %>
+    </p>
+  </div>
+</div> 

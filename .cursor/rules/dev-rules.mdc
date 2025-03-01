@@ -1,0 +1,16 @@
+---
+description: Miscellaneous rules to get the AI to behave
+globs: 
+alwaysApply: true
+---
+- Use TDD principles using minitest.
+- Use the latest version of Rails 8.
+- Use importmaps
+- Use Sidekiq through ActiveJobs
+- Do NOT use solid_cache, solid_queue or solid_cable
+- Do not run `rails server` in your responses.
+- Do not run `touch tmp/restart.txt`
+- Do not run `rails credentials`
+- Write and run tests as you go to verify functionality in small pieces
+- Focus on simple solutions
+- Use `gpt-4o` model from OpenAI unless otherwise noted.

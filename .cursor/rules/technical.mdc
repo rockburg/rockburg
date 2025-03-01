@@ -1,0 +1,1027 @@
+---
+description: Technical implementation guidelines
+globs: 
+alwaysApply: true
+---
+# Rockburg: Technical Implementation Guidelines
+
+This technical blueprint provides architectural guidance, best practices, and implementation strategies for building your music industry simulation game using Rails 8, Hotwire/Turbo/Stimulus, PostgreSQL, and Sidekiq.
+
+# Technical Architecture Overview
+
+# System Architecture
+├── Rails 8 Application
+│   ├── API Layer (For AI Services & External Integrations)
+│   ├── Hotwire/Turbo/Stimulus Frontend
+│   ├── Domain Models & Business Logic
+│   ├── Background Processing (Sidekiq)
+│   └── Real-time Features (ActionCable)
+├── PostgreSQL Database
+│   ├── Main Application DB
+│   ├── Analytics/Reporting DB (Optional for later phases)
+│   └── Read Replicas (For scaling)
+├── External Services
+│   ├── AI Service Integration (OpenAI, etc.)
+│   ├── Media Storage (S3/CloudFront)
+│   └── Monitoring & Error Tracking
+└── Deployment Infrastructure
+    ├── Application Servers
+    ├── Background Workers
+    ├── Redis (For Sidekiq & ActionCable)
+    └── CDN
+
+# Key Domain Models
+
+## Core Entities
+Artist < ApplicationRecord
+  has_many :songs
+  has_many :albums
+  has_many :performances
+  has_many :artist_skills
+  belongs_to :manager
+  belongs_to :label, optional: true
+  # Traits/attributes stored as jsonb
+  # History/timeline stored as jsonb
+end
+
+Manager < ApplicationRecord
+  belongs_to :user
+  has_many :artists
+  has_many :labels
+  has_many :industry_relationships
+  # Stats and progress stored as jsonb
+end
+
+Label < ApplicationRecord
+  belongs_to :manager
+  has_many :artists
+  has_many :employees
+  has_many :releases
+  # Business metrics stored as jsonb
+end
+
+Song < ApplicationRecord
+  belongs_to :artist
+  belongs_to :album, optional: true
+  has_many :song_performances
+  has_many :song_receptions
+  # Musical attributes stored as jsonb
+  # Performance metrics stored as jsonb
+end
+
+## Supporting Models
+Genre < ApplicationRecord
+  has_many :artists
+  has_many :songs
+  # Trend data stored as jsonb
+end
+
+Venue < ApplicationRecord
+  has_many :performances
+  # Attributes and preferences stored as jsonb
+end
+
+Industry::Figure < ApplicationRecord
+  has_many :industry_relationships
+  # AI-generated personality traits as jsonb
+end
+
+## Game Mechanics Models
+SeasonalTrend < ApplicationRecord
+  belongs_to :genre
+  # Trend data over time
+end
+
+DailyChallenge < ApplicationRecord
+  has_many :challenge_completions
+  # Challenge criteria as jsonb
+end
+
+# Example Schema for an Artist
+# db/migrate/XXXXXX_create_artists.rb
+create_table :artists do |t|
+  t.string :name, null: false
+  t.references :manager, null: false, foreign_key: true
+  t.references :label, foreign_key: true
+  t.references :genre, null: false, foreign_key: true
+  t.integer :popularity, default: 0
+  t.integer :energy, default: 100
+  t.integer :max_energy, default: 100
+  t.jsonb :traits, default: {}
+  t.jsonb :skills, default: {}
+  t.jsonb :stats, default: {}
+  t.jsonb :timeline, default: []
+  t.jsonb :relationships, default: {}
+  t.datetime :last_activity_at
+  t.timestamps
+  
+  t.index :popularity
+  t.index [:manager_id, :popularity]
+  t.index "(traits->>'charisma')", using: :gin, name: 'index_artists_on_charisma'
+end
+
+## System Architecture
+
+### Domain-Driven Design Approach
+
+1. **Bounded Contexts:**
+   - Artist Management Domain
+   - Music Production Domain
+   - Business & Finance Domain
+   - Community & Social Domain
+   - Game Mechanics Domain
+
+2. **Strategic Patterns:**
+   - Identify core entities (Artist, Manager, Label, Song)
+   - Define value objects for immutable concepts (Genre attributes, Personality traits)
+   - Use aggregates to maintain consistency boundaries
+   - Create domain services for complex operations spanning multiple entities
+
+3. **Tactical Patterns:**
+   - Use repositories for complex database queries
+   - Implement services for business processes
+   - Create factories for complex object creation
+   - Apply policy objects for authorization
+
+## Database Strategy
+
+### PostgreSQL Optimization
+
+1. **Schema Design Principles:**
+   - Use appropriate data types (UUID for IDs to facilitate future sharding)
+   - Leverage JSONB for flexible attributes and complex data structures
+   - Create proper indexes for all query patterns
+   - Implement partial indexes for commonly filtered queries
+
+2. **Performance Considerations:**
+   - Use foreign keys to ensure referential integrity
+   - Implement database-level constraints for validation
+   - Create materialized views for complex reporting queries
+   - Set up proper vacuum and analyze schedules
+
+3. **Data Modeling Approach:**
+   ```ruby
+   # Example migration for a complex entity
+   create_table :artists, id: :uuid do |t|
+     t.string :name, null: false
+     t.references :manager, type: :uuid, null: false, foreign_key: true
+     t.jsonb :traits, default: {}, null: false
+     t.jsonb :stats, default: {}, null: false
+     t.jsonb :timeline, default: [], null: false
+     # More fields...
+     
+     t.index :name
+     t.index "((traits->>'charisma')::integer)", name: 'index_artists_on_charisma'
+     t.index "(stats->>'popularity')", using: :gin
+   end
+   ```
+
+### Indexing Strategy
+
+1. **General Guidelines:**
+   - Index all foreign keys
+   - Index frequently queried columns
+   - Create composite indexes for common query combinations
+   - Use expression indexes for JSONB fields
+
+2. **Example Indexes:**
+   ```ruby
+   # For leaderboards and rankings
+   add_index :artists, :popularity
+   add_index :songs, [:genre_id, :popularity]
+   
+   # For community features
+   add_index :managers, :last_active_at
+   add_index :artists, [:manager_id, :popularity]
+   
+   # For trend analysis
+   add_index :song_performances, [:performed_at, :venue_id]
+   ```
+
+## Hotwire/Turbo/Stimulus Implementation
+
+### Turbo Drive & Frames Strategy
+
+1. **Navigation Architecture:**
+   - Use Turbo Drive for seamless navigation
+   - Organize layouts with nested Turbo Frames
+   - Define frame targets for context-specific updates
+   - Implement progressing loading indicators
+
+2. **Frame-Based Component Structure:**
+   ```erb
+   <!-- Dashboard layout with nested frames -->
+   <%= turbo_frame_tag "dashboard" do %>
+     <div class="dashboard-container">
+       <%= turbo_frame_tag "stats_panel", loading: :lazy do %>
+         <%= render "dashboard/stats" %>
+       <% end %>
+       
+       <%= turbo_frame_tag "artist_roster", src: roster_path do %>
+         <div class="loading-indicator">Loading artists...</div>
+       <% end %>
+       
+       <%= turbo_frame_tag "daily_activities" do %>
+         <%= render "dashboard/activities" %>
+       <% end %>
+     </div>
+   <% end %>
+   ```
+
+3. **Turbo Stream For Real-time Updates:**
+   ```ruby
+   # Broadcasting updates to user dashboards
+   class ArtistPopularityUpdateJob < ApplicationJob
+     def perform(artist)
+       Turbo::StreamsChannel.broadcast_update_to(
+         "manager_#{artist.manager_id}",
+         target: "artist_#{artist.id}_popularity",
+         partial: "artists/popularity",
+         locals: { artist: artist }
+       )
+     end
+   end
+   ```
+
+### Stimulus Controllers
+
+1. **Controller Organization:**
+   - Core gameplay controllers (artist management, scheduling)
+   - UI enhancement controllers (charts, visualizations)
+   - Game state controllers (timers, notifications)
+   - Form and input controllers (dynamic forms, validators)
+
+2. **Example Stimulus Controller:**
+   ```javascript
+   // app/javascript/controllers/artist_energy_controller.js
+   import { Controller } from "@hotwired/stimulus"
+
+   export default class extends Controller {
+     static targets = ["bar", "value", "action"]
+     static values = { 
+       current: Number,
+       max: Number,
+       recovery: Number
+     }
+
+     connect() {
+       this.updateDisplay()
+       this.startRecoveryTimer()
+     }
+
+     updateDisplay() {
+       const percentage = (this.currentValue / this.maxValue) * 100
+       this.barTarget.style.width = `${percentage}%`
+       this.valueTarget.textContent = `${this.currentValue}/${this.maxValue}`
+       
+       // Update available actions based on energy
+       this.actionTargets.forEach(action => {
+         const required = parseInt(action.dataset.energyRequired)
+         action.disabled = this.currentValue < required
+       })
+     }
+
+     startRecoveryTimer() {
+       if (this.hasRecoveryValue && this.recoveryValue > 0) {
+         this.timer = setInterval(() => {
+           if (this.currentValue < this.maxValue) {
+             this.currentValue += 1
+             this.updateDisplay()
+           }
+         }, this.recoveryValue * 1000)
+       }
+     }
+
+     disconnect() {
+       if (this.timer) clearInterval(this.timer)
+     }
+   }
+   ```
+
+3. **Reusable Component Strategy:**
+   - Create a component library for common UI elements
+   - Implement design system with consistent styles
+   - Use Stimulus controllers for interactive behavior
+
+## Background Processing with Sidekiq
+
+### Job Architecture
+
+1. **Job Categories:**
+   - Scheduled Game Updates (daily processes)
+   - AI Content Generation
+   - Notification Delivery
+   - Real-time Calculations
+   - Data Aggregation and Analytics
+
+2. **Queue Structure:**
+   ```ruby
+   # config/sidekiq.yml
+   :queues:
+     - [critical, 5]    # For time-sensitive operations
+     - [game_updates, 3] # For game mechanics and updates
+     - [ai_generation, 2] # For AI content creation
+     - [notifications, 2] # For user notifications
+     - [default, 1]     # For everything else
+   ```
+
+3. **Job Implementation Pattern:**
+   ```ruby
+   class DailyArtistUpdateJob
+     include Sidekiq::Job
+     
+     sidekiq_options queue: 'game_updates', retry: 3
+     
+     def perform(artist_id)
+       artist = Artist.find(artist_id)
+       
+       # Execute daily updates in transaction
+       ActiveRecord::Base.transaction do
+         # Energy recovery
+         artist.update_energy!
+         
+         # Skill decay/growth
+         artist.update_skills!
+         
+         # Fanbase changes
+         artist.update_fanbase!
+         
+         # Generate daily AI events
+         ArtistEventGeneratorService.new(artist).generate_daily_events
+       end
+     end
+   end
+   ```
+
+### Scheduling Strategy
+
+1. **Recurring Jobs:**
+   ```ruby
+   # Schedule for recurring game processes
+   Sidekiq::Cron::Job.create(
+     name: 'Daily Game Update - Midnight',
+     cron: '0 0 * * *',
+     class: 'GameMechanics::DailyUpdateJob'
+   )
+   
+   Sidekiq::Cron::Job.create(
+     name: 'Hourly Trend Updates',
+     cron: '0 * * * *',
+     class: 'GameMechanics::TrendUpdateJob'
+   )
+   ```
+
+2. **Batch Processing:**
+   ```ruby
+   # For processing large updates like season changes
+   batch = Sidekiq::Batch.new
+   batch.description = "Season 3 Transition"
+   
+   batch.on(:complete, SeasonTransition, 'season_id' => 3)
+   
+   batch.jobs do
+     Artist.find_each do |artist|
+       SeasonalArtistUpdateJob.perform_async(artist.id, 3)
+     end
+     
+     Genre.find_each do |genre|
+       SeasonalGenreUpdateJob.perform_async(genre.id, 3)
+     end
+   end
+   ```
+
+### Reliability Patterns
+
+1. **Idempotent Jobs:**
+   ```ruby
+   def perform(event_id)
+     event = GameEvent.find(event_id)
+     
+     # Skip if already processed
+     return if event.processed?
+     
+     # Process with locking
+     event.with_lock do
+       return if event.processed?
+       # Process event
+       event.update(processed: true)
+     end
+   end
+   ```
+
+2. **Circuit Breakers:**
+   ```ruby
+   class AIGenerationJob
+     include Sidekiq::Job
+     
+     def perform(entity_id, entity_type)
+       # Check if AI service is available
+       return schedule_retry unless AIServiceStatus.available?
+       
+       # Implement generation with timeout
+       Timeout.timeout(30) do
+         # Generate content
+       end
+     rescue Timeout::Error
+       AIServiceStatus.report_timeout
+       schedule_retry
+     end
+     
+     def schedule_retry
+       self.class.perform_in(5.minutes, entity_id, entity_type)
+     end
+   end
+   ```
+
+## AI Integration Architecture
+
+### Service-Based Approach
+
+1. **AI Service Layer:**
+   ```ruby
+   # app/services/ai/client.rb
+   module AI
+     class Client
+       include Singleton
+       
+       def generate_text(prompt, options = {})
+         # Call external AI service with proper error handling
+       end
+       
+       def generate_personality(entity_type, attributes = {})
+         # Generate consistent personality traits
+       end
+       
+       def generate_event(context)
+         # Create contextual game events
+       end
+     end
+   end
+   ```
+
+2. **Domain-Specific AI Generators:**
+   ```ruby
+   # app/services/ai/artist_generator.rb
+   module AI
+     class ArtistGenerator
+       def generate(genre:, skill_level:, background: nil)
+         # Build context for the AI
+         context = {
+           genre: Genre.find(genre).attributes,
+           current_trends: TrendService.current_trends,
+           skill_level: skill_level
+         }
+         
+         # Generate artist personality
+         personality = AI::Client.instance.generate_personality("artist", context)
+         
+         # Create artist with generated attributes
+         Artist.new(
+           name: personality["name"],
+           traits: personality["traits"],
+           background: personality["background"],
+           genre_id: genre,
+           # other attributes
+         )
+       end
+     end
+   end
+   ```
+
+### AI Content Caching Strategy
+
+1. **Proactive Generation:**
+   ```ruby
+   # Generate content in advance for game events
+   class PrepareGameContentJob
+     include Sidekiq::Job
+     
+     def perform
+       # Calculate how many new artists might be needed
+       expected_new_artists = ArtistDemandEstimator.estimate_next_24h
+       
+       # Batch generate artist profiles
+       expected_new_artists.times do |i|
+         genre = Genre.weighted_sample
+         ArtistGenerationJob.perform_async(genre.id)
+       end
+     end
+   end
+   ```
+
+2. **Intelligent Caching:**
+   ```ruby
+   # app/models/concerns/ai_cacheable.rb
+   module AICacheable
+     extend ActiveSupport::Concern
+     
+     included do
+       has_many :ai_generated_contents, as: :entity
+     end
+     
+     def cached_ai_content(content_type, context = {})
+       # Try to find existing content
+       content = ai_generated_contents.find_by(
+         content_type: content_type,
+         context_hash: context.hash.to_s
+       )
+       
+       # Generate if needed
+       if content.nil? || content.expired?
+         new_content = AIGenerationService.generate(
+           entity: self, 
+           content_type: content_type, 
+           context: context
+         )
+         
+         # Cache the result
+         content = ai_generated_contents.create_or_update!(
+           content_type: content_type,
+           context_hash: context.hash.to_s,
+           content: new_content,
+           expires_at: 1.day.from_now
+         )
+       end
+       
+       content.content
+     end
+   end
+   ```
+
+## Real-time Features Strategy
+
+### ActionCable Architecture
+
+1. **Channel Organization:**
+   ```ruby
+   # app/channels/manager_channel.rb
+   class ManagerChannel < ApplicationCable::Channel
+     def subscribed
+       stream_for current_user.manager
+     end
+   end
+   
+   # app/channels/industry_updates_channel.rb
+   class IndustryUpdatesChannel < ApplicationCable::Channel
+     def subscribed
+       stream_from "industry_updates"
+       stream_from "industry_updates_genre_#{params[:genre_id]}" if params[:genre_id]
+     end
+   end
+   ```
+
+2. **Broadcasting Services:**
+   ```ruby
+   # app/services/broadcasters/artist_broadcaster.rb
+   module Broadcasters
+     class ArtistBroadcaster
+       def self.broadcast_popularity_change(artist)
+         # Broadcast to artist manager
+         ManagerChannel.broadcast_to(
+           artist.manager,
+           type: "artist_update",
+           artist_id: artist.id,
+           update_type: "popularity",
+           value: artist.popularity,
+           html: ApplicationController.renderer.render(
+             partial: "artists/popularity_indicator",
+             locals: { artist: artist }
+           )
+         )
+         
+         # If significant change, broadcast to industry
+         if artist.popularity_changed_significantly?
+           IndustryUpdatesChannel.broadcast_to(
+             "industry_updates_genre_#{artist.genre_id}",
+             type: "trending_artist",
+             artist_id: artist.id,
+             genre_id: artist.genre_id
+           )
+         end
+       end
+     end
+   end
+   ```
+
+3. **Client-Side Implementation:**
+   ```javascript
+   // app/javascript/channels/manager_channel.js
+   import consumer from "./consumer"
+
+   consumer.subscriptions.create("ManagerChannel", {
+     connected() {
+       console.log("Connected to ManagerChannel")
+     },
+     
+     received(data) {
+       if (data.type === "artist_update") {
+         const targetElement = document.querySelector(`#artist-${data.artist_id}-${data.update_type}`)
+         if (targetElement && data.html) {
+           targetElement.innerHTML = data.html
+         } else if (targetElement && data.value !== undefined) {
+           targetElement.textContent = data.value
+           targetElement.setAttribute("data-value", data.value)
+         }
+       }
+     }
+   })
+   ```
+
+### Scalable Presence System
+
+1. **User Presence Tracking:**
+   ```ruby
+   # app/channels/presence_channel.rb
+   class PresenceChannel < ApplicationCable::Channel
+     def subscribed
+       stream_from "presence"
+       
+       # Mark user as online
+       current_user.update(last_seen_at: Time.current, online: true)
+       broadcast_presence_update(current_user, true)
+     end
+     
+     def unsubscribed
+       current_user.update(online: false)
+       broadcast_presence_update(current_user, false)
+     end
+     
+     private
+     
+     def broadcast_presence_update(user, online)
+       ActionCable.server.broadcast "presence", {
+         user_id: user.id,
+         manager_id: user.manager.id,
+         online: online,
+         timestamp: Time.current.to_i
+       }
+     end
+   end
+   ```
+
+2. **Optimized Presence Queries:**
+   ```ruby
+   # For community features showing online users
+   class PresenceService
+     def self.recently_active_managers(limit: 20)
+       Manager.where(online: true)
+         .or(Manager.where("last_seen_at > ?", 5.minutes.ago))
+         .includes(:user)
+         .order(last_seen_at: :desc)
+         .limit(limit)
+     end
+     
+     def self.online_count
+       Rails.cache.fetch("online_user_count", expires_in: 1.minute) do
+         User.where(online: true).count
+       end
+     end
+   end
+   ```
+
+## Performance Optimization
+
+### Database Optimization
+
+1. **Query Optimization:**
+   - Use `includes` to avoid N+1 queries
+   - Implement counter caches for frequent counts
+   - Use database-level calculations where possible
+   - Create appropriate indexes for all query patterns
+
+2. **Example Optimized Queries:**
+   ```ruby
+   # Instead of this (causes N+1)
+   @trending_artists = Artist.all.sort_by(&:fans_count).first(10)
+   
+   # Do this
+   @trending_artists = Artist.includes(:genre, :manager)
+                        .order(fans_count: :desc)
+                        .limit(10)
+   
+   # For complex calculations, use the database
+   @top_performing_labels = Label.select("labels.*, COUNT(artists.id) as artist_count, SUM(artists.popularity) as total_popularity")
+                           .joins(:artists)
+                           .group("labels.id")
+                           .order("total_popularity DESC")
+                           .limit(10)
+   ```
+
+3. **Materialized Views for Reports:**
+   ```ruby
+   # db/migrate/create_artist_performance_summaries.rb
+   def up
+     execute <<-SQL
+       CREATE MATERIALIZED VIEW artist_performance_summaries AS
+       SELECT 
+         artists.id AS artist_id,
+         artists.name AS artist_name,
+         genres.name AS genre_name,
+         COUNT(songs.id) AS song_count,
+         SUM(songs.plays) AS total_plays,
+         AVG(songs.popularity) AS avg_song_popularity
+       FROM artists
+       JOIN genres ON artists.genre_id = genres.id
+       LEFT JOIN songs ON songs.artist_id = artists.id
+       GROUP BY artists.id, artists.name, genres.name
+     SQL
+     
+     add_index :artist_performance_summaries, :artist_id, unique: true
+     add_index :artist_performance_summaries, :total_plays
+   end
+   ```
+
+### Caching Strategy
+
+1. **Multi-level Caching:**
+   ```ruby
+   # Fragment caching for profiles
+   # app/views/artists/show.html.erb
+   <%= render partial: "header", locals: { artist: @artist } %>
+   
+   <% cache [@artist, "stats", @artist.updated_at.to_i] do %>
+     <%= render partial: "stats", locals: { artist: @artist } %>
+   <% end %>
+   
+   <% cache [@artist, "recent_performances", @artist.performances.maximum(:created_at)] do %>
+     <%= render partial: "recent_performances", locals: { performances: @artist.recent_performances } %>
+   <% end %>
+   ```
+
+2. **Russian Doll Caching:**
+   ```ruby
+   # app/views/labels/_label.html.erb
+   <% cache [label, "card", label.updated_at.to_i] do %>
+     <div class="label-card">
+       <h3><%= label.name %></h3>
+       
+       <div class="artist-roster">
+         <% label.artists.each do |artist| %>
+           <% cache [artist, "roster_item", artist.updated_at.to_i] do %>
+             <%= render partial: "artists/roster_item", locals: { artist: artist } %>
+           <% end %>
+         <% end %>
+       </div>
+     </div>
+   <% end %>
+   ```
+
+3. **Low-Level Cache for Expensive Operations:**
+   ```ruby
+   # app/services/industry_analytics_service.rb
+   class IndustryAnalyticsService
+     def self.genre_popularity_trends(timeframe: 30.days)
+       Rails.cache.fetch("genre_trends/#{timeframe.to_i}", expires_in: 1.hour) do
+         Genre.all.map do |genre|
+           {
+             id: genre.id,
+             name: genre.name,
+             data_points: genre.popularity_data_points(timeframe)
+           }
+         end
+       end
+     end
+   end
+   ```
+
+## Security Considerations
+
+### Authentication & Authorization
+
+1. **Secure Authentication:**
+   - Use Devise with 2FA
+   - Implement proper session management
+   - Use secure password policies
+
+2. **Fine-grained Authorization:**
+   ```ruby
+   # app/policies/artist_policy.rb
+   class ArtistPolicy
+     attr_reader :user, :artist
+     
+     def initialize(user, artist)
+       @user = user
+       @artist = artist
+     end
+     
+     def show?
+       true # Public profiles
+     end
+     
+     def update?
+       user.manager == artist.manager || 
+       user.staff_member&.can_manage?(artist)
+     end
+     
+     def manage_contract?
+       update? && user.has_permission?(:contract_management)
+     end
+   end
+   ```
+
+### Data Protection
+
+1. **Secure Attribute Storage:**
+   ```ruby
+   # For sensitive data
+   class Label < ApplicationRecord
+     encrypts :contract_terms, :revenue_details
+     
+     # Other validations and associations
+   end
+   ```
+
+2. **Rate Limiting:**
+   ```ruby
+   # config/initializers/rack_attack.rb
+   class Rack::Attack
+     # Limit requests by IP
+     throttle('req/ip', limit: 300, period: 5.minutes) do |req|
+       req.ip
+     end
+     
+     # Limit API calls by user
+     throttle("api/user", limit: 100, period: 1.minute) do |req|
+       if req.path.start_with?('/api/') && req.env['warden'].user
+         req.env['warden'].user.id
+       end
+     end
+   end
+   ```
+
+## Testing Strategy
+
+1. **Testing Coverage Requirements:**
+   - 100% coverage of models and business logic
+   - 90%+ coverage of controllers
+   - Integration tests for all critical user flows
+   - System tests for UI interactions
+
+2. **Test Organization:**
+   ```ruby
+   # spec/models/artist_spec.rb
+   RSpec.describe Artist, type: :model do
+     describe "validations" do
+       # Test validations
+     end
+     
+     describe "associations" do
+       # Test associations
+     end
+     
+     describe "#perform_activity!" do
+       context "when the artist has energy" do
+         # Test activity with energy
+       end
+       
+       context "when the artist lacks energy" do
+         # Test activity without energy
+       end
+     end
+   end
+   ```
+
+3. **Stimulus Controller Testing:**
+   ```javascript
+   // spec/javascript/controllers/artist_energy_controller_spec.js
+   import { Application } from "@hotwired/stimulus"
+   import ArtistEnergyController from "controllers/artist_energy_controller"
+
+   describe("ArtistEnergyController", () => {
+     let application
+     let element
+     
+     beforeEach(() => {
+       application = Application.start()
+       application.register("artist-energy", ArtistEnergyController)
+       
+       element = document.createElement("div")
+       element.innerHTML = `
+         <div data-controller="artist-energy" data-artist-energy-current-value="50" data-artist-energy-max-value="100">
+           <div data-artist-energy-target="bar"></div>
+           <span data-artist-energy-target="value"></span>
+           <button data-artist-energy-target="action" data-energy-required="20">Action</button>
+         </div>
+       `
+       document.body.appendChild(element)
+     })
+     
+     // Test cases
+   })
+   ```
+
+## Deployment & CI/CD Pipeline
+
+1. **Environment Configuration:**
+   - Development: Local setup with Docker
+   - Staging: Mirrors production with test data
+   - Production: Scalable infrastructure
+
+2. **CI Pipeline:**
+   ```yaml
+   # .github/workflows/ci.yml
+   name: Rails CI
+   
+   on:
+     push:
+       branches: [ main, develop ]
+     pull_request:
+       branches: [ main, develop ]
+   
+   jobs:
+     test:
+       runs-on: ubuntu-latest
+       services:
+         postgres:
+           image: postgres:14
+           env:
+             POSTGRES_USER: postgres
+             POSTGRES_PASSWORD: postgres
+             POSTGRES_DB: music_game_test
+           ports:
+             - 5432:5432
+         redis:
+           image: redis
+           ports:
+             - 6379:6379
+       
+       steps:
+         - uses: actions/checkout@v3
+         - name: Set up Ruby
+           uses: ruby/setup-ruby@v1
+           with:
+             ruby-version: 3.3.0
+             bundler-cache: true
+         
+         - name: Set up Node
+           uses: actions/setup-node@v3
+           with:
+             node-version: 18
+             
+         - name: Install dependencies
+           run: |
+             bundle install
+             yarn install
+             
+         - name: Setup database
+           run: bundle exec rails db:setup
+           
+         - name: Run tests
+           run: bundle exec rspec
+           
+         - name: Run system tests
+           run: bundle exec rails test:system
+   ```
+
+## Guidelines for Each Phase Implementation
+
+### Pre-Development Checklist
+
+1. **Before starting each phase:**
+   - Update database schema diagrams
+   - Document API changes
+   - Define new background jobs
+   - Update frontend component library
+   - Set up feature flags for gradual rollout
+
+2. **Technical Debt Management:**
+   - Allocate 20% of development time to refactoring
+   - Run performance audits before new features
+   - Update test coverage for existing features
+   - Review and optimize database queries
+
+### Phase Development Workflow
+
+1. **Feature Development Process:**
+   - Start with database migrations
+   - Implement models and business logic with tests
+   - Create service objects for complex operations
+   - Build controller actions and basic views
+   - Enhance with Stimulus controllers
+   - Implement real-time features
+   - Add background jobs for async processes
+
+2. **Code Quality Standards:**
+   - Follow Rails conventions
+   - Keep controllers thin, models focused on data
+   - Use service objects for complex business logic
+   - Document all public methods and classes
+   - Write meaningful commit messages
+
+### Post-Phase Review
+
+1. **After each phase release:**
+   - Monitor error rates and performance
+   - Gather user feedback on technical issues
+   - Review database performance
+   - Analyze background job throughput
+   - Document lessons learned
+
+2. **Performance Optimization Cycle:**
+   - Identify slowest requests and queries
+   - Add missing indexes based on query patterns
+   - Optimize N+1 queries
+   - Review and enhance caching strategy
+   - Tune background job throughput
+
+This technical implementation plan provides a comprehensive foundation for building your music industry simulation game across all phases. By following these guidelines, you'll create a scalable, maintainable system that can evolve with your game's complexity while maintaining performance and reliability.

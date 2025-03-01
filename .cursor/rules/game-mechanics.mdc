@@ -1,0 +1,2387 @@
+---
+description: Game Mechanics
+globs: 
+alwaysApply: true
+---
+# Rockburg
+## Game Mechanics Design Document
+
+**Version:** 1.0  
+**Last Updated:** February 28, 2025  
+
+---
+
+## 1. CORE MECHANICS OVERVIEW
+
+This document focuses exclusively on the functional mechanics, formulas, and systems that power the Music Industry Tycoon game. It serves as the technical blueprint for implementing gameplay systems, economic balance, and progression mechanics.
+
+---
+
+## 2. ARTIST MECHANICS
+
+### 2.1 Artist Attribute System
+
+#### 2.1.1 Primary Attributes
+All attributes are on a 0-100 scale unless otherwise noted.
+
+| Attribute | Description | Effect Formula | Decay Rate |
+|-----------|-------------|----------------|------------|
+| Talent | Natural musical ability | +0.5% per point to song quality | None |
+| Charisma | Audience connection | +0.4% per point to live performance | None |
+| Resilience | Handling pressure | Reduces burnout chance by 0.8% per point | None |
+| Creativity | Innovative ideas | +0.6% per point to originality score | None |
+| Discipline | Work ethic | +0.7% per point to practice effectiveness | None |
+
+#### 2.1.2 Skill Attributes
+Skills improve through practice and experience.
+
+| Skill | Description | Improvement Formula | Max Value |
+|-------|-------------|---------------------|-----------|
+| Vocal | Singing ability | Base + (Practice Hours × Talent × 0.01) | 100 |
+| Instrumental | Playing instruments | Base + (Practice Hours × Talent × 0.008) | 100 |
+| Songwriting | Creating music | Base + (Songs Written × 0.5) + (Creativity × 0.1) | 100 |
+| Performance | Stage presence | Base + (Shows Performed × 0.3) + (Charisma × 0.05) | 100 |
+| Media | Interview/PR skills | Base + (Media Events × 0.4) + (Charisma × 0.03) | 100 |
+
+#### 2.1.3 Energy System
+```
+Max Energy = 100 + (Resilience × 0.5) + (Level × 5)
+Recovery Rate = 4 + (Resilience × 0.05) points per hour
+Energy Usage:
+- Practice: 10-25 points
+- Recording: 15-40 points
+- Performance: 20-60 points
+- Media: 5-20 points
+- Travel: 5-15 points per journey
+
+Burnout Risk occurs when average daily energy is <20% for 3+ consecutive days
+Burnout Effect: -50% energy recovery for 72 hours, -10 temporary penalty to all skills
+```
+
+#### 2.1.4 Career Level System
+
+| Level | Name | XP Required | Benefits |
+|-------|------|-------------|----------|
+| 1 | Unknown | 0 | Base stats |
+| 2 | Local Act | 500 | +5 max energy, +2% fan retention |
+| 3 | Regional Talent | 2,000 | +5 max energy, +3% performance quality |
+| 4 | Rising Star | 5,000 | +5 max energy, +3% recording quality |
+| 5 | Established Artist | 10,000 | +5 max energy, +5% revenue from all sources |
+| 6 | Mainstream Success | 20,000 | +5 max energy, +4% fan acquisition rate |
+| 7 | Industry Star | 35,000 | +5 max energy, +6% collaboration quality |
+| 8 | Superstar | 60,000 | +5 max energy, +8% ticket sales |
+| 9 | Icon | 100,000 | +5 max energy, +10% merchandise revenue |
+| 10 | Legend | 150,000 | +5 max energy, +15% legacy value |
+
+XP is earned through all activities: recording (5-20 XP), performing (10-50 XP), media (5-15 XP), and fan growth (1 XP per 10 new fans)
+
+### 2.2 Artist Generation Mechanics
+
+#### 2.2.1 Procedural Artist Creation
+New artists are generated using weighted distribution tables:
+
+```
+Primary Attributes: Normal distribution with mean=50, SD=15
+Starting Skills: Normal distribution with mean=30, SD=10, modified by primary attributes
+Character Traits: Randomly selected 3-5 traits from trait pool, weighted by genre
+```
+
+#### 2.2.2 Artist Personality System
+Each artist has:
+- 3-5 personality traits from a pool of 30 possible traits
+- Each trait modifies behavior with specific percentage effects:
+  - Perfectionist: +15% quality, -20% production speed
+  - Impulsive: -10% quality, +15% production speed
+  - Collaborative: +20% quality on team projects, -5% on solo work
+  - Introverted: -15% media effectiveness, +10% creativity
+  - Etc.
+
+#### 2.2.3 Artist Compatibility
+When artists work together, compatibility is calculated:
+```
+Base Compatibility = 50%
+For each matching genre affinity: +10%
+For each complementary trait: +5%
+For each conflicting trait: -10%
+Prior successful collaborations: +5% each (max +25%)
+```
+
+Compatibility affects:
+- Collaboration quality: multiplied by (Compatibility ÷ 100)
+- Conflict chance: (100 - Compatibility) × 0.2% per day working together
+- Collaboration willingness: Won't collaborate if below 40%
+
+### 2.3 Artist Behavior System
+
+#### 2.3.1 Satisfaction Metrics
+Artist satisfaction is calculated on a 0-100 scale:
+```
+Base Satisfaction = 70
+Career Progress Factor = (Current XP ÷ XP for next level) × 10
+Financial Factor = (Monthly Income ÷ Expected Income for Level) × 10
+Creative Freedom Factor = 0-10 based on contract restrictions
+Management Attention = -5 to +5 based on daily interaction frequency
+Success Gap = -20 to +10 comparing to peers at similar career stage
+```
+
+Total Satisfaction = Sum of all factors, clamped to 0-100
+
+#### 2.3.2 Behavior Consequences
+Based on satisfaction level:
+- 80-100: Increased productivity (+15%), loyalty bonuses
+- 60-79: Normal behavior
+- 40-59: Occasional difficult requests, small productivity penalty (-5%)
+- 20-39: Significant issues, may threaten to leave, major penalty (-15%)
+- 0-19: Contract breach risk, severe productivity penalty (-30%)
+
+#### 2.3.3 Career Decisions
+At specific career milestones, artists may:
+- Request genre shifts (based on market trends and artist traits)
+- Demand contract renegotiation (based on success vs. peers)
+- Propose side projects (based on creativity trait)
+- Consider retirement (age and satisfaction factors)
+
+Decision probability formula:
+```
+Probability = Base Chance + (Trait Modifiers) + (Satisfaction Factor) + (Career Stage Multiplier)
+```
+
+### 2.4 Artist Progression System
+
+#### 2.4.1 Skill Improvement Rates
+Daily practice yields:
+```
+Skill Gain = Base Rate × (1 + (Discipline ÷ 100)) × Practice Duration × Quality Multiplier
+```
+Where:
+- Base Rate = 0.2-0.5 points per hour depending on skill
+- Quality Multiplier = 0.5-1.5 based on practice method and facilities
+- Diminishing returns apply above skill level 70
+
+#### 2.4.2 Popularity Growth
+Popularity (0-100 scale) changes based on:
+```
+Daily Change = Base Change + Activity Bonuses + Trend Alignment - Decay
+
+Where:
+- Base Change = 0 (popularity naturally decays without activity)
+- Activity Bonuses = Sum of all promotional activities and releases
+- Trend Alignment = -2 to +2 based on genre trend fit
+- Decay = Current Popularity × 0.005 (0.5% daily decay)
+```
+
+#### 2.4.3 Fan Acquisition
+```
+New Fans = Base Acquisition × Popularity Multiplier × Activity Reach × Conversion Rate
+
+Where:
+- Base Acquisition varies by activity type
+- Popularity Multiplier = Current Popularity ÷ 50
+- Activity Reach = audience size for the specific activity
+- Conversion Rate = 0.5% - 5% depending on activity quality
+```
+
+Fan retention has a base 92% monthly rate, modified by engagement activities
+
+---
+
+## 3. MUSIC CREATION MECHANICS
+
+### 3.1 Song Creation System
+
+#### 3.1.1 Song Quality Calculation
+Each song has a quality score (0-100):
+```
+Base Quality = 
+  (Songwriting Skill × 0.4) + 
+  (Relevant Instrument/Vocal Skill × 0.3) + 
+  (Creativity × 0.2) + 
+  (Studio Quality × 0.1)
+
+Modifier Factors:
+- Artist Energy: -20% to +10% based on current energy
+- Inspiration: -10% to +20% random factor
+- Producer Effect: -10% to +30% based on producer skill
+- Equipment Quality: -5% to +15% based on studio tier
+- Genre Alignment: -15% to +15% based on artist genre match
+
+Final Quality = Base Quality × Average of all Modifiers
+```
+
+#### 3.1.2 Song Attributes Generation
+Each song receives attributes that affect reception:
+```
+- Style: Primary genre + up to 2 influence genres
+- Lyrics: Topic selected from 20+ themes, matched with artist traits
+- Mood: 5-point scale from Melancholy to Upbeat
+- Tempo: 5-point scale from Very Slow to Very Fast
+- Complexity: 5-point scale from Simple to Experimental
+- Production: 5-point scale from Raw to Polished
+```
+
+These attributes determine audience fit and critic reception but don't directly affect quality
+
+#### 3.1.3 Song Creation Time
+```
+Base Time = 3 days
+Skill Factor = Base Time × (1 - (Average Skill ÷ 200)) (max 50% reduction)
+Complexity Factor = 0.8 to 1.5× based on song complexity
+Studio Efficiency = 0.7 to 1.2× based on studio quality
+
+Total Time = Base Time × Skill Factor × Complexity Factor × Studio Efficiency
+```
+
+#### 3.1.4 Song Production Cost
+```
+Base Cost = $300
+Studio Tier Cost = Base Cost × Studio Tier Multiplier (1× to 5×)
+Session Musician Cost = $100 per musician (if needed)
+Producer Cost = $200 to $5,000 based on producer level
+Post-Production = Base Cost × 0.5
+
+Total Cost = Studio Cost + Session Musicians + Producer + Post-Production
+```
+
+### 3.2 Album Production System
+
+#### 3.2.1 Album Cohesion Mechanics
+Album cohesion score (0-100) affects critical reception:
+```
+Base Cohesion = 50
+Style Consistency = +0 to +20 based on song style similarity
+Thematic Consistency = +0 to +15 based on lyrical theme alignment
+Quality Consistency = +0 to +15 based on quality standard deviation
+Intentional Variety = +0 to +10 based on complementary diversity
+
+Final Cohesion = Base Cohesion + All Modifiers, capped at 100
+```
+
+#### 3.2.2 Album Types & Requirements
+
+| Album Type | Song Count | Min. Quality | Time Required | Cohesion Bonus |
+|------------|------------|--------------|---------------|----------------|
+| EP | 4-6 | 60 | Base + 7 days | +5 |
+| Standard | 8-12 | 65 | Base + 14 days | +0 |
+| Concept | 8-14 | 70 | Base + 21 days | +15 |
+| Double | 16-24 | 65 | Base + 30 days | -5 |
+| Live | 8-16 | 55 | Base + 10 days | +10 |
+| Compilation | 10-20 | Any | Base + 5 days | -10 |
+
+Where Base Time is the sum of all song creation times
+
+#### 3.2.3 Album Quality Calculation
+```
+Raw Album Quality = Average of all song qualities
+Cohesion Bonus = (Album Cohesion - 50) × 0.2
+Standout Track Bonus = (Best Song Quality - Raw Album Quality) × 0.1
+Filler Penalty = (Raw Album Quality - Worst Song Quality) × 0.05
+
+Final Album Quality = Raw Album Quality + Cohesion Bonus + Standout Bonus - Filler Penalty
+```
+
+#### 3.2.4 Album Production Cost
+```
+Base Production = Sum of all song production costs
+Mastering = $500 to $2,000 based on quality tier
+Artwork = $300 to $3,000 based on quality tier
+Packaging (physical) = $2 to $10 per unit based on package type
+Digital Distribution = $50 base fee + 3% of digital revenue
+
+Total Cost = Base Production + Mastering + Artwork + (Physical Units × Packaging) + Distribution
+```
+
+### 3.3 Music Reception System
+
+#### 3.3.1 Critical Reception Mechanics
+Critics rate music on a 0-10 scale:
+```
+Base Score = (Song/Album Quality ÷ 10)
+Genre Bias = -1 to +1 based on critic's genre preferences
+Novelty Factor = -0.5 to +1 based on uniqueness in market
+Artist Reputation = -0.5 to +1 based on previous work
+Technical Execution = -0.5 to +0.5 based on production quality
+
+Final Score = Base Score + Genre Bias + Novelty + Reputation + Technical, clamped to 0-10
+```
+
+#### 3.3.2 Commercial Success Calculation
+```
+Base Units = 100 × (Artist Level + 1)
+Quality Multiplier = Song/Album Quality ÷ 50 (1.0-2.0 range)
+Promotion Multiplier = 1.0 + (0.1 × Promotion Level) (1.0-2.5 range)
+Market Fit = 0.5 to 1.5 based on genre trend alignment
+Platform Optimization = 0.8 to 1.2 based on release strategy
+
+First Week Sales = Base Units × Quality Multiplier × Promotion × Market Fit × Platform Optimization
+```
+
+Streaming follows a decay curve:
+```
+Week N streams = First Week Streams × 0.7^(N-1)
+```
+
+#### 3.3.3 Fan Response Segmentation
+Fan response is calculated for 5 different demographic segments:
+```
+Segment Alignment = -50 to +50 based on how well music matches segment preferences
+Response Score = (Music Quality × 0.6) + (Segment Alignment × 0.4)
+Conversion Rate = Response Score ÷ 200 (maximum 25% conversion to fans)
+```
+
+#### 3.3.4 Long-term Performance Mechanics
+```
+Catalog Value = Initial Value × (0.8 + (Quality ÷ 500))^Years
+Where Initial Value decays at a slower rate for higher quality music
+
+Surprise Resurgence Chance = 0.1% per month × Quality ÷ 20
+Resurgence Multiplier = 3x to 10x normal streams for 2-8 weeks
+```
+
+---
+
+## 4. PERFORMANCE & TOURING MECHANICS
+
+### 4.1 Venue System
+
+#### 4.1.1 Venue Tiers & Requirements
+
+| Tier | Capacity | Min. Artist Level | Booking Cost | Booking Lead Time | Prestige |
+|------|----------|-------------------|--------------|-------------------|----------|
+| 1 | 10-50 | 1 | $0-50 | 1-7 days | 1 |
+| 2 | 50-200 | 2 | $50-200 | 7-14 days | 2 |
+| 3 | 200-500 | 3 | $200-500 | 14-30 days | 3 |
+| 4 | 500-1,000 | 4 | $500-1,000 | 30-60 days | 4 |
+| 5 | 1,000-5,000 | 5 | $1,000-5,000 | 45-90 days | 5 |
+| 6 | 5,000-15,000 | 7 | $5,000-15,000 | 60-120 days | 8 |
+| 7 | 15,000+ | 9 | $15,000+ | 90-180 days | 10 |
+
+#### 4.1.2 Venue Availability
+```
+Base Availability = 100%
+Seasonality Factor = 50% to 150% based on time of year
+Artist Popularity Factor = -50% to +20% based on fit with venue
+Competition Factor = -10% to -90% based on market saturation
+Relationship Bonus = +0% to +30% based on venue relationship
+
+Final Availability = Base × Seasonality × Popularity × Competition × Relationship
+```
+
+#### 4.1.3 Venue Relationship Building
+Relationship with venues (0-100 scale):
+```
+Initial Relationship = 25 + (Manager Reputation × 0.25)
+Per Successful Show = +5 points
+Per Sold Out Show = +10 points
+Per Problematic Show = -15 points
+Cancellation = -25 points
+Decay = -1 point per month of inactivity
+```
+
+Relationship benefits:
+- 0-25: Standard booking terms
+- 26-50: 5% discount, 10% higher availability
+- 51-75: 10% discount, 25% higher availability, priority booking
+- 76-90: 15% discount, 50% higher availability, preferred dates
+- 91-100: 20% discount, guaranteed availability, reduced deposit
+
+### 4.2 Performance Quality System
+
+#### 4.2.1 Show Quality Calculation
+Performance quality score (0-100):
+```
+Base Quality = (Performance Skill × 0.4) + (Relevant Musical Skill × 0.3) + (Charisma × 0.3)
+Preparation Factor = 0.7 to 1.3 based on rehearsal time
+Energy Factor = 0.6 to 1.1 based on current energy level
+Venue Fit = 0.8 to 1.2 based on venue-genre alignment
+Technical Support = 0.9 to 1.1 based on crew quality
+Audience Energy = 0.9 to 1.2 based on venue fill percentage
+
+Final Quality = Base Quality × Average of all Factors
+```
+
+#### 4.2.2 Audience Reaction Mechanics
+```
+Attendance Rate = Base Rate × Promotion Factor × Artist Draw × Pricing Accessibility
+
+Where:
+- Base Rate = 30% + (Artist Popularity × 0.5%)
+- Promotion Factor = 0.5 to 2.0 based on promotional effort
+- Artist Draw = 0.8 to 1.5 based on local popularity
+- Pricing Accessibility = 0.7 to 1.2 based on ticket price positioning
+
+Audience Satisfaction = (Show Quality × 0.7) + (Setlist Quality × 0.3)
+Word-of-mouth Bonus = Satisfaction above 80 generates +2% attendance for next show in region
+```
+
+#### 4.2.3 Performance Revenue Calculation
+```
+Gross Revenue = Attendance × Average Ticket Price
+Venue Cut = Gross Revenue × Venue Fee Percentage (10-50% based on tier and deal)
+Expenses = Base Costs + (Crew Size × Per Person Cost) + Equipment Rental + Travel
+Merch Revenue = Attendance × Take Rate (15-40%) × Average Purchase Value ($5-25)
+
+Net Revenue = (Gross Revenue - Venue Cut - Expenses) + Merch Revenue
+```
+
+#### 4.2.4 Performance XP & Benefits
+```
+Artist XP = Base XP × Venue Prestige × Show Quality × Attendance Rate
+
+Where:
+- Base XP = 10 points
+- Performance Skill Gain = XP × 0.05 points
+- Local Popularity Gain = (XP ÷ Venue Capacity) × Regional Modifier
+- New Fan Conversion = Attendance × (Show Quality ÷ 200) × (1 - Current Conversion)
+```
+
+### 4.3 Tour Management System
+
+#### 4.3.1 Tour Planning Mechanics
+```
+Tour Types:
+- Local (1-3 venues, same city): Low setup cost, low travel fatigue
+- Regional (4-10 venues, same region): Medium setup, moderate fatigue
+- National (10-20 venues): High setup, significant fatigue
+- International (15-30 venues): Very high setup, major fatigue
+
+Tour Setup Costs:
+- Tour Manager: $1,000 to $10,000 based on tour size and manager level
+- Transportation: $500 to $50,000 based on tour size and transportation type
+- Crew: $200 to $1,000 per person per week
+- Equipment: $500 to $20,000 based on production quality
+- Logistics: $200 to $5,000 based on complexity
+```
+
+#### 4.3.2 Routing Optimization
+Each potential routing is scored (higher is better):
+```
+Base Score = 100
+Distance Penalty = -1 per 100 miles between consecutive venues
+Rest Day Bonus = +10 per rest day scheduled
+Logical Progression = +20 for moving generally in one direction
+Market Alignment = +5 per venue with strong artist fanbase
+Weekend Optimization = +15 per weekend date at high-capacity venue
+
+Total Score = Sum of all factors
+```
+
+#### 4.3.3 Tour Fatigue System
+Artists accumulate fatigue during tours:
+```
+Daily Fatigue Accumulation:
+- Performance Day: +10 to +20 points
+- Travel Day: +5 to +15 points depending on distance
+- Rest Day: -15 to -25 points
+- Maximum Fatigue: 100 points
+
+Fatigue Effects:
+- 0-25: No effect
+- 26-50: -5% performance quality, -10% energy recovery
+- 51-75: -15% performance quality, -25% energy recovery, 2% cancellation risk
+- 76-90: -30% performance quality, -50% energy recovery, 5% cancellation risk
+- 91-100: -50% performance quality, -75% energy recovery, 10% cancellation risk, health incident risk
+```
+
+#### 4.3.4 Tour Economics
+```
+Tour Profitability = Sum of all show profits - Setup Costs - Daily Costs
+Break-even Attendance = (Setup Costs + Daily Costs) ÷ (Average Per-Attendee Profit)
+ROI = (Tour Profit ÷ Total Investment) × 100%
+
+Tour Success Metrics:
+- Financial Success: Profit > Setup Costs
+- Career Success: Average attendance > 75% capacity
+- Fan Growth Success: New fans > 5% of total attendance
+- Media Success: Press coverage value > Setup Costs
+```
+
+### 4.4 Festival System
+
+#### 4.4.1 Festival Tiers & Requirements
+
+| Tier | Attendance | Min. Artist Level | Application Window | Acceptance Criteria | Prestige |
+|------|------------|-------------------|--------------------|--------------------|----------|
+| 1 | 500-2,000 | 2 | 30-60 days prior | Popularity > 20 | 3 |
+| 2 | 2,000-10,000 | 3 | 60-120 days prior | Popularity > 35 | 5 |
+| 3 | 10,000-50,000 | 5 | 90-180 days prior | Popularity > 50 | 8 |
+| 4 | 50,000-100,000+ | 7 | 180-365 days prior | Popularity > 70 | 12 |
+
+#### 4.4.2 Festival Application System
+Application success probability:
+```
+Base Chance = 10%
+Popularity Bonus = Artist Popularity × 0.5%
+Genre Fit = -20% to +30% based on festival theme alignment
+Prior Relationship = +0% to +25% based on festival relationship
+Manager Reputation = +0% to +15% based on industry standing
+Recent Success = +0% to +20% based on recent achievements
+
+Final Chance = Sum of all factors, capped at 90%
+```
+
+#### 4.4.3 Festival Slot Assignment
+Once accepted, slot quality is determined:
+```
+Slot Tiers:
+- Opening (early day): Base payment, 10-30% of max audience
+- Mid-day: 2× base payment, 30-50% of max audience
+- Prime-time: 3× base payment, 50-80% of max audience
+- Headliner: 5× base payment, 80-100% of max audience
+
+Slot Assignment Formula:
+Slot Score = (Artist Popularity × 0.6) + (Artist Level × 10) + (Prior Appearances × 5) + (Recent Hits × 5)
+```
+
+#### 4.4.4 Festival Performance Benefits
+```
+Exposure Multiplier = Festival Prestige × Slot Quality × Performance Quality
+New Fan Acquisition = Slot Attendance × (Performance Quality ÷ 100) × Conversion Rate × Genre Fit
+Industry Reputation Gain = Festival Prestige × Slot Quality × Performance Quality × 0.1
+Media Coverage Value = Festival Prestige × Slot Quality × $1,000
+```
+
+---
+
+## 5. BUSINESS & MANAGEMENT MECHANICS
+
+### 5.1 Label Management System
+
+#### 5.1.1 Label Tiers & Capabilities
+
+| Tier | Name | Setup Cost | Monthly Fee | Artist Capacity | Staff Capacity | Facilities |
+|------|------|------------|-------------|-----------------|----------------|-----------|
+| 1 | Home Office | $1,000 | $200 | 3 | 1 | Basic only |
+| 2 | Small Office | $5,000 | $1,000 | 5 | 3 | Basic + small studio |
+| 3 | Professional Office | $20,000 | $3,000 | 8 | 6 | Full office suite |
+| 4 | Boutique Label | $50,000 | $8,000 | 12 | 10 | Complete facilities |
+| 5 | Established Label | $150,000 | $15,000 | 20 | 15 | Premium facilities |
+| 6 | Major Independent | $500,000 | $30,000 | 35 | 25 | Industry-leading |
+| 7 | Industry Power | $1,500,000 | $60,000 | 50+ | 40+ | World-class |
+
+#### 5.1.2 Label Facility System
+Facilities improve artist development and production:
+```
+Studio Quality Tiers:
+- Basic: $5,000 setup, +5% recording quality
+- Standard: $20,000 setup, +10% recording quality
+- Professional: $75,000 setup, +20% recording quality
+- World-class: $250,000 setup, +35% recording quality
+
+Rehearsal Space Tiers:
+- Basic: $2,000 setup, +10% practice efficiency
+- Standard: $10,000 setup, +20% practice efficiency
+- Professional: $30,000 setup, +35% practice efficiency
+
+Media Suite Tiers:
+- Basic: $3,000 setup, +10% social media effectiveness
+- Standard: $15,000 setup, +20% media production quality
+- Professional: $50,000 setup, +35% media reach
+```
+
+#### 5.1.3 Label Reputation System
+Label reputation (0-100 scale):
+```
+Initial Reputation = 10
+Per Successful Release (Profit > Cost × 2): +0.5 to +2 points based on reach
+Per Artist Level-up: +1 point
+Per Award Won: +2 to +5 points based on prestige
+Per Failed Release (Loss > Cost): -1 point
+Per Dropped Artist: -2 points
+Per Scandal: -3 to -10 points based on severity
+
+Monthly Decay: -0.2 points if no notable activity
+```
+
+Reputation effects:
+- Artist signing: +0% to +50% probability based on reputation
+- Deal terms: -10% to +20% negotiation leverage
+- Distribution: +0% to +25% store placement advantage
+- Media coverage: +0% to +30% press interest
+
+#### 5.1.4 Label Financial System
+```
+Revenue Streams:
+- Artist Revenue Share: 20-70% of artist earnings based on contract
+- Publishing Rights: 0-100% of publishing based on contract
+- Merchandise: 10-50% of merchandise sales based on contract
+- Sync/Licensing: 20-60% of licensing revenue based on contract
+
+Expenses:
+- Fixed Costs: Office rent, utilities, base staff
+- Variable Costs: Marketing, production, tour support
+- Artist Advances: Recoupable payments to artists
+- Staff Bonuses: Performance-based compensation
+
+Monthly P&L Statement:
+- Revenue: Sum of all income streams
+- Expenses: Sum of all costs
+- Profit/Loss: Revenue - Expenses
+- Cash Flow: Profit/Loss adjusted for recoupables and depreciation
+```
+
+### 5.2 Staff Management System
+
+#### 5.2.1 Staff Positions & Effects
+
+| Position | Salary Range | Primary Effect | Secondary Effect | Max Level |
+|----------|--------------|----------------|------------------|-----------|
+| A&R | $3k-15k/mo | +10-50% signing success | +5-25% artist development | 5 |
+| Producer | $2k-20k/mo | +10-50% recording quality | +5-20% production speed | 5 |
+| Marketing | $3k-12k/mo | +10-50% campaign effectiveness | +5-25% fan acquisition | 5 |
+| Tour Manager | $2k-10k/mo | +10-50% tour efficiency | -5-25% tour costs | 5 |
+| Business Affairs | $4k-18k/mo | +10-50% contract terms | -5-25% legal costs | 5 |
+| Talent Development | $2k-8k/mo | +10-50% artist skill growth | +5-20% artist satisfaction | 5 |
+
+#### 5.2.2 Staff Hiring Mechanics
+```
+Candidate Pool Generation:
+- Pool Size = 3 + (Label Reputation ÷ 20)
+- Candidate Quality = Normal distribution with mean based on salary offer
+- Specialization = Random from 3 possible focus areas per position
+
+Hiring Cost = Monthly Salary × 2 (recruiting fee)
+Onboarding Time = 30 days before full effectiveness
+```
+
+#### 5.2.3 Staff Development System
+```
+Staff XP = Monthly Base + Performance Bonus
+Level-up Requirements:
+- Level 1 to 2: 1,000 XP
+- Level 2 to 3: 3,000 XP
+- Level 3 to 4: 7,000 XP
+- Level 4 to 5: 15,000 XP
+
+Specialization Bonuses:
+- Each staff member can specialize in 1 of 3 areas
+- Specialization provides +25% effectiveness in chosen area
+- Non-specialized areas receive standard bonuses
+```
+
+#### 5.2.4 Staff Allocation System
+```
+Each staff member has:
+- Capacity: 100 points per month
+- Efficiency: 50-150% based on level and specialization
+- Task Costs:
+  - Artist Management: 10-30 points per artist per month
+  - Project Oversight: 20-60 points per active project
+  - Business Development: 10-40 points per initiative
+  
+Overallocation Penalties:
+- 100-120% capacity: -10% effectiveness
+- 121-150% capacity: -30% effectiveness
+- >150% capacity: -60% effectiveness, burnout risk
+```
+
+### 5.3 Contract Management System
+
+#### 5.3.1 Contract Types & Terms
+
+| Contract Type | Duration | Advance Range | Label Revenue % | Options | Negotiation Difficulty |
+|---------------|----------|--------------|-----------------|---------|------------------------|
+| Single | 1 release | $0-5k | 30-50% | 0-1 | Very Low |
+| EP | 1 release | $2k-20k | 35-55% | 0-1 | Low |
+| Album | 1 release | $5k-100k | 40-70% | 0-2 | Medium |
+| Multi-album | 2-5 releases | $10k-500k | 50-80% | 1-3 | High |
+| 360 Deal | 3-7 releases | $20k-1M+ | 60-85% + touring/merch | 2-4 | Very High |
+
+#### 5.3.2 Contract Negotiation Mechanics
+```
+Starting Terms = Base Terms for contract type
+Negotiation Points = 5 + (Business Skill × 0.1) + (Staff Bonus)
+Each point can be spent to:
+- Reduce label revenue share by 2%
+- Increase advance by 10%
+- Reduce contract duration by 1 release
+- Reduce option count by 1
+- Add special clause (creative control, marketing budget, etc.)
+
+Artist Acceptance Formula:
+Base Acceptance = 50%
++ Artist Desperation (0-30%)
++ Label Reputation Bonus (0-25%)
++ Prior Relationship Bonus (0-20%)
+- Term Harshness Penalty (0-40%)
+```
+
+#### 5.3.3 Contract Breach Mechanics
+```
+Breach Risk Factors:
+- Artist Satisfaction < 30: +2% monthly risk
+- Better Offer Available: +1-5% risk based on offer quality
+- Label Underperformance: +1-3% risk if milestones missed
+- Extended Inactivity: +1% per month after 3 months
+
+Breach Consequences:
+- Financial Penalty = 50-200% of unrecouped advance
+- Reputation Damage = -3 to -10 points
+- Legal Costs = $5,000 to $50,000
+- Rights Retention = Based on contract terms and breach severity
+```
+
+#### 5.3.4 Publishing Rights System
+```
+Publishing Split Options:
+- Artist-owned: 0% label, 100% artist
+- Co-publishing: 25-50% label, remainder to artist
+- Full publishing: 75-100% label, remainder to artist
+
+Publishing Revenue Streams:
+- Performance Royalties: $0.0005-0.001 per radio play, $0.001-0.003 per stream
+- Mechanical Royalties: $0.09 per physical unit
+- Sync Licensing: $500-50,000 per placement
+- Cover Versions: $0.05-0.09 per unit of covering artist
+
+Administration Fee: 10-25% of publishing revenue
+```
+
+### 5.4 Marketing System
+
+#### 5.4.1 Campaign Types & Effectiveness
+
+| Campaign Type | Base Cost | Duration | Primary Effect | Secondary Effect | Scaling Factor |
+|---------------|-----------|----------|----------------|------------------|----------------|
+| Social Media | $500-5k | 7-30 days | +10-50% digital presence | +5-20% streaming | Budget × 1 |
+| Press Tour | $2k-20k | 14-60 days | +10-50% media coverage | +10-30% credibility | Budget × 0.8 |
+| Radio Promotion | $5k-50k | 30-90 days | +10-50% radio play | +5-25% traditional sales | Budget × 0.7 |
+| Music Video | $2k-200k | 60-180 days | +10-60% visual identity | +10-40% social sharing | Budget × 0.9 |
+| Outdoor | $5k-100k | 30-60 days | +10-40% local awareness | +5-15% ticket sales | Budget × 0.6 |
+
+#### 5.4.2 Campaign Effectiveness Formula
+```
+Base Effectiveness = Campaign Base Rate × Budget Scaling
+Quality Multiplier = 0.5 to 1.5 based on execution quality
+Targeting Precision = 0.7 to 1.3 based on audience match
+Timing Factor = 0.8 to 1.2 based on market conditions
+Creative Bonus = 0.9 to 1.4 based on creative approach
+
+Final Effectiveness = Base × Quality × Targeting × Timing × Creative
+ROI = (Value Generated ÷ Campaign Cost) × 100%
+```
+
+#### 5.4.3 Marketing Channel Mix
+Each channel has different benefits and audience reach:
+```
+Social Media:
+- Cost per Thousand Reached: $1-5
+- Age Demographics: Strong 13-34, Weak 55+
+- Conversion Rate: 0.5-2%
+- Tracking Accuracy: Very High
+
+Radio:
+- Cost per Thousand Reached: $10-25
+- Age Demographics: Medium 18-55, Strong 35+
+- Conversion Rate: 0.2-0.8%
+- Tracking Accuracy: Medium
+
+Physical Advertising:
+- Cost per Thousand Reached: $15-50
+- Age Demographics: Broad reach
+- Conversion Rate: 0.1-0.5%
+- Tracking Accuracy: Low
+
+Optimized Channel Mix Formula:
+Channel Allocation = Base Distribution adjusted by:
+- Artist Demographics (age, location, interests)
+- Genre Traditional Channels
+- Budget Constraints
+- Previous Channel Performance
+```
+
+#### 5.4.4 Release Strategy System
+```
+Release Window Scoring:
+- Competitive Analysis: -20 to +20 based on competing releases
+- Seasonal Factors: -15 to +15 based on time of year
+- Market Readiness: -10 to +10 based on prior promotion
+- Industry Events: -20 to +20 based on proximity to major events
+- Artist Availability: -25 to +25 based on schedule conflicts
+
+Pre-release Strategy:
+- Teaser Content: 2-8 weeks before release
+- Announce Timeline: 4-12 weeks before release
+- Pre-order Period: 2-8 weeks before release
+- Single Release(s): 1-3 singles, 3-12 weeks before album
+```
+
+---
+
+## 6. ECONOMY & REVENUE MECHANICS
+
+### 6.1 Music Revenue System
+
+#### 6.1.1 Streaming Revenue Model
+```
+Per-Stream Rates:
+- Tier 1 Platform (Premium): $0.006-0.008 per stream
+- Tier 2 Platform (Standard): $0.003-0.005 per stream
+- Tier 3 Platform (Emerging): $0.001-0.002 per stream
+
+Monthly Streams Formula:
+Base Streams = 
+  (Artist Popularity × 10) × 
+  (Song/Album Quality ÷ 20) × 
+  (Genre Multiplier) × 
+  (Release Recency Factor)
+
+Where:
+- Genre Multiplier = 0.6 to 1.8 based on streaming performance of genre
+- Release Recency Factor = e^(-0.1 × months since release)
+```
+
+#### 6.1.2 Physical Sales Model
+```
+Unit Production Costs:
+- CD: $1-2 per unit
+- Vinyl: $3-10 per unit depending on quality
+- Special Edition: $5-25 per unit
+
+Retail Price Ranges:
+- CD: $8-15
+- Vinyl: $18-35
+- Special Edition: $25-100
+
+Sales Volume Formula:
+Base Units = Artist Popularity × Quality Factor × Format Demand × Marketing Reach
+
+Where:
+- Quality Factor = Album Quality ÷ 50
+- Format Demand = 0.3 to 1.5 based on genre fit with format
+- Marketing Reach = 0.5 to 3.0 based on promotion
+
+Wholesale Revenue = Units Sold × (Retail Price × 0.6)
+Net Revenue = Wholesale Revenue - Production Costs
+```
+
+#### 6.1.3 Licensing & Sync Revenue
+```
+Placement Types & Rates:
+- TV Show: $500-15,000 per use
+- Film: $2,000-50,000 per use
+- Commercial: $5,000-250,000 per use
+- Video Game: $3,000-75,000 per use
+- Cover License: $0.09 per unit sold
+
+Probability Formula:
+Base Chance = (Song Quality ÷ 100) × (Artist Popularity ÷ 50) × (Manager Licensing Skill ÷ 10)
+Modified by:
+- Genre appropriateness for medium: 0.2× to 3.0×
+- Publishing rights ownership: 0.7× to 1.3×
+- Previous placements: +0.5% per relevant placement
+```
+
+#### 6.1.4 Merchandise Revenue
+```
+Product Types & Margins:
+- T-shirts: $8-15 cost, $20-35 retail (40-60% margin)
+- Hoodies: $15-25 cost, $40-70 retail (50-65% margin)
+- Accessories: $2-10 cost, $10-30 retail (60-80% margin)
+- Limited Editions: $20-50 cost, $50-150 retail (50-70% margin)
+
+Sales Volume Factors:
+- Base Demand = Artist Popularity × Fan Engagement
+- Design Quality = 0.7 to 1.5 multiplier
+- Price Positioning = 0.6 to 1.2 multiplier
+- Availability = 0.8 to 1.1 multiplier
+
+Annual Merch Revenue per Fan = $2 + (Artist Level × $0.50) × (Engagement Factor)
+```
+
+### 6.2 Live Performance Revenue
+
+#### 6.2.1 Ticket Sales Model
+```
+Base Ticket Price = $5 + (Artist Level × $2) + (Venue Tier × $3)
+Price Modifiers:
+- Local Popularity: 0.8 to 1.3 multiplier
+- Day of Week: 0.9 to 1.2 multiplier
+- Special Event: 1.0 to 1.5 multiplier
+- Competition: 0.8 to 1.1 multiplier
+
+Expected Attendance Rate = 
+  Base Rate × 
+  Promotion Effectiveness × 
+  Artist Draw × 
+  Price Accessibility
+
+Revenue Split:
+- Venue Cut: 15-50% based on venue tier and negotiation
+- Taxes & Fees: 5-15% based on location
+- Production Costs: 10-30% based on show complexity
+- Net to Artist: Remainder after all costs
+```
+
+#### 6.2.2 Tour Economics Model
+```
+Fixed Costs:
+- Tour Setup: $1,000 to $1,000,000 based on scale
+- Transportation: $100 to $10,000 per travel day
+- Crew Salaries: $200 to $2,000 per crew member per week
+- Insurance: 1-3% of expected gross revenue
+
+Per-Show Costs:
+- Local Production: $100 to $50,000 based on production level
+- Accommodation: $50 to $500 per person per night
+- Per Diems: $20 to $100 per person per day
+- Local Staff: $200 to $5,000 based on venue requirements
+
+Revenue Sources:
+- Ticket Sales: Primary revenue
+- Tour Merchandise: 30-50% higher sales than non-tour
+- VIP Packages: $50-500 premium on base ticket price
+- Sponsorships: $1,000-100,000 based on tour scale
+
+Break-even Formula:
+Break-even Attendance = (Fixed Costs + Per-Show Costs) ÷ (Average Revenue per Attendee)
+```
+
+#### 6.2.3 Festival Performance Economics
+```
+Payment Structures:
+- Flat Fee: $500 to $1,000,000 based on artist level and slot
+- Guarantee + Percentage: Lower base fee plus 5-50% of attributable revenue
+- Percentage Only: 10-70% of attributable ticket and concession revenue
+
+Additional Value:
+- Merchandise Sales: 30-70% higher than standard shows
+- Exposure Value: $1,000 to $100,000 in marketing equivalent value
+- New Fan Acquisition: 2-5× normal rate
+- Media Coverage Value: 3-10× normal performance
+
+Opportunity Cost Calculation:
+Festival vs. Headlining ROI = (Festival Total Value ÷ Festival Time Investment) ÷ (Headlining Value ÷ Headlining Time Investment)
+```
+
+#### 6.2.4 Merchandise Sales at Shows
+```
+Per-Head Spending:
+- Tier 1 Venues: $2-5 per attendee
+- Tier 2-3 Venues: $5-10 per attendee
+- Tier 4-5 Venues: $10-20 per attendee
+- Tier 6-7 Venues: $15-30 per attendee
+- Festivals: $10-25 per attendee
+
+Venue Commission: 0-30% based on venue tier and negotiation
+Staffing Costs: $100-500 per show
+Inventory Management: 10-25% unsold inventory typical
+
+Optimized Inventory Formula:
+Optimal Units = Expected Attendance × Take Rate × 1.2 (20% buffer)
+Reorder Threshold = When inventory drops below 30% of optimal for top sellers
+```
+
+### 6.3 Management Revenue
+
+#### 6.3.1 Management Commission Structure
+```
+Commission Tiers:
+- New Artists: 15-25% of all income
+- Established Artists: 10-20% of all income
+- Star Artists: 5-15% of all income
+- Legacy Artists: 5-10% of all income
+
+Commission Application:
+- Recording Revenue: Applied to net after label share
+- Live Performance: Applied to net after expenses
+- Merchandise: Applied to net after production costs
+- Licensing/Sync: Applied to full amount
+- Publishing: Applied to artist's share
+```
+
+#### 6.3.2 Label Revenue Share
+```
+Standard Deal Revenue Split:
+- Digital Sales/Streaming: Label 50-85%, Artist 15-50%
+- Physical Sales: Label 50-85%, Artist 15-50%
+- Publishing: Label 0-100% depending on deal
+- Merchandise: Label 0-50% depending on deal
+- Touring: Label 0-30% depending on deal (only in 360 deals)
+
+Recoupment Rules:
+- Recording Costs: 100% recoupable from artist share
+- Video Production: 50-100% recoupable from artist share
+- Marketing: 50-100% recoupable from artist share
+- Tour Support: 50-100% recoupable from artist share
+- Advances: 100% recoupable from artist share
+```
+
+#### 6.3.3 Revenue Flow & Accounting
+```
+Payment Timeline:
+- Digital Revenue: 30-90 days after month end
+- Physical Sales: 60-120 days after quarter end
+- Licensing/Sync: 30-180 days after usage
+- Live Performance: 0-30 days after show
+- Merchandise: 15-60 days after sale
+
+Statement Frequency:
+- Monthly: Digital streaming
+- Quarterly: All revenue detailed statement
+- Semi-Annual: Royalty payments for recouping artists
+- Annual: Complete accounting and tax documentation
+
+Reserve Against Returns: 10-30% of physical sales held 6-12 months
+```
+
+#### 6.3.4 Financial Planning & Investment
+```
+Investment Categories:
+- Artist Development: 10-30% of free cash flow
+- Infrastructure: 15-40% of free cash flow
+- Marketing: 20-50% of free cash flow
+- New Signings: 10-30% of free cash flow
+- Cash Reserves: 10-20% of free cash flow
+
+ROI Expectations:
+- Artist Development: 200-500% over 3-5 years
+- Infrastructure: 150-300% over 3-7 years
+- Marketing: 120-200% over 1-2 years
+- New Signings: 300-1000% over 5-10 years (high risk)
+
+Valuation Formula:
+Label Valuation = (Annual Revenue × Multiple) + (Catalog Value) + (Artist Contract Value)
+Where Multiple ranges from 1-3× based on growth rate and profitability
+```
+
+### 6.4 Economic Modeling & Balance
+
+#### 6.4.1 Career Path Economic Models
+```
+Artist Career Economic Path:
+Year 1: -$10,000 to +$20,000 (investment phase)
+Year 2: -$5,000 to +$50,000 (growth phase)
+Year 3: +$10,000 to +$100,000 (establishment phase)
+Year 4+: +$25,000 to +$1,000,000+ (success phase)
+
+Success Rate Distribution:
+- Failure (negative ROI): 60%
+- Modest Success (1-3× ROI): 25%
+- Significant Success (3-10× ROI): 10%
+- Breakout Success (10-100× ROI): 4%
+- Superstar (100×+ ROI): 1%
+```
+
+#### 6.4.2 Genre Economic Variations
+```
+Genre-specific Economic Factors:
+- Pop: Highest streaming potential, moderate physical sales, high licensing value
+- Rock: Moderate streaming, high physical sales, moderate licensing
+- Hip-Hop: High streaming, low physical sales, high merchandise
+- Electronic: Very high streaming, very low physical, high touring value
+- Country: Moderate streaming, high physical, moderate touring
+- Alternative: Moderate streaming, high physical for fans, moderate licensing
+- Classical: Low streaming, moderate physical, low merchandise
+
+Revenue Split by Genre (averages):
+Pop: 60% digital, 15% physical, 10% licensing, 15% touring/merch
+Rock: 40% digital, 20% physical, 10% licensing, 30% touring/merch
+Hip-Hop: 55% digital, 5% physical, 10% licensing, 30% touring/merch
+Electronic: 50% digital, 5% physical, 5% licensing, 40% touring/merch
+Country: 40% digital, 20% physical, 10% licensing, 30% touring/merch
+```
+
+#### 6.4.3 Market Condition Dynamics
+```
+Market Health Index (0-100):
+- 80-100: Booming market, all revenues +10-30%
+- 60-79: Strong market, all revenues +5-15%
+- 40-59: Stable market, standard revenues
+- 20-39: Weak market, all revenues -5-15%
+- 0-19: Recession, all revenues -10-30%
+
+Platform Shift Dynamics:
+When new platforms emerge:
+- Early Adoption Bonus: +25-100% on new platform
+- Cannibalization Effect: -5-20% on established platforms
+- Net Revenue Effect: -10% to +40% depending on adaptation speed
+```
+
+#### 6.4.4 Economic Balance Controls
+```
+Economic Control Parameters:
+- Base Earning Rate: Adjusts all income sources by percentage
+- Expense Multiplier: Adjusts all costs by percentage
+- Success Probability: Modifies hit chance formulas
+- Investment Return: Adjusts ROI timeframes
+- Career Progression: Adjusts advancement speed
+
+Economic Difficulty Levels:
+- Easy: +25% revenue, -25% expenses, +20% success chance
+- Normal: Standard values
+- Hard: -15% revenue, +15% expenses, -10% success chance
+- Realistic: -25% revenue, +25% expenses, -20% success chance
+```
+
+---
+
+## 7. PROGRESSION & ACHIEVEMENT SYSTEMS
+
+### 7.1 Manager Progression System
+
+#### 7.1.1 Manager Level Mechanics
+```
+Experience Points Sources:
+- Per $1,000 Revenue Generated: 1 XP
+- Per Artist Level-Up: 50-200 XP based on new level
+- Per Award Won: 100-500 XP based on prestige
+- Per Successful Release (profit > 2× cost): 100-300 XP
+- Per Successful Tour (profit > 1.5× cost): 100-300 XP
+
+Level Requirements:
+Level 1: 0 XP (Starting)
+Level 2: 1,000 XP
+Level 3: 3,000 XP
+Level 4: 7,000 XP
+Level 5: 15,000 XP
+Level 6: 30,000 XP
+Level 7: 60,000 XP
+Level 8: 100,000 XP
+Level 9: 175,000 XP
+Level 10: 300,000 XP
+```
+
+#### 7.1.2 Manager Skills & Specializations
+```
+Skill Points:
+- 5 points at start
+- +3 points per level-up
+- Max 10 points per skill
+- 5 core skills
+
+Core Skills & Effects:
+- Artist Development: +10% per point to artist skill growth rate
+- Business Acumen: +8% per point to contract terms and financial returns
+- Industry Network: +10% per point to relationship building
+- Marketing Savvy: +8% per point to promotional effectiveness
+- Talent Scouting: +10% per point to artist quality identification
+
+Specialization Paths (available at Level 5):
+- Star Maker: +25% to new artist development, -10% to legacy management
+- Longevity Specialist: +30% to career extension, -10% to new artist development
+- Deal Maker: +25% to contract negotiations, -10% to artist development
+- Creative Director: +25% to music quality, -10% to business returns
+- Tour Master: +25% to live performance, -10% to recording quality
+```
+
+#### 7.1.3 Reputation System
+```
+Manager Reputation (0-100 scale):
+- Starting Value: 20
+- Per Successful Release: +0.5 to +2 points
+- Per Failed Release: -0.5 to -2 points
+- Per Artist Achievement: +0.2 to +1 points
+- Per Industry Award: +1 to +5 points
+- Per Dropped Artist: -1 to -3 points
+- Per Contract Breach: -2 to -5 points
+- Monthly Decay: -0.1 points with no notable activity
+
+Reputation Effects:
+- Artist Signing: +0% to +50% success probability
+- Contract Terms: -10% to +20% negotiation power
+- Media Coverage: +0% to +30% press interest
+- Industry Access: Unlocks opportunities at 30/50/70/90 thresholds
+```
+
+#### 7.1.4 Manager Revenue Model
+```
+Income Sources:
+- Management Commission: 5-25% of artist net revenue
+- Label Profit Share: Percentage of label profits based on investment
+- Consulting Fees: $1,000-$50,000 per project based on reputation
+
+Wealth Accumulation Formula:
+Annual Net Income = Sum of all revenue streams - Operating Expenses
+Wealth Milestone Thresholds:
+- Struggling: <$50k
+- Professional: $50k-200k
+- Successful: $200k-500k
+- Industry Player: $500k-2M
+- Mogul: $2M+
+```
+
+### 7.2 Career Achievement System
+
+#### 7.2.1 Achievement Categories & Rewards
+```
+Achievement Types:
+- Commercial Milestones: Sales, streaming, revenue thresholds
+- Artistic Recognition: Awards, critical acclaim, innovation
+- Career Development: Artist level milestones, roster growth
+- Industry Influence: Genre impact, trend setting, market share
+- Legacy: Long-term impact, hall of fame inductions
+
+Reward Tiers:
+- Bronze: Small permanent bonuses (+1-3% to relevant stat)
+- Silver: Moderate bonuses (+3-5% to relevant stat)
+- Gold: Significant bonuses (+5-10% to relevant stat)
+- Platinum: Major bonuses (+10-15% to relevant stat)
+- Diamond: Transformative bonuses (+15-25% to relevant stat)
+```
+
+#### 7.2.2 Achievement Progression Chains
+```
+Example Achievement Chain - Commercial Success:
+1. First 1,000 Streams (Bronze): +1% streaming revenue
+2. First 100,000 Streams (Bronze): +2% streaming revenue
+3. First 1M Streams (Silver): +3% streaming revenue
+4. First 10M Streams (Gold): +5% streaming revenue
+5. First 100M Streams (Platinum): +10% streaming revenue
+6. First 1B Streams (Diamond): +15% streaming revenue
+
+Example Achievement Chain - Artist Development:
+1. First Artist Signed (Bronze): +2% signing success
+2. First Artist to Level 3 (Bronze): +2% artist development speed
+3. First Artist to Level 5 (Silver): +3% artist development speed
+4. First Artist to Level 7 (Gold): +5% artist development speed
+5. First Artist to Level 9 (Platinum): +10% artist development speed
+6. First Artist to Level 10 (Diamond): +15% artist development speed
+```
+
+#### 7.2.3 Award System Mechanics
+```
+Award Types:
+- Industry Awards: Determined by algorithm based on performance metrics
+- Peer Awards: Voted on by other players (weighted by reputation)
+- Critical Awards: Determined by AI critic evaluation
+- Fan Choice Awards: Based on fan engagement metrics
+
+Award Cycle:
+- Monthly Recognition: Small accolades for recent performance
+- Seasonal Awards: End-of-season major categories
+- Annual Awards: Prestigious recognition across all categories
+
+Award Benefits:
+- Trophy/Display Item: Visual recognition
+- Reputation Boost: +1 to +10 points based on prestige
+- Permanent Stat Bonus: +1% to +10% in relevant area
+- Unlock Special Opportunities: Based on award type
+```
+
+#### 7.2.4 Milestone Celebration System
+```
+Milestone Categories:
+- Financial: Revenue/profit thresholds
+- Popularity: Stream count, fan count, sold-out venues
+- Career: Level achievements, awards, longevity
+- Collection: Genre completion, full roster, etc.
+
+Celebration Mechanics:
+- Notification: All players see achievement
+- In-game Event: Special recognition event
+- Permanent Record: Achievement history maintained
+- Stat Boost: Temporary performance enhancement
+- Special Opportunity: Unlock limited-time option
+```
+
+### 7.3 Seasonal Structure Mechanics
+
+#### 7.3.1 Season Mechanics & Timing
+```
+Season Duration: 12 weeks (84 days)
+Transition Period: 7 days between seasons
+
+Season Structure:
+- Week 1: Opening event, trend announcement, goal setting
+- Weeks 2-5: Early season development and strategy
+- Weeks 6-9: Mid-season opportunities and events
+- Weeks 10-11: Final pushes and award positioning
+- Week 12: Season finale, awards ceremony
+
+Season Theme Effects:
+- Genre Popularity: +/-30% to specific genres
+- Economic Conditions: +/-20% to specific revenue streams
+- Special Opportunities: Unique events only available in theme
+- Challenge Modifiers: Specific goals with enhanced rewards
+```
+
+#### 7.3.2 Seasonal Reset Formula
+```
+Elements That Reset:
+- Genre Popularity Distribution: Completely recalculated
+- Trend Cycles: New trends generated
+- Charts & Rankings: Reset to zero
+- Special Events: New schedule generated
+- Economic Modifiers: Recalculated market conditions
+
+Elements With Partial Reset:
+- Artist Popularity: 75% retained, 25% based on new trends
+- Venue Relationships: 90% retained, 10% randomized change
+- Media Relationships: 85% retained, 15% randomized change
+
+Elements That Persist:
+- All Artist Attributes & Skills: 100% retained
+- Manager Level & Skills: 100% retained
+- Label Infrastructure: 100% retained
+- Back Catalog: 100% retained with updated popularity calculations
+```
+
+#### 7.3.3 Season Performance Evaluation
+```
+Season Score Calculation:
+- Financial Performance: 0-1000 points based on profit vs. peers
+- Artist Development: 0-1000 points based on skill growth
+- Media Impact: 0-1000 points based on press coverage
+- Fan Growth: 0-1000 points based on new fan acquisition
+- Award Recognition: 0-1000 points based on awards received
+
+Total Score = Sum of all categories (max 5000 points)
+
+Performance Tiers:
+- Legendary Season: 4500+ points
+- Outstanding Season: 3500-4499 points
+- Successful Season: 2500-3499 points
+- Average Season: 1500-2499 points
+- Disappointing Season: 500-1499 points
+- Failed Season: 0-499 points
+
+Tier Rewards:
+Each tier provides specific bonuses carried into next season
+```
+
+#### 7.3.4 Inter-Season Activities
+```
+Available Actions During Transition Week:
+- Strategic Planning: Set goals and priorities for next season
+- Artist Recovery: Reset energy and remove fatigue
+- Roster Adjustment: Release/sign artists with reduced penalties
+- Facility Upgrades: Discounted improvement opportunities
+- Market Analysis: Purchase enhanced trend forecasts
+
+Transition Bonuses:
+- Rest Bonus: All artists start new season with +10% energy cap for 2 weeks
+- Planning Bonus: +10% effectiveness for activities aligned with strategic plan
+- Fresh Start: -50% reputation penalty for dropping underperforming artists
+```
+
+### 7.4 Legacy System
+
+#### 7.4.1 Legacy Points Accumulation
+```
+Legacy Points (LP) Sources:
+- Per Successful Artist Career (Level 10): 100-500 LP based on achievements
+- Per Industry-Changing Release: 50-300 LP based on impact
+- Per Major Award: 25-200 LP based on prestige
+- Per Genre Dominance Achievement: 100-300 LP based on market share
+- Per Hall of Fame Induction: 200-500 LP based on category
+
+Diminishing Returns Formula:
+New LP = Base LP × (0.95^Number of similar achievements)
+```
+
+#### 7.4.2 Legacy Rank System
+```
+Legacy Ranks:
+- Rank 1 (Newcomer): 0-999 LP
+- Rank 2 (Established): 1,000-2,999 LP
+- Rank 3 (Respected): 3,000-7,999 LP
+- Rank 4 (Renowned): 8,000-14,999 LP
+- Rank 5 (Legendary): 15,000-29,999 LP
+- Rank 6 (Immortal): 30,000+ LP
+
+Rank Benefits:
+- Starting Resource Bonus: +5% per rank in new seasons
+- Negotiation Advantage: +3% per rank in all negotiations
+- Relationship Building: +4% per rank in relationship growth
+- Discovery Chance: +5% per rank for high-quality artist generation
+- Special Opportunities: Unique options at Ranks 3, 4, 5, and 6
+```
+
+#### 7.4.3 Hall of Fame System
+```
+Hall of Fame Categories:
+- Artists: Individual performers and groups
+- Songs: Individual compositions with lasting impact
+- Albums: Complete works of significance
+- Labels: Companies with industry influence
+- Managers (Players): Career achievements
+
+Induction Requirements:
+- Minimum Thresholds: Specific achievements for eligibility
+- Voting Process: Combination of algorithm and peer voting
+- Waiting Period: Minimum career length/time since release
+
+Induction Benefits:
+- Permanent Catalog Value Increase: +25-100%
+- Increased Fan Loyalty: +10-25% retention
+- Legacy Revenue Bonus: +15-50% on all catalog revenue
+- Historical Significance: Special promotional opportunities
+```
+
+#### 7.4.4 Historical Impact Tracking
+```
+Impact Metrics:
+- Genre Influence: How much an artist shaped their genre
+- Industry Innovation: Business or creative innovation significance
+- Cultural Penetration: Broader cultural impact beyond music
+- Artist Influence: Impact on future generations of artists
+- Commercial Legacy: Long-term economic performance
+
+Historical Context Preservation:
+- Timeline Recording: All major achievements preserved
+- Interactive History: Browsable record of accomplishments
+- Influence Visualization: Network diagram of impact
+- Comparative Analysis: Performance vs. contemporaries
+- Documentary Content: AI-generated historical context
+```
+
+---
+
+## 8. COMMUNITY & MULTIPLAYER MECHANICS
+
+### 8.1 Profile & Social Mechanics
+
+#### 8.1.1 Profile System Structure
+```
+Player Profile Components:
+- Basic Info: Name, join date, manager level
+- Career Stats: Artists managed, total revenue, achievements
+- Active Roster: Currently signed artists with basic info
+- Label Info: Company details, specialization, size
+- Achievement Showcase: Selected accomplishments
+- Historical Timeline: Major career events
+- Social Feed: Recent activity and announcements
+
+Update Frequency:
+- Basic Stats: Real-time
+- Financial Data: Daily updates
+- Achievement Data: Immediate upon unlock
+- Historical Data: Weekly archives
+```
+
+#### 8.1.2 Social Interaction Mechanics
+```
+Connection Types:
+- Industry Contacts: Basic professional connection
+- Business Partners: Formal collaborative relationship
+- Mentorship: Teaching/learning relationship
+- Rivals: Competitive relationship with benefits
+- Inner Circle: Close allies with enhanced benefits
+
+Connection Benefits:
+- Information Sharing: Access to contact's market insights
+- Collaboration Bonus: +5-15% quality on joint projects
+- Resource Sharing: Limited access to facilities
+- Opportunity Access: Early notification of possibilities
+- Reputation Association: Small reputation transfer effect
+
+Interaction Point System:
+- Daily Interaction Cap: 50 points
+- Action Costs: 1-10 points based on significance
+- Relationship Growth Formula: Current Level + (Points Invested × Efficiency)
+```
+
+#### 8.1.3 Community Recognition System
+```
+Community Status Tiers:
+- Newcomer: All new players
+- Established: 3+ months active, 5+ achievements
+- Notable: 6+ months active, 10+ achievements, positive reputation
+- Prominent: 1+ years active, 20+ achievements, high reputation
+- Influential: 2+ years active, 50+ achievements, top 10% reputation
+- Legendary: 3+ years active, 100+ achievements, top 1% reputation
+
+Status Benefits:
+- Visibility Boost: +10% per tier to profile views
+- Comment Priority: Higher placement in discussions
+- Verification Badge: At Notable and above
+- Access Permissions: Special areas and events
+- Influence Weight: Voting power in community decisions
+```
+
+#### 8.1.4 Activity Feed Algorithm
+```
+Feed Content Selection:
+- Direct Connections: 100% visibility
+- Second-degree Connections: 50% visibility, importance filtered
+- Community Highlights: Top 10% of all activities
+- Genre Relevance: Activities relevant to your roster's genres
+- Geographic Relevance: Activities in your primary markets
+
+Importance Scoring:
+Score = (Base Importance × Relationship Multiplier × Relevance Factor)
+Where:
+- Base Importance: 1-100 scale based on achievement significance
+- Relationship Multiplier: 0.5-3.0 based on connection closeness
+- Relevance Factor: 0.2-2.0 based on business relevance to you
+```
+
+### 8.2 Collaboration Mechanics
+
+#### 8.2.1 Artist Collaboration System
+```
+Collaboration Types:
+- Featured Artist: One primary, one secondary artist
+- Duet/Joint Single: Equal artist billing
+- Remix: Original artist plus remixer
+- Full Album Collaboration: Extended joint project
+- Supergroup: Temporary new entity from multiple artists
+
+Collaboration Proposal Process:
+1. Initiating player sends proposal with terms
+2. Receiving player accepts/rejects/counter-offers
+3. If accepted, both commit resources to project
+4. Quality and outcome calculated based on combined inputs
+
+Quality Formula:
+Base Quality = (Artist 1 Quality + Artist 2 Quality) ÷ 2
+Synergy Bonus = -20% to +30% based on compatibility
+Management Bonus = +0% to +20% based on manager skills
+Final Quality = Base Quality × (1 + Synergy Bonus + Management Bonus)
+```
+
+#### 8.2.2 Business Collaboration Mechanics
+```
+Joint Venture Types:
+- Co-Release: Shared investment in single project
+- Tour Partnership: Combined artist tour package
+- Festival Organization: Multi-label event production
+- Distribution Alliance: Shared distribution resources
+- Marketing Coalition: Combined promotional efforts
+
+Resource Contribution System:
+- Each partner contributes specified resources
+- Contribution Ratio determines revenue split
+- Minimum thresholds required for participation
+- Maximum caps prevent domination
+
+ROI Formula:
+Individual ROI = (Total Returns × Contribution Percentage) ÷ Individual Investment
+Joint ROI = Total Returns ÷ Total Investment
+```
+
+#### 8.2.3 Resource Sharing Mechanics
+```
+Sharable Resources:
+- Studio Time: Hourly access to production facilities
+- Staff Expertise: Temporary access to specialized staff
+- Venue Relationships: Introductions to venue contacts
+- Distribution Channels: Access to established pipelines
+- Marketing Platforms: Access to promotional channels
+
+Sharing Limitations:
+- Daily Cap: Maximum resources shared per day
+- Relationship Requirement: Minimum connection level required
+- Quality Retention: 80-95% of original resource quality
+- Reciprocity Expectation: System tracks giving/receiving ratio
+- Cooldown Period: Time before same resource can be shared again
+```
+
+#### 8.2.4 Collaborative Project Management
+```
+Project Phases:
+1. Proposal & Agreement: Terms established
+2. Resource Commitment: Assets allocated
+3. Development: Combined work process
+4. Completion: Final quality determination
+5. Distribution: Release to market
+6. Accounting: Revenue distribution
+
+Timeline Management:
+- Each phase has minimum/maximum durations
+- Synchronization points require all parties' action
+- Delay penalties apply for missed deadlines
+- Early completion bonuses for efficient execution
+
+Communication Tools:
+- Project Message Board: Centralized communication
+- Milestone Tracking: Progress visualization
+- Resource Allocation Interface: Contribution management
+- Results Dashboard: Performance metrics
+```
+
+### 8.3 Competitive Mechanics
+
+#### 8.3.1 Ranking & Leaderboard System
+```
+Leaderboard Categories:
+- Financial Performance: Revenue, profit, growth metrics
+- Artist Development: Skill growth, career advancement
+- Creative Excellence: Music quality, critical reception
+- Fan Engagement: Audience size, loyalty, activity
+- Overall Performance: Composite of all categories
+
+Calculation Frequency:
+- Daily Updates: Basic metrics
+- Weekly Recalculation: Complex rankings
+- Seasonal Champions: End-of-season final standings
+- All-Time Greats: Historical best performances
+
+Visibility Rules:
+- Top 100 visible to all players
+- Personal position always visible
+- Percentile ranking shown for below top 100
+- Historical performance tracking for self-comparison
+```
+
+#### 8.3.2 Direct Competition Mechanics
+```
+Competitive Scenario Types:
+- Chart Battles: Head-to-head for ranking positions
+- Signing Races: Competition for same artist
+- Venue Booking: Competition for limited performance slots
+- Award Nominations: Competing for limited recognition spots
+- Market Share: Competition for genre dominance
+
+Success Probability in Competition:
+P(Win) = Base Chance × (Your Relevant Stat ÷ Opponent Relevant Stat) × Effort Multiplier
+
+Where:
+- Base Chance = 50%
+- Relevant Stat: Specific attribute pertinent to competition
+- Effort Multiplier: 0.5-2.0 based on resource investment
+```
+
+#### 8.3.3 Rivalry System
+```
+Rivalry Establishment:
+- Mutual Declaration: Both players agree to rivalry
+- Automatic Trigger: After 3+ direct competitions
+- Intensity Levels: 1-5 scale of rivalry strength
+
+Rivalry Effects:
+- Victory Bonus: +10-30% rewards when defeating rival
+- Motivation Boost: +5-15% performance in shared categories
+- Fan Engagement: +10-25% fan interaction during competitions
+- Media Coverage: +20-50% press coverage of rivalry events
+- Historical Tracking: Lifetime record maintained
+
+Rivalry Decay:
+- -1 intensity level per season without interaction
+- Can be formally ended by mutual agreement
+```
+
+#### 8.3.4 Award System Competition
+```
+Award Categories:
+- Artist Awards: Performance, growth, quality
+- Song/Album Awards: Commercial, critical, innovative
+- Label Awards: Development, business, influence
+- Manager Awards: Strategy, development, leadership
+
+Nomination Process:
+- Algorithm-Selected Shortlist: Based on performance metrics
+- Voting Phase: Weighted votes from peers and AI critics
+- Final Selection: Combined algorithm and voting results
+
+Award Benefits:
+- Trophy Display: Visual acknowledgment
+- Permanent Bonus: +1-10% in relevant area
+- Prestige Boost: +2-15 reputation points
+- Historical Record: Achievement permanently recorded
+- Promotional Value: Marketing boost for winners
+```
+
+### 8.4 Community Governance
+
+#### 8.4.1 Player-Driven Events
+```
+Event Creation Process:
+1. Proposal: Player creates event concept
+2. Requirements: Minimum reputation/resources needed
+3. Approval: Automatic if requirements met
+4. Promotion: Event added to community calendar
+5. Participation: Other players join based on criteria
+6. Execution: Collaborative activity with shared outcomes
+
+Event Types:
+- Showcase Festivals: Feature multiple artists
+- Industry Conferences: Knowledge sharing and networking
+- Award Shows: Community recognition ceremonies
+- Charity Concerts: Reputation-building benefit events
+- Genre Summits: Style-focused collaborative gatherings
+```
+
+#### 8.4.2 Voting & Influence System
+```
+Influence Points (IP) Calculation:
+Base IP = Manager Level × 10
++ Reputation Modifier = Reputation × 0.5
++ Legacy Modifier = Legacy Points ÷ 100
++ Engagement Modifier = Community Contribution Points × 0.2
+
+Voting Power = Total IP
+
+Vote Types:
+- Binary Votes: Yes/No on specific proposals
+- Preference Ranking: Ordered choices
+- Resource Allocation: Distributing community resources
+- Representative Selection: Choosing community leadership
+```
+
+#### 8.4.3 Community Challenge Mechanics
+```
+Challenge Structure:
+- Community Goal: Collective target for all participants
+- Individual Contributions: Personal impact tracking
+- Threshold Requirements: Minimum participation for rewards
+- Time Limit: Fixed duration for completion
+- Stretch Goals: Enhanced rewards for exceeding targets
+
+Reward Distribution:
+- Base Reward: All qualifying participants
+- Contribution Bonus: Additional rewards proportional to contribution
+- Top Contributor Reward: Special bonus for highest impact
+- Early Completion Bonus: Additional reward if finished before deadline
+```
+
+#### 8.4.4 Industry Organization Mechanics
+```
+Organization Types:
+- Genre Associations: Style-focused groups
+- Regional Collectives: Geographic collaboration
+- Business Alliances: Economic cooperation
+- Advocacy Groups: Industry policy influence
+- Educational Networks: Knowledge sharing
+
+Membership Requirements:
+- Reputation Threshold: Minimum standing to join
+- Resource Contribution: Regular dues or contributions
+- Activity Requirements: Minimum participation level
+- Alignment Requirements: Compatible business approach
+
+Membership Benefits:
+- Enhanced Collaboration: +10-25% quality with members
+- Resource Access: Special facilities and opportunities
+- Information Sharing: Market intelligence and trends
+- Collective Bargaining: Improved deal terms
+- Brand Association: Reputation by association
+```
+
+---
+
+## 9. AI INTEGRATION MECHANICS
+
+### 9.1 AI Content Generation
+
+#### 9.1.1 Artist Generation Parameters
+```
+Generation Process:
+1. Base Template: Selected from genre-appropriate archetypes
+2. Attribute Randomization: Controlled variance within genre norms
+3. Background Creation: Coherent history and influences
+4. Personality Development: Consistent trait selection
+5. Skill Distribution: Appropriate starting capabilities
+6. Visual Description: Detailed textual representation
+
+Customization Parameters:
+- Genre Guidance: Primary and secondary genre influences
+- Era Alignment: Contemporary vs. classic stylistic elements
+- Technical Proficiency: Skill floor and ceiling
+- Personality Tendency: General temperament direction
+- Career Stage: From newcomer to established
+```
+
+#### 9.1.2 Music Description Engine
+```
+Description Components:
+- Sound Profile: Instrumentation, production, sonic character
+- Lyrical Content: Themes, writing style, emotional tone
+- Structural Elements: Song construction, arrangement
+- Performance Aspects: Vocal/instrumental execution
+- Comparative References: "For fans of" contextual placement
+- Emotional Impact: How the music makes listeners feel
+
+Quality Scaling:
+- Level 1 (Basic): 50-75 words, general characteristics
+- Level 2 (Standard): 100-150 words, specific details
+- Level 3 (Detailed): 200-300 words, nuanced analysis
+- Level 4 (Comprehensive): 350-500 words, in-depth breakdown
+- Level 5 (Expert): 500+ words, professional-level critique
+```
+
+#### 9.1.3 Event Generation System
+```
+Event Categories:
+- Industry News: Market shifts, platform changes, technology
+- Artist Situations: Personal and professional developments
+- Market Opportunities: Limited-time possibilities
+- External Factors: Cultural moments, world events
+- Random Incidents: Unexpected situations requiring response
+
+Event Generation Formula:
+Daily Event Count = Base Rate + (Roster Size × 0.2) + (Activity Level × 0.3)
+Event Selection Weight = Relevance Score × Dramatic Potential × Player Interest Factor
+
+Impact Scaling:
+- Minor: Small adjustments to normal operations
+- Moderate: Significant short-term effects
+- Major: Substantial medium-term consequences
+- Critical: Game-changing long-term impacts
+```
+
+#### 9.1.4 Narrative Consistency Engine
+```
+Consistency Parameters:
+- Entity Memory: Tracking all facts about people, places, things
+- Relationship History: Previous interactions and outcomes
+- World State: Current condition of the game universe
+- Player Choices: Respecting past decisions
+- Style Coherence: Maintaining consistent tone and approach
+
+Contradiction Prevention:
+- Fact Checking: New content validated against historical database
+- Context Awareness: Location, time, and circumstance checking
+- Character Consistency: Personality and motivation alignment
+- Style Matching: Tone and voice consistency enforcement
+
+Adaptive Narrative:
+- Plot Thread Tracking: Monitoring ongoing storylines
+- Escalation Pacing: Controlling dramatic intensity
+- Resolution Timing: Bringing stories to satisfying conclusions
+- Interconnection: Creating links between separate narratives
+```
+
+### 9.2 AI NPC System
+
+#### 9.2.1 Personality Model Parameters
+```
+Core Personality Traits:
+- 5-Factor Model: Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism
+- Each trait scaled 1-100 with normal distribution
+- Secondary derived traits based on primary combinations
+
+Professional Style Attributes:
+- Risk Tolerance: 1-100 scale from conservative to bold
+- Communication Style: 1-100 scale from direct to diplomatic
+- Decision Speed: 1-100 scale from cautious to impulsive
+- Creative vs. Commercial: 1-100 scale of prioritization
+- Traditional vs. Innovative: 1-100 scale of approach
+
+Consistency Implementation:
+- Trait-based Response Templates: Responses match personality
+- Decision Weighting: Choices influenced by traits
+- Relationship Memory: Interactions recorded and referenced
+- Contextual Adaptation: Behavior adjusts to situations while maintaining core traits
+```
+
+#### 9.2.2 NPC Interaction System
+```
+Interaction Types:
+- Business Discussion: Negotiation, planning, strategy
+- Creative Collaboration: Artistic development, feedback
+- Relationship Building: Personal connection, trust development
+- Information Exchange: Learning, teaching, sharing
+- Conflict Resolution: Problem-solving, disagreement navigation
+
+Interaction Outcome Formula:
+Success Probability = Base Rate × Relationship Factor × Approach Alignment × Effort Investment
+
+Where:
+- Base Rate: 50% starting point
+- Relationship Factor: 0.5-1.5 based on NPC relationship level
+- Approach Alignment: 0.6-1.4 based on matching NPC preferences
+- Effort Investment: 0.8-1.3 based on resources committed
+
+Response Variance:
+- Each interaction includes 10-20% randomization factor
+- Critical successes/failures possible (5% chance each)
+- Mood and circumstance modifiers (-20% to +20%)
+```
+
+#### 9.2.3 Relationship Development Mechanics
+```
+Relationship Levels:
+1. Stranger (0-10): No established connection
+2. Acquaintance (11-30): Basic recognition and minimal history
+3. Contact (31-50): Professional relationship established
+4. Connection (51-70): Reliable professional relationship
+5. Partnership (71-85): Strong working relationship
+6. Alliance (86-100): Deepest professional bond
+
+Development Mechanics:
+- Initial Impression: Based on reputation and first interaction
+- Growth Rate = Base Rate × Compatibility Factor × Interaction Frequency
+- Decay Rate = Base Decay × (1 - Relationship Level/100) × Inactivity Duration
+- Damage from Negative Interactions = Base Damage × Relationship Level × Severity
+
+Compatibility Calculation:
+Compatibility Score = 50 + Aligned Traits - Conflicting Traits + History Modifier
+```
+
+#### 9.2.4 NPC Network Effects
+```
+Network Visualization:
+- First-degree Connections: Direct relationships
+- Second-degree Connections: Friends of friends
+- Influence Pathways: Reputation flow through network
+- Cluster Identification: Related groups of NPCs
+- Gatekeeper Recognition: Control points in network
+
+Network Propagation Effects:
+- Reputation Spread: Information travels through connections
+- Speed = Base Rate × Connection Strength × Information Significance
+- Distortion = Base Rate × Path Length × Conflicting Interests
+- Reach = Source Influence × Content Relevance × Network Density
+- Echo Chamber Effect: Similar nodes amplify consistent messages
+```
+
+### 9.3 AI Gameplay Systems
+
+#### 9.3.1 Dynamic Economy Simulation
+```
+Market Modeling Factors:
+- Consumer Behavior: Shifting purchasing patterns
+- Platform Evolution: Changes in music consumption methods
+- Genre Popularity Cycles: 60-120 day trend cycles
+- External Events: Cultural moments affecting music consumption
+- Seasonal Effects: Predictable annual patterns
+
+Formula Components:
+- Base Demand = Genre Base Value × Seasonal Modifier
+- Trend Influence = Current Popularity × Momentum Factor
+- Saturation Effect = 1 - (Current Supply ÷ Maximum Demand)
+- External Modifier = 0.8 to 1.2 based on world events
+- Player Impact = Collective player actions affect overall market
+
+Final Market State = Base Demand × Trend Influence × Saturation Effect × External Modifier × Player Impact
+```
+
+#### 9.3.2 Trend Prediction System
+```
+Trend Analysis Components:
+- Historical Pattern Recognition: Identifying recurring cycles
+- Early Indicator Monitoring: Spotting emerging movements
+- Momentum Calculation: Assessing strength and duration potential
+- Saturation Prediction: Estimating peak and decline timing
+- Interaction Effects: How trends affect each other
+
+Accuracy Scaling:
+- Level 1 (Basic): 55-65% accuracy, 7-day forecast
+- Level 2 (Standard): 60-70% accuracy, 14-day forecast
+- Level 3 (Advanced): 65-75% accuracy, 30-day forecast
+- Level 4 (Expert): 70-80% accuracy, 60-day forecast
+- Level 5 (Predictive): 75-85% accuracy, 90-day forecast
+
+Forecasting Formula:
+Predicted Value = Current Value × (1 + (Trend Rate × Time Period) + Random Variance)
+```
+
+#### 9.3.3 Music Industry Simulation
+```
+Industry Dynamics Modeling:
+- Platform Competition: Streaming services vying for market share
+- Label Ecosystem: AI-controlled labels with strategies
+- Media Landscape: Press outlets, influencers, and coverage patterns
+- Distribution Channels: Physical and digital pipelines
+- Technology Evolution: New tools and approaches
+
+Disruption Mechanics:
+- Disruptive Event Probability = Base Rate × Time Since Last Disruption × Industry Stability
+- Impact Severity = Base Impact × Adoption Rate × Legacy Dependency
+- Adaptation Window = Base Time × Company Agility × Investment Level
+- Competitive Advantage = Adaptation Speed × Innovation Bonus × Resource Efficiency
+
+Industry Health Index:
+Economic Health = (Revenue Growth + Profit Margins + Investment Level) ÷ 3
+Creative Health = (New Artist Rate + Innovation Index + Quality Metrics) ÷ 3
+Overall Health = (Economic Health + Creative Health) ÷ 2
+```
+
+#### 9.3.4 Adaptive Difficulty System
+```
+Player Performance Tracking:
+- Success Rate: Wins vs. attempts across activities
+- Growth Rate: Progression speed compared to average
+- Resource Accumulation: Wealth and asset acquisition pace
+- Strategic Sophistication: Complexity of decisions made
+- Challenge Engagement: Willingness to take on difficult tasks
+
+Difficulty Adjustment Parameters:
+- Competition Strength: Quality of AI-generated rivals
+- Economic Conditions: Market favorability and stability
+- Opportunity Frequency: Rate of special event generation
+- Success Thresholds: Requirements for achievements
+- Risk/Reward Ratio: Balance of potential gains vs. losses
+
+Adjustment Formula:
+New Difficulty = Base Difficulty + (Performance Delta × Adjustment Rate × Player Preference)
+Where Performance Delta = Player Performance - Target Performance
+```
+
+### 9.4 AI Interface & Experience
+
+#### 9.4.1 Personalized Content Delivery
+```
+Player Preference Learning:
+- Interaction Tracking: Monitoring time spent on features
+- Decision Pattern Analysis: Identifying strategic preferences
+- Engagement Scoring: Rating response to different content
+- Explicit Feedback: Processing direct user input
+- A/B Testing: Comparing reactions to different approaches
+
+Content Customization:
+- Recommended Actions: Based on play patterns
+- Information Prioritization: Highlighting relevant data
+- Interface Adaptation: Emphasizing preferred tools
+- Challenge Targeting: Matching difficulty to skill
+- Story Focus: Emphasizing preferred narrative elements
+
+Relevance Formula:
+Content Relevance Score = (Interest Match × 0.4) + (Strategic Value × 0.3) + (Novelty Factor × 0.2) + (Timing Appropriateness × 0.1)
+```
+
+#### 9.4.2 Conversation & Interaction System
+```
+Interaction Modes:
+- Business Discussion: Formal, information-focused
+- Creative Collaboration: Exploratory, inspiration-focused
+- Personal Connection: Relationship-building focus
+- Crisis Management: Problem-solving focus
+- Celebration: Achievement-focused
+
+Response Generation:
+- Context Awareness: Understanding conversation history
+- Personality Alignment: Matching NPC characteristics
+- Emotional Intelligence: Appropriate tone for situation
+- Memory Integration: Referencing past interactions
+- Goal Orientation: Advancing appropriate objectives
+
+Dialogue Branching:
+- Each response offers 2-4 player options
+- Options reflect different approaches (diplomatic, aggressive, creative, etc.)
+- Critical conversation moments have higher-impact choices
+- Relationship status affects available options
+- Previous choices influence current options
+```
+
+#### 9.4.3 Guided Experience System
+```
+Player Guidance Components:
+- Tutorial Elements: Teaching mechanics and strategies
+- Goal Suggestions: Recommending appropriate next steps
+- Challenge Scaling: Matching difficulty to current ability
+- Feedback Systems: Providing actionable insights
+- Reward Pacing: Maintaining appropriate reinforcement
+
+Adaptation Parameters:
+- Learning Pace: Adjusting to player comprehension speed
+- Mistake Patterns: Offering specific help for recurring issues
+- Success Analysis: Building on demonstrated strengths
+- Engagement Signals: Responding to interest indicators
+- Complexity Tolerance: Matching detail level to player preference
+
+Help System Triggers:
+- Repeated Failures: Activates after 3+ similar failures
+- Extended Inactivity: Suggests actions after 3+ days without play
+- Pattern Interruption: Offers guidance when breaking beneficial habits
+- Efficiency Opportunity: Suggests improvements to workflows
+- Strategic Blindspot: Highlights overlooked opportunities
+```
+
+#### 9.4.4 Player Motivation Modeling
+```
+Motivation Type Identification:
+- Achievement: Progress and accomplishment focus
+- Social: Connection and status focus
+- Immersion: Story and role-playing focus
+- Mastery: Skill development and challenge focus
+- Creativity: Expression and uniqueness focus
+- Collection: Completion and accumulation focus
+
+Engagement Optimization:
+- Reward Alignment: Matching incentives to motivation type
+- Challenge Tuning: Adjusting difficulty to maintain flow state
+- Content Emphasis: Highlighting preferred game aspects
+- Social Connection: Facilitating appropriate player interactions
+- Recognition System: Acknowledging achievements in motivating ways
+
+Satisfaction Measurement:
+- Session Length: Duration of play periods
+- Return Rate: Frequency of logins
+- Feature Engagement: Depth of interaction with systems
+- Progress Rate: Speed of advancement
+- Social Participation: Level of community involvement
+- Monetary Investment: Willingness to purchase premium features
+```
+
+---
+
+## 10. TECHNICAL IMPLEMENTATION NOTES
+
+### 10.1 Core Game Loop Implementation
+
+#### 10.1.1 Daily Processing Cycle
+```
+Scheduled Processing Sequence:
+1. 00:00 UTC: Daily reset of time-limited activities
+2. 00:05 UTC: Artist energy recovery and status updates
+3. 00:10 UTC: Market and trend updates
+4. 00:15 UTC: AI event generation
+5. 00:20 UTC: Player notification preparation
+6. 00:25 UTC: Data consistency checks
+7. 00:30 UTC: Analytics processing
+
+Each process runs as a separate Sidekiq job with:
+- Specific queue assignment
+- Error recovery procedures
+- Completion logging
+- Performance monitoring
+```
+
+#### 10.1.2 Real-time Processing
+```
+Immediate Processing Triggers:
+- Player Actions: Direct user interactions
+- Time-based Events: Scheduled occurrences
+- Threshold Events: When values cross defined limits
+- System Notifications: Internal state changes
+- External Events: API-triggered occurrences
+
+Processing Priorities:
+1. Critical User Interface: 50ms target response
+2. Standard User Actions: 200ms target response
+3. Background Updates: 500ms target response
+4. Data Synchronization: 1s target response
+5. Analytics & Reporting: 3s target response
+```
+
+#### 10.1.3 Resource Consumption Limits
+```
+Database Utilization:
+- Query Complexity Limits: Max joins/subqueries per request
+- Transaction Duration Caps: Maximum lock time
+- Row Count Thresholds: Pagination requirements
+
+API Rate Limiting:
+- External AI Services: Calls per minute/hour
+- User Action Rates: Actions per minute
+- Background Process Pacing: Jobs per minute
+
+Memory Management:
+- Per-Request Allocation Caps
+- Background Job Memory Limits
+- Cache Size Restrictions
+```
+
+#### 10.1.4 State Management
+```
+State Storage Hierarchy:
+- Critical Game State: Relational database
+- Derived Data: Cache with database fallback
+- Temporary State: In-memory storage
+- User Session: Browser/token storage
+- Analytics Data: Separate data store
+
+Consistency Enforcement:
+- Transaction Boundaries: ACID compliance for state changes
+- Optimistic Locking: For concurrent modifications
+- Version Tracking: For conflict resolution
+- State Snapshots: For recovery points
+- Audit Logging: For troubleshooting and verification
+```
+
+### 10.2 Data Structure Implementation
+
+#### 10.2.1 Core Entity Schemas
+```
+Artist Entity:
+- Primary attributes stored as direct columns
+- Skills stored as JSONB with typed access
+- History stored as timestamped JSONB array
+- Relationships stored as JSONB with entity references
+- Stats stored as JSONB with daily snapshots
+
+Manager Entity:
+- Progression metrics as direct columns
+- Skill allocations as structured JSONB
+- Achievement tracking as JSONB with completion status
+- Reputation by category as JSONB
+
+Song/Album Entity:
+- Core metadata as direct columns
+- Component attributes as structured JSONB
+- Performance metrics as timeseries JSONB
+- Reception data as JSONB with source references
+- Associated media as JSONB with asset references
+```
+
+#### 10.2.2 Relationship Modeling
+```
+Artist-Manager Relationship:
+- Direct foreign key with ownership semantics
+- Contractual details in join table
+- Historical relationship tracking for past managers
+
+Artist-Artist Relationship:
+- Many-to-many through collaboration table
+- Relationship type classification
+- Compatibility scoring
+- Interaction history
+
+Entity-Market Relationship:
+- Market segments as dimension table
+- Entity popularity as scoped metrics
+- Trend alignment as calculated values
+- Historical performance as timeseries data
+```
+
+#### 10.2.3 Timeseries Implementation
+```
+Metric Storage Approach:
+- High-frequency data: Downsampled with retention policy
+- Daily aggregates: Retained indefinitely
+- Weekly summaries: Pre-calculated for performance
+- Monthly analyses: Materialized views
+
+Efficient Query Patterns:
+- Date-range partitioning for fast access
+- Pre-aggregated summary tables
+- Materialized trend calculations
+- Cached recent values
+```
+
+#### 10.2.4 Attribute System Implementation
+```
+Base Attribute Storage:
+- Core attributes as direct columns
+- Derived attributes as calculated values
+- Temporary modifiers as expiring JSONB
+- Equipment/item bonuses as summed modifiers
+
+Modifier System:
+- Base value storage
+- Additive modifier layer
+- Multiplicative modifier layer
+- Minimum/maximum enforcement layer
+- Temporary effect tracking
+
+Value Calculation Pipeline:
+Raw Value -> Applied Additive Modifiers -> Applied Multiplicative Modifiers -> Clamping -> Final Value
+```
+
+### 10.3 Performance Optimization
+
+#### 10.3.1 Database Query Optimization
+```
+Query Performance Guidelines:
+- Index Coverage: All filtered and sorted fields
+- Composite Indexes: For common query patterns
+- Partial Indexes: For frequently filtered subsets
+- Query Complexity Limits: Join count restrictions
+- Pagination Enforcement: Row count limits
+
+JSON/JSONB Optimization:
+- GIN indexes on searchable keys
+- Selective storage of frequently queried elements as columns
+- Expression indexes for common JSONB operations
+- Path-specific indexes for deep JSONB structures
+```
+
+#### 10.3.2 Caching Strategy
+```
+Cache Hierarchy:
+- L1: In-memory application cache (1 minute TTL)
+- L2: Redis shared cache (10 minute TTL)
+- L3: Database materialized views (1 hour refresh)
+- L4: Content delivery network (1 day TTL)
+
+Caching Candidates:
+- Frequently accessed reference data
+- Expensive calculations with infrequent changes
+- User-specific aggregations with moderate change frequency
+- Public profile data with controlled update timing
+```
+
+#### 10.3.3 Background Processing Optimization
+```
+Job Categorization:
+- Critical Path: Must complete within minutes
+- Important: Must complete within hours
+- Routine: Must complete within a day
+- Low Priority: Can be delayed if necessary
+
+Queue Management:
+- Separate queues by priority and resource needs
+- Auto-scaling worker pools based on queue depth
+- Retry strategies with exponential backoff
+- Circuit breakers for failing dependencies
+- Job splitting for parallelizable work
+```
+
+#### 10.3.4 Front-end Performance
+```
+Rendering Optimization:
+- Component-level caching for stable elements
+- Partial updates via Turbo Frames
+- Progressive loading of non-critical content
+- Image optimization and lazy loading
+- Font subsetting and optimization
+
+Turbo/Stimulus Strategy:
+- Controller granularity guidelines
+- Event delegation patterns
+- DOM update minimization
+- State management approach
+- Asset bundling strategy
+```
+
+### 10.4 Security Considerations
+
+#### 10.4.1 Authentication & Authorization
+```
+Authentication Mechanisms:
+- Standard email/password with strict requirements
+- OAuth integration for major providers
+- Two-factor authentication option
+- Session management with secure cookies
+- API access via token authentication
+
+Authorization Framework:
+- Role-based access control foundation
+- Resource ownership checks
+- Action-based permissions
+- Context-sensitive access rules
+- Delegation capabilities for team play
+```
+
+#### 10.4.2 Data Protection
+```
+Sensitive Data Handling:
+- PII encryption at rest
+- Financial data encryption at rest
+- Secure transmission via TLS
+- Minimal data collection principle
+- Retention policy enforcement
+
+Access Control Implementation:
+- Row-level security in database
+- Attribute-level redaction for sensitive fields
+- Audit logging for sensitive data access
+- Rate limiting for data retrieval
+- Export restrictions and monitoring
+```
+
+#### 10.4.3 API Security
+```
+API Protection Measures:
+- Authentication requirement for all endpoints
+- Rate limiting by user and endpoint
+- Input validation and sanitization
+- Output encoding for safe display
+- CSRF protection for state-changing operations
+
+External Service Security:
+- Credential rotation schedule
+- Least privilege access principles
+- Service account isolation
+- IP restrictions where applicable
+- Traffic encryption requirements
+```
+
+#### 10.4.4 AI Content Safety
+```
+Content Moderation Pipeline:
+- Pre-generation prompt safety checks
+- Post-generation content screening
+- Prohibited content pattern matching
+- User reporting mechanism
+- Human review escalation pathway
+
+Safety Guardrails:
+- Prompt construction templates with safety constraints
+- Output filtering for inappropriate content
+- Contextual awareness for sensitive topics
+- Alternative content generation for rejected outputs
+- Safety metric tracking and threshold enforcement
+```

@@ -1,0 +1,353 @@
+---
+description: 12-phase implementation plan
+globs: 
+alwaysApply: true
+---
+# Rockburg: 12-Phase Implementation Roadmap
+
+Here's a more granular 12-phase implementation plan, with each phase delivering a focused, shippable experience that builds progressively toward your complete vision. Each phase includes daily engagement hooks and community elements.
+
+## Phase 0: App core
+**Core Concept:** Get the main bones of the app built.
+
+### Features:
+- **User model:** Your vanilla user auth stack using Rails 8 `rails generate authentication`
+- **Pages controller:** For things like marketing pages, privacy policy, etc
+
+## Phase 1: Artist Fundamentals (3-4 weeks)
+**Core Concept:** Sign and manage your first artist with basic daily decisions
+
+### Features:
+- **Artist Profile Creation:** Sign a single artist with basic attributes (talent, genre, energy)
+- **Simple Daily Decision System:** One key action per day (practice, record, promote, rest)
+- **Basic Stats Dashboard:** Track popularity, skill, and energy
+- **Starter Venues:** Book gigs at 3-5 small venues
+- **Initial Streaming Platform:** Basic music distribution
+
+### Community Elements:
+- **Public Artist Profiles:** View other players' artists and basic stats
+- **Simple Leaderboard:** Artist popularity rankings
+- **Activity Feed:** See recent signings across the community
+
+### Daily Engagement Hooks:
+- **Energy Management:** Daily decisions on how to allocate artist energy
+- **Gig Opportunities:** Time-limited booking windows for venues
+- **Day/Night Cycle:** Different activities available at different times
+
+### AI Integration:
+- **Procedural Artist Generation:** Create unique personalities and backgrounds
+- **Basic Fan Response:** Simple AI-generated comments after activities
+- **Venue Owner NPCs:** Simple personalities for venue managers
+
+## Phase 2: Music Industry Fundamentals (3-4 weeks)
+**Core Concept:** Add simple industry dynamics, trends, and AI-driven NPC profiles
+
+### Features:
+- **Genre Trend System:** Shifting popularity of different music styles
+- **Industry News Feed:** Daily AI-generated updates affecting gameplay
+- **Basic Networking System:** Build relationships with key industry figures
+- **Simple Economy:** Stream counts translate to basic income
+- **Weekly Reports:** Performance summaries and trend analysis
+
+### Community Elements:
+- **Industry Figure Profiles:** Discover AI producers, venue owners, and critics
+- **Trending Genres Visualization:** See what styles are gaining popularity
+- **Community Activity Pulse:** Daily overview of all player activity
+
+### Daily Engagement Hooks:
+- **Industry Pulse Check:** Review daily news and trend shifts
+- **Relationship Building:** Daily opportunities to connect with NPCs
+- **Time-Limited Opportunities:** Respond to daily industry developments
+
+### AI Integration:
+- **Trend Simulation Engine:** AI model of genre popularity evolution
+- **NPC Profile Generation:** Detailed industry figure personalities
+- **Simple Narrative Events:** AI-created situations affecting your artist
+
+## Phase 3: Music Creation Basics (3-4 weeks)
+**Core Concept:** Create and release singles with meaningful creative choices
+
+### Features:
+- **Song Creation System:** Combine themes, moods, and styles
+- **Single Release Strategy:** Time releases for maximum impact
+- **Basic Studio Booking:** Choose between quality levels and costs
+- **Simple Reception System:** Fan and critic responses to releases
+- **Streaming Analytics:** Track performance of your releases
+
+### Community Elements:
+- **Release Feed:** See new music from all players
+- **Song Profile Pages:** Detailed pages for each release with stats
+- **Genre Community Hubs:** Connect with others in your music style
+
+### Daily Engagement Hooks:
+- **Creative Inspiration:** Daily fluctuations in creative potential
+- **Release Timing Strategy:** Optimal and suboptimal days to release
+- **Response Monitoring:** Track daily changes in song reception
+
+### AI Integration:
+- **Song Concept Generator:** AI creates unique song descriptions
+- **Listener Response Engine:** Varied AI fan reactions to releases
+- **Simple Music Critics:** AI reviewers with basic preference models
+
+## Phase 4: Fanbase Building & Social Media (3-4 weeks)
+**Core Concept:** Develop targeted fan demographics and social media presence
+
+### Features:
+- **Fan Demographic System:** Track different listener segments
+- **Social Media Management:** Basic posting and promotion tools
+- **Content Creation Calendar:** Plan and schedule promotional activities
+- **Fan Engagement Metrics:** Track reactions and growth
+- **Influencer Relationships:** Connect with AI figures who can promote
+
+### Community Elements:
+- **Social Media Profiles:** Public feeds for artists and managers
+- **Fan Overlap Analysis:** See shared audiences between artists
+- **Content Reaction Feed:** Community response to promotional efforts
+
+### Daily Engagement Hooks:
+- **Optimal Posting Times:** Strategic timing for social content
+- **Trending Topics:** Daily social media themes to leverage
+- **Engagement Windows:** Time-limited opportunities for fan interaction
+
+### AI Integration:
+- **Fan Persona System:** AI-generated representative audience members
+- **Content Reception Engine:** Realistic reactions to different approaches
+- **Influencer NPC Network:** AI social media personalities with followings
+
+## Phase 5: Extended Releases & Albums (3-4 weeks)
+**Core Concept:** Create cohesive album projects with enhanced creative options
+
+### Features:
+- **Album Creation System:** Plan multi-song projects with themes
+- **Extended Production Process:** Multi-day studio sessions
+- **Album Narrative Elements:** Create storylines and concepts
+- **Physical & Digital Release Options:** Different distribution strategies
+- **Album Reception Framework:** Comprehensive review system
+
+### Community Elements:
+- **Album Profile Pages:** Showcase pages with detailed information
+- **Album Charts & Rankings:** Community-wide performance tracking
+- **Listening Parties:** Scheduled community events for new releases
+
+### Daily Engagement Hooks:
+- **Album Progress Tracking:** Daily studio session decisions
+- **Pre-release Marketing:** Build anticipation with daily activities
+- **Review Embargo System:** Strategic timing of critical reception
+
+### AI Integration:
+- **Album Concept Generator:** AI suggests cohesive themes and approaches
+- **Advanced Critic System:** In-depth AI reviews of complete projects
+- **Style Evolution Modeling:** How artists develop their sound over time
+
+## Phase 6: Artist Roster Expansion (3-4 weeks)
+**Core Concept:** Sign and manage multiple artists with different needs
+
+### Features:
+- **Multi-Artist Management:** Handle up to 3 different acts
+- **Artist Discovery System:** Find and sign new talent
+- **Schedule Management:** Allocate time across your roster
+- **Artist Personality System:** Different traits affecting management
+- **Inter-Artist Dynamics:** Relationships between your acts
+
+### Community Elements:
+- **Label Roster Pages:** Public profile of your artist collection
+- **Talent Scouting Feed:** See who's signing which emerging artists
+- **Artist Relationship Map:** Visualize connections between artists
+
+### Daily Engagement Hooks:
+- **Attention Management:** Daily decisions on which artists need focus
+- **Personality Conflicts:** Handle situations between roster members
+- **Differential Development:** Strategic focus on different acts each day
+
+### AI Integration:
+- **Artist Personality Engine:** Complex AI behaviors and preferences
+- **Relationship Simulation:** How different AI personalities interact
+- **Career Development Patterns:** AI models of artistic growth trajectories
+
+## Phase 7: Label Establishment (3-4 weeks)
+**Core Concept:** Create a formal label structure with infrastructure and staff
+
+### Features:
+- **Label HQ System:** Establish and upgrade your company facilities
+- **Staff Hiring:** Add specialized employees with unique skills
+- **Business Model Choices:** Different label structures and approaches
+- **Basic Contract System:** Different deal structures for your artists
+- **Label Identity Development:** Build a recognizable brand
+
+### Community Elements:
+- **Label Profile Pages:** Public company information and specialties
+- **Industry Map:** Visualization of all labels and their relationships
+- **Staff Directory:** Profiles for all employees in the ecosystem
+
+### Daily Engagement Hooks:
+- **Staff Assignment:** Daily delegation of tasks to team members
+- **Infrastructure Development:** Ongoing upgrade projects
+- **Label Strategy Adjustments:** Respond to market conditions
+
+### AI Integration:
+- **Staff NPC Generation:** Employees with detailed personalities and skills
+- **Competing Label AI:** Other companies with distinct strategies
+- **Business Performance Modeling:** Complex simulation of label operations
+
+## Phase 8: Live Performance & Touring (3-4 weeks)
+**Core Concept:** Develop comprehensive live performance system with tour planning
+
+### Features:
+- **Venue Progression Ladder:** From small clubs to major venues
+- **Performance Quality System:** Factors affecting show reception
+- **Tour Planning Tools:** Create multi-city performance schedules
+- **Live Show Economics:** Ticket sales, expenses, and profitability
+- **Performance Improvement System:** Rehearsals and live skills
+
+### Community Elements:
+- **Venue Profile Pages:** Detailed information on all performance spaces
+- **Tour History Timeline:** Public record of all performances
+- **Live Event Calendar:** See all upcoming shows community-wide
+
+### Daily Engagement Hooks:
+- **Show Preparation:** Daily activities improving live performance
+- **Venue Relationship Building:** Ongoing connections with promoters
+- **Tour Management Crises:** Random issues requiring immediate attention
+
+### AI Integration:
+- **Venue Management NPCs:** Complex AI personalities running spaces
+- **Crowd Simulation:** Sophisticated audience response modeling
+- **Tour Incident Generator:** Contextual situations during tours
+
+## Phase 9: Music Industry Network (3-4 weeks)
+**Core Concept:** Build a complex web of industry relationships and influence
+
+### Features:
+- **Relationship Management System:** Track connections with key figures
+- **Influence Networks:** How relationships affect opportunities
+- **Industry Events:** Conferences, showcases, and networking
+- **Collaboration System:** Work with others for mutual benefit
+- **Industry Politics:** Navigate complex competing interests
+
+### Community Elements:
+- **Industry Social Graph:** Visual network of all relationships
+- **Influence Rankings:** Who has the most industry clout
+- **Connection Visualization:** See relationships between all entities
+
+### Daily Engagement Hooks:
+- **Relationship Maintenance:** Regular contact with key connections
+- **Strategic Networking:** Daily opportunities to build influence
+- **Alliance Formation:** Create beneficial industry partnerships
+
+### AI Integration:
+- **Industry Politics Engine:** Complex simulation of competing interests
+- **Relationship Dynamics:** How AI NPCs form alliances and rivalries
+- **Power Broker NPCs:** Influential figures controlling opportunities
+
+## Phase 10: Advanced Economics & Investment (3-4 weeks)
+**Core Concept:** Develop sophisticated business model with multiple revenue streams
+
+### Features:
+- **Complete Revenue Model:** All modern music income streams
+- **Investment System:** Allocate capital for long-term growth
+- **Business Analytics:** Detailed financial performance metrics
+- **Strategic Partnerships:** Deals with brands and platforms
+- **Risk Management:** Navigate economic uncertainties
+
+### Community Elements:
+- **Business Performance Transparency:** Public financial indicators
+- **Investment Network:** See capital flows throughout the industry
+- **Partnership Announcements:** Public deals and collaborations
+
+### Daily Engagement Hooks:
+- **Market Monitoring:** Track economic conditions affecting strategy
+- **Deal Flow Management:** Regular partnership opportunities
+- **Revenue Stream Optimization:** Daily focus on different income sources
+
+### AI Integration:
+- **Economic Simulation Engine:** Complex model of industry finances
+- **Deal Negotiation AI:** NPCs with sophisticated business objectives
+- **Market Trend Prediction:** Forecasting financial opportunities
+
+## Phase 11: Media & Marketing Ecosystem (3-4 weeks)
+**Core Concept:** Create comprehensive promotion system with media relationships
+
+### Features:
+- **Media Outlet Network:** Relationships with press and platforms
+- **Campaign Planning Tools:** Design multi-channel marketing efforts
+- **Audience Targeting System:** Precision marketing to fan segments
+- **PR Crisis Management:** Handle reputation challenges
+- **Brand Development:** Build long-term artist and label brands
+
+### Community Elements:
+- **Media Outlet Profiles:** Pages for publications with coverage history
+- **Campaign Performance Tracking:** Public metrics on marketing efforts
+- **Publicity Feed:** Industry-wide media coverage and PR events
+
+### Daily Engagement Hooks:
+- **Media Cycle Management:** Time announcements strategically
+- **Narrative Control:** Shape public perception through daily actions
+- **Trend Leveraging:** Capitalize on daily cultural moments
+
+### AI Integration:
+- **Media Response Engine:** How AI outlets cover different stories
+- **Public Perception Modeling:** Complex simulation of reputation
+- **Cultural Zeitgeist Generator:** AI-created trends and moments
+
+## Phase 12: Legacy & Music Evolution (3-4 weeks)
+**Core Concept:** Create long-term industry evolution and lasting impact
+
+### Features:
+- **Legacy System:** Permanent achievements across seasons
+- **Hall of Fame Mechanics:** Recognition for historical contribution
+- **Industry Evolution:** Long-term changes to music business
+- **Genre Development:** How musical styles emerge and evolve
+- **Historical Impact:** Measure influence on future artists
+
+### Community Elements:
+- **Legacy Profile Pages:** Historical achievements and influence
+- **Evolution Timeline:** Visual history of the music industry
+- **Influence Map:** How past actions affect current scene
+
+### Daily Engagement Hooks:
+- **Heritage Management:** Maintain value of past catalogs
+- **Influence Expansion:** Extend legacy through strategic moves
+- **History-Making Moments:** Rare opportunities for lasting impact
+
+### AI Integration:
+- **Historical Context Engine:** How past events shape present conditions
+- **Influence Propagation Model:** How ideas spread through generations
+- **Legacy Narrative Generator:** AI-created stories of historical impact
+
+## Implementation Strategy Across All Phases
+
+### Technical Foundation (First 3 Phases):
+- Build scalable profile system for all entity types
+- Create core simulation engine for daily progression
+- Implement fundamental community visibility systems
+- Develop initial AI generation capabilities
+
+### For Each Phase Release:
+1. **Two-Week Beta Testing:**
+   - Release to small test group before full launch
+   - Focus on daily engagement patterns
+   - Measure community feature utilization
+
+2. **Performance Monitoring:**
+   - Track daily active users vs. total registered
+   - Measure session frequency and duration
+   - Identify engagement bottlenecks
+
+3. **Community Feedback Collection:**
+   - In-game feedback tools
+   - Regular player surveys
+   - Community discussion monitoring
+
+4. **Weekly Hotfixes:**
+   - Prioritize issues affecting daily engagement
+   - Balance economic and progression systems
+   - Refine AI-generated content quality
+
+### Between Phase Transitions:
+- Ensure seamless progression for existing players
+- Provide clear tutorials for new features
+- Celebrate community achievements from previous phase
+
+This 12-phase approach creates a steady stream of meaningful updates while maintaining a cohesive vision. Each phase delivers complete gameplay value while setting the foundation for the next evolution of your music industry simulation.
+
+Would you like me to elaborate on any specific phase or provide even more detailed implementation plans for a particular aspect of the game?
