@@ -2,19 +2,53 @@ class Artist < ApplicationRecord
   include HasNanoId
 
   belongs_to :user, optional: true
+  belongs_to :manager, optional: true
   has_many :scheduled_actions, dependent: :destroy
+  has_many :transactions, dependent: :nullify
 
   validates :name, presence: true
   validates :genre, presence: true
   validates :energy, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   validates :talent, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+  validates :required_level, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :signing_cost, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
   # Default values for new records
   attribute :skill, :integer, default: 0
   attribute :popularity, :integer, default: 0
+  attribute :required_level, :integer, default: 1
 
   # Virtual attribute for current activity
   attr_accessor :current_activity
+
+  # Calculate and set signing cost before validation
+  before_validation :calculate_signing_cost, on: :create
+
+  # Calculate signing cost based on talent and required level
+  def calculate_signing_cost
+    return if signing_cost.present? && signing_cost > 0
+
+    base_cost = 1000
+    talent_multiplier = (talent / 10.0) + 0.5
+    level_multiplier = required_level * 0.5
+
+    self.signing_cost = (base_cost * talent_multiplier * level_multiplier).round(2)
+  end
+
+  # Check if artist is signed
+  def signed?
+    manager.present?
+  end
+
+  # Check if manager can afford to sign this artist
+  def affordable_for?(manager)
+    manager.balance >= signing_cost
+  end
+
+  # Check if manager meets level requirements for this artist
+  def eligible_for?(manager)
+    manager.level >= required_level
+  end
 
   # List of valid activities
   VALID_ACTIVITIES = %w[practice record promote rest].freeze

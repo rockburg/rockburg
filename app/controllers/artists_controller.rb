@@ -1,6 +1,7 @@
 class ArtistsController < ApplicationController
-  before_action :set_artist, only: [ :show, :edit, :update, :perform_activity, :cancel_activity, :schedule_activity, :cancel_scheduled_activity ]
+  before_action :set_artist, only: [ :show, :edit, :update, :perform_activity, :cancel_activity, :schedule_activity, :cancel_scheduled_activity, :sign ]
   before_action :ensure_owner, only: [ :perform_activity, :cancel_activity, :schedule_activity, :cancel_scheduled_activity ]
+  before_action :require_current_user, only: [ :sign ]
 
   def index
     @artists = Current.user.artists
@@ -84,6 +85,36 @@ class ArtistsController < ApplicationController
     end
   end
 
+  def sign
+    # Check if the artist is already signed
+    if @artist.signed?
+      redirect_to @artist, alert: "This artist is already signed."
+      return
+    end
+
+    # Check if the current user has a manager
+    unless Current.user&.manager
+      redirect_to @artist, alert: "You need to create a manager first."
+      return
+    end
+
+    # Attempt to sign the artist
+    if Current.user.manager.sign_artist(@artist)
+      redirect_to @artist, notice: "You have successfully signed #{@artist.name}!"
+    else
+      # Get specific error reason
+      if !Current.user.manager.can_afford?(@artist.signing_cost)
+        message = "You cannot afford to sign this artist."
+      elsif Current.user.manager.level < @artist.required_level
+        message = "Your manager level is too low to sign this artist."
+      else
+        message = "Unable to sign this artist."
+      end
+
+      redirect_to @artist, alert: message
+    end
+  end
+
   private
 
   def set_artist
@@ -109,6 +140,12 @@ class ArtistsController < ApplicationController
       if params[:artist][trait].present?
         @artist.traits[trait.to_s] = params[:artist][trait].to_i
       end
+    end
+  end
+
+  def require_current_user
+    unless Current.user
+      redirect_to new_session_path, alert: "You must be logged in to perform this action."
     end
   end
 end

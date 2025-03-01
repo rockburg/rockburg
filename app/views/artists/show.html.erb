@@ -39,7 +39,62 @@
             <span class="text-sm font-medium"><%= @artist.popularity %></span>
           </div>
         </div>
+        <div>
+          <p class="text-sm text-gray-500">Signing Cost</p>
+          <p class="font-medium"><%= number_to_currency(@artist.signing_cost) %></p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500">Required Level</p>
+          <p class="font-medium"><%= @artist.required_level %></p>
+        </div>
       </div>
+      
+      <% if current_user && current_user.manager && !@artist.signed? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h3 class="text-lg font-semibold mb-3">Sign This Artist</h3>
+          
+          <% if current_user.manager.can_sign_artist?(@artist) %>
+            <div class="flex items-center gap-2 text-green-600 mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span>You are eligible to sign this artist!</span>
+            </div>
+            <%= button_to "Sign #{@artist.name} (#{number_to_currency(@artist.signing_cost)})", sign_artist_path(@artist), method: :post, class: "rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-purple-700" %>
+          <% else %>
+            <div class="mb-3">
+              <% unless current_user.manager.level >= @artist.required_level %>
+                <div class="flex items-center gap-2 text-red-600 mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Your manager level is too low (need level <%= @artist.required_level %>)</span>
+                </div>
+              <% end %>
+              
+              <% unless current_user.manager.can_afford?(@artist.signing_cost) %>
+                <div class="flex items-center gap-2 text-red-600 mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  </svg>
+                  <span>You cannot afford this artist (need <%= number_to_currency(@artist.signing_cost) %>)</span>
+                </div>
+              <% end %>
+              
+              <%= button_to "Sign #{@artist.name}", sign_artist_path(@artist), method: :post, disabled: true, class: "rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-gray-500 cursor-not-allowed" %>
+            </div>
+          <% end %>
+        </div>
+      <% elsif @artist.signed? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <div class="flex items-center gap-2 text-purple-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span>This artist is currently signed</span>
+          </div>
+        </div>
+      <% end %>
     </div>
     
     <% if @artist.traits.present? && @artist.traits.any? %>

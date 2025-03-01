@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  budget: 9.99
+  level: 1
+  xp: 1
+  skill_points: 1
+  traits: 
+
+two:
+  user: two
+  budget: 9.99
+  level: 1
+  xp: 1
+  skill_points: 1
+  traits: 

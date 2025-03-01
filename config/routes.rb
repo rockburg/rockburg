@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   get "artist_selections", to: "artist_selections#index", as: :artist_selections
   post "artist_selections/:id/select", to: "artist_selections#select", as: :select_artist
 
+  # Sign Artist
+  post "artists/:id/sign", to: "artists#sign", as: :sign_artist
+
   # Static pages
   root "pages#home"
   get "about" => "pages#about"
@@ -16,6 +19,7 @@ Rails.application.routes.draw do
   # Authentication
   resource :session
   resource :registration
+  resource :password
 
   # Admin routes
   namespace :admin do
