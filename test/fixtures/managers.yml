@@ -6,7 +6,8 @@ one:
   level: 1
   xp: 1
   skill_points: 1
-  traits: 
+  traits: {}
+  nano_id: abc123
 
 two:
   user: two
@@ -14,4 +15,5 @@ two:
   level: 1
   xp: 1
   skill_points: 1
-  traits: 
+  traits: {}
+  nano_id: def456
