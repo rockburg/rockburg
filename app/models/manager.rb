@@ -146,4 +146,30 @@ class Manager < ApplicationRecord
 
     [ (xp_gained.to_f / xp_needed * 100).to_i, 100 ].min
   end
+
+  # Get all upcoming performances for this manager's artists
+  def upcoming_performances
+    Performance.for_manager(self).upcoming.order(scheduled_for: :asc)
+  end
+
+  # Get all past performances for this manager's artists
+  def past_performances
+    Performance.for_manager(self).past.order(scheduled_for: :desc)
+  end
+
+  # Get total earnings from performances for all artists
+  def total_performance_earnings
+    Performance.for_manager(self).successful.sum(:net_revenue)
+  end
+
+  # Get available venues based on manager level
+  def available_venues
+    Venue.available_for_artist_level(level)
+  end
+
+  # Get venues booked by this manager
+  def booked_venues
+    venue_ids = Performance.for_manager(self).pluck(:venue_id).uniq
+    Venue.where(id: venue_ids)
+  end
 end

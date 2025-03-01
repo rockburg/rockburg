@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_174510) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_01_193728) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -64,6 +64,32 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_174510) do
     t.index ["user_id"], name: "index_managers_on_user_id"
   end
 
+  create_table "performances", force: :cascade do |t|
+    t.bigint "artist_id", null: false
+    t.bigint "venue_id", null: false
+    t.datetime "scheduled_for", null: false
+    t.integer "duration_minutes", default: 60, null: false
+    t.decimal "ticket_price", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "attendance", default: 0
+    t.string "status", default: "scheduled", null: false
+    t.decimal "gross_revenue", precision: 10, scale: 2, default: "0.0"
+    t.decimal "venue_cut", precision: 10, scale: 2, default: "0.0"
+    t.decimal "expenses", precision: 10, scale: 2, default: "0.0"
+    t.decimal "net_revenue", precision: 10, scale: 2, default: "0.0"
+    t.decimal "merch_revenue", precision: 10, scale: 2, default: "0.0"
+    t.integer "skill_gain", default: 0
+    t.integer "popularity_gain", default: 0
+    t.jsonb "details", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "nano_id"
+    t.index ["artist_id"], name: "index_performances_on_artist_id"
+    t.index ["nano_id"], name: "index_performances_on_nano_id"
+    t.index ["scheduled_for"], name: "index_performances_on_scheduled_for"
+    t.index ["status"], name: "index_performances_on_status"
+    t.index ["venue_id"], name: "index_performances_on_venue_id"
+  end
+
   create_table "scheduled_actions", force: :cascade do |t|
     t.string "activity_type"
     t.datetime "start_at"
@@ -87,6 +113,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_174510) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "nano_id"
+    t.jsonb "venue_stats"
     t.index ["active"], name: "index_seasons_on_active"
     t.index ["nano_id"], name: "index_seasons_on_nano_id", unique: true
   end
@@ -129,9 +156,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_174510) do
     t.index ["nano_id"], name: "index_users_on_nano_id", unique: true
   end
 
+  create_table "venues", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "capacity", null: false
+    t.decimal "booking_cost", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "prestige", default: 1, null: false
+    t.integer "tier", default: 1, null: false
+    t.string "description"
+    t.jsonb "preferences", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "nano_id"
+    t.index ["capacity"], name: "index_venues_on_capacity"
+    t.index ["nano_id"], name: "index_venues_on_nano_id"
+    t.index ["tier"], name: "index_venues_on_tier"
+  end
+
   add_foreign_key "artists", "managers"
   add_foreign_key "artists", "users"
   add_foreign_key "managers", "users"
+  add_foreign_key "performances", "artists"
+  add_foreign_key "performances", "venues"
   add_foreign_key "scheduled_actions", "artists"
   add_foreign_key "sessions", "users"
   add_foreign_key "transactions", "artists"

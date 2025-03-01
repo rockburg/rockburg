@@ -18,3 +18,4 @@ alwaysApply: true
 - Use `gpt-4o-mini` model from OpenAI unless otherwise noted.
 - Don't use `cat` in terminal commands
 - Use nano id's for all models
+- IMPORTANT: Solve for what I ask for. Don’t do anything extra.

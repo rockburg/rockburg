@@ -44,6 +44,7 @@ class Season < ApplicationRecord
     # Generate genres and artists for the new season
     generate_genres
     generate_artists
+    regenerate_venues
   end
 
   def handle_deactivation
@@ -67,5 +68,18 @@ class Season < ApplicationRecord
 
     # Enqueue the background job to generate artists
     GenerateArtistsJob.perform_later(id, artist_count)
+  end
+
+  def regenerate_venues
+    # Use the venue count from settings if provided, otherwise use default
+    venue_count = settings.try(:[], "venue_count") || 25
+
+    # Skip if specifically set to 0
+    return if venue_count == 0
+
+    Rails.logger.info "Regenerating venues for season: #{name}, count: #{venue_count}"
+
+    # Enqueue the background job to regenerate venues
+    RegenerateVenuesJob.perform_later(venue_count)
   end
 end

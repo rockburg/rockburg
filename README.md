@@ -115,3 +115,31 @@ rails test
 ## License
 
 This project is licensed under the MIT License.
+
+## OpenAI Integration
+
+This application uses OpenAI's GPT models to generate venues and potentially other game content.
+
+### Setup OpenAI API Key
+
+To use the OpenAI integration, you need to set up your API key in the Rails credentials file:
+
+1. Run the following command to edit your credentials:
+   ```
+   bin/rails credentials:edit
+   ```
+
+2. Add your OpenAI API key in the following format:
+   ```yaml
+   openai:
+     api_key: sk-your-api-key-here
+   ```
+
+3. Save and close the editor.
+
+If you're in development mode, you might want to use the development credentials instead:
+```
+EDITOR="code --wait" bin/rails credentials:edit --environment=development
+```
+
+Without a valid API key, the application will fall back to using static seed data for venues.

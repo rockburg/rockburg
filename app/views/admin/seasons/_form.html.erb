@@ -70,6 +70,14 @@
       <p class="mt-2 text-sm text-gray-500">How many AI artists to generate for this season (0-1000).</p>
     </div>
 
+    <div class="sm:col-span-3">
+      <%= form.label :venue_count, "Number of Venues to Generate", class: "block text-sm font-medium text-gray-700" %>
+      <div class="mt-1">
+        <%= form.number_field :venue_count, min: 0, max: 100, value: season.settings.try(:[], "venue_count") || 25, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+      </div>
+      <p class="mt-2 text-sm text-gray-500">How many AI venues to generate for this season (0-100). Set to 0 to keep existing venues.</p>
+    </div>
+
     <div class="sm:col-span-6">
       <%= form.label :settings, class: "block text-sm font-medium text-gray-700" %>
       <div class="mt-1">

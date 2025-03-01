@@ -12,6 +12,20 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+
+    # Helper method to clean the database for tests
+    def self.clean_db
+      # Delete in the correct order to avoid foreign key constraints
+      ScheduledAction.delete_all
+      Performance.delete_all
+      Transaction.delete_all
+      Session.delete_all
+      Artist.delete_all
+      Venue.delete_all
+      Manager.delete_all
+      User.delete_all
+      Season.delete_all
+    end
   end
 end
 

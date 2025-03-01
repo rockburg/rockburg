@@ -1,0 +1,280 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Performances</h1>
+    <% if @artists.any? %>
+      <div class="dropdown relative">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+          <span>Book a Performance</span>
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div class="dropdown-menu hidden absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-10">
+          <div class="py-1">
+            <% @artists.each do |artist| %>
+              <%= link_to "Book for #{artist.name}", new_artist_performance_path(artist), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-gray-500">You need to sign an artist before booking performances</div>
+    <% end %>
+  </div>
+
+  <% if notice.present? %>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+      <span class="block sm:inline"><%= notice %></span>
+    </div>
+  <% end %>
+
+  <% if alert.present? %>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+      <span class="block sm:inline"><%= alert %></span>
+    </div>
+  <% end %>
+
+  <div class="mb-4">
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex">
+        <a href="#upcoming" class="tab-link active w-1/2 py-4 px-1 text-center border-b-2 border-blue-500 font-medium text-sm text-blue-600" data-tab="upcoming">
+          Upcoming Performances
+        </a>
+        <a href="#past" class="tab-link w-1/2 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="past">
+          Past Performances
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <div id="upcoming" class="tab-content">
+    <% if @upcoming_performances.any? %>
+      <div class="overflow-x-auto bg-white shadow-md rounded">
+        <table class="min-w-full leading-normal">
+          <thead>
+            <tr>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Artist
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Venue
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Date & Time
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Ticket Price
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Status
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @upcoming_performances.each do |performance| %>
+              <tr>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <div class="flex items-center">
+                    <div class="ml-3">
+                      <p class="text-gray-900 whitespace-no-wrap">
+                        <%= performance.artist.name %>
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <p class="text-gray-900 whitespace-no-wrap">
+                    <%= performance.venue.name %>
+                  </p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <p class="text-gray-900 whitespace-no-wrap">
+                    <%= performance.scheduled_for.strftime("%B %d, %Y at %I:%M %p") %>
+                  </p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <p class="text-gray-900 whitespace-no-wrap">
+                    $<%= performance.ticket_price %>
+                  </p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <span class="relative inline-block px-3 py-1 font-semibold text-blue-900 bg-blue-200 rounded-full">
+                    <%= performance.status.humanize %>
+                  </span>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <div class="flex space-x-2">
+                    <%= link_to "View", performance_path(performance), class: "text-blue-600 hover:text-blue-900" %>
+                    <% if performance.status == "scheduled" %>
+                      <%= button_to "Cancel", cancel_performance_path(performance), method: :post, class: "text-red-600 hover:text-red-900", form: { data: { turbo_confirm: "Are you sure you want to cancel this performance?" } } %>
+                    <% end %>
+                    <% if performance.in_progress? %>
+                      <%= button_to "Complete", complete_performance_path(performance), method: :post, class: "text-green-600 hover:text-green-900" %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="bg-white shadow-md rounded px-8 py-6 mb-4">
+        <p class="text-gray-500">No upcoming performances scheduled.</p>
+        <% if @artists.any? %>
+          <p class="mt-4">
+            <%= link_to "Book a performance", "#", class: "text-blue-600 hover:text-blue-900", onclick: "document.querySelector('.dropdown-menu').classList.toggle('hidden'); return false;" %>
+          </p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div id="past" class="tab-content hidden">
+    <% if @past_performances.any? %>
+      <div class="overflow-x-auto bg-white shadow-md rounded">
+        <table class="min-w-full leading-normal">
+          <thead>
+            <tr>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Artist
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Venue
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Date & Time
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Attendance
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Revenue
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Status
+              </th>
+              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @past_performances.each do |performance| %>
+              <tr>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <div class="flex items-center">
+                    <div class="ml-3">
+                      <p class="text-gray-900 whitespace-no-wrap">
+                        <%= performance.artist.name %>
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <p class="text-gray-900 whitespace-no-wrap">
+                    <%= performance.venue.name %>
+                  </p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <p class="text-gray-900 whitespace-no-wrap">
+                    <%= performance.scheduled_for.strftime("%B %d, %Y at %I:%M %p") %>
+                  </p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <p class="text-gray-900 whitespace-no-wrap">
+                    <%= performance.attendance %> / <%= performance.venue.capacity %>
+                  </p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <p class="text-gray-900 whitespace-no-wrap">
+                    $<%= performance.net_revenue %>
+                  </p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <span class="relative inline-block px-3 py-1 font-semibold 
+                    <%= case performance.status
+                        when 'completed' then 'text-green-900 bg-green-200'
+                        when 'cancelled' then 'text-red-900 bg-red-200'
+                        when 'failed' then 'text-gray-900 bg-gray-200'
+                        end %>
+                    rounded-full">
+                    <%= performance.status.humanize %>
+                  </span>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                  <%= link_to "View", performance_path(performance), class: "text-blue-600 hover:text-blue-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="bg-white shadow-md rounded px-8 py-6 mb-4">
+        <p class="text-gray-500">No past performances yet.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Tab functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Remove active class from all tabs
+        tabLinks.forEach(tab => {
+          tab.classList.remove('active');
+          tab.classList.remove('border-blue-500');
+          tab.classList.remove('text-blue-600');
+          tab.classList.add('border-transparent');
+          tab.classList.add('text-gray-500');
+        });
+        
+        // Add active class to clicked tab
+        this.classList.add('active');
+        this.classList.add('border-blue-500');
+        this.classList.add('text-blue-600');
+        this.classList.remove('border-transparent');
+        this.classList.remove('text-gray-500');
+        
+        // Hide all tab contents
+        tabContents.forEach(content => {
+          content.classList.add('hidden');
+        });
+        
+        // Show the selected tab content
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId).classList.remove('hidden');
+      });
+    });
+  });
+
+  // Dropdown functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const dropdownButton = document.querySelector('.dropdown button');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    
+    if (dropdownButton) {
+      dropdownButton.addEventListener('click', function() {
+        dropdownMenu.classList.toggle('hidden');
+      });
+      
+      // Close the dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!event.target.closest('.dropdown')) {
+          dropdownMenu.classList.add('hidden');
+        }
+      });
+    }
+  });
+</script>

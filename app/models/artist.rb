@@ -5,6 +5,7 @@ class Artist < ApplicationRecord
   belongs_to :manager, optional: true
   has_many :scheduled_actions, dependent: :destroy
   has_many :transactions, dependent: :nullify
+  has_many :performances, dependent: :destroy
 
   validates :name, presence: true
   validates :genre, presence: true
@@ -183,6 +184,55 @@ class Artist < ApplicationRecord
   # Get upcoming scheduled actions
   def upcoming_scheduled_actions
     scheduled_actions.upcoming
+  end
+
+  # Get upcoming performances for this artist
+  def upcoming_performances
+    performances.upcoming.order(scheduled_for: :asc)
+  end
+
+  # Get past performances for this artist
+  def past_performances
+    performances.past.order(scheduled_for: :desc)
+  end
+
+  # Book a performance at a venue
+  def book_performance(venue, scheduled_for, ticket_price, details = {})
+    Performance.book(self, venue, scheduled_for, ticket_price, details)
+  end
+
+  # Check if artist has sufficient energy for a performance
+  def can_perform?
+    energy >= 20
+  end
+
+  # Calculate performance quality based on skill, energy, and traits
+  def performance_quality
+    # Base quality from skill
+    base_quality = (skill * 0.4)
+
+    # Energy affects performance quality
+    energy_factor = (energy / max_energy.to_f)
+    energy_bonus = energy_factor * 20
+
+    # Charisma trait bonus if present
+    charisma_bonus = 0
+    if traits["charisma"].present?
+      charisma_bonus = traits["charisma"] * 0.3
+    end
+
+    total_quality = base_quality + energy_bonus + charisma_bonus
+    [ total_quality, 100 ].min.round
+  end
+
+  # Check how many performances the artist has done
+  def performance_count
+    performances.successful.count
+  end
+
+  # Calculate total earnings from performances
+  def performance_earnings
+    performances.successful.sum(:net_revenue)
   end
 
   private

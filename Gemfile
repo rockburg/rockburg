@@ -43,7 +43,7 @@ gem "thruster", require: false
 # gem "image_processing", "~> 1.2"
 
 # AI Integration
-gem 'ruby-openai'
+gem "ruby-openai"
 
 # Background job processing
 gem 'sidekiq'

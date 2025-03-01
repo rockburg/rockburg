@@ -57,6 +57,18 @@ class Admin::SeasonsController < ApplicationController
     end
   end
 
+  # Manually trigger venue regeneration
+  def regenerate_venues
+    count = params[:count].to_i
+
+    if count > 0 && count <= 100
+      RegenerateVenuesJob.perform_later(count)
+      redirect_to admin_season_path(@season), notice: "Started regenerating #{count} venues. This may take some time."
+    else
+      redirect_to admin_season_path(@season), alert: "Please specify a valid number of venues (1-100)."
+    end
+  end
+
   private
 
   def set_season
@@ -73,6 +85,17 @@ class Admin::SeasonsController < ApplicationController
 
       # Store artist_count in settings
       @season.settings = @season.settings.merge("artist_count" => params[:season][:artist_count].to_i)
+    end
+
+    if params[:season][:venue_count].present?
+      # Initialize settings as empty hash if nil
+      @season.settings ||= {}
+
+      # Convert to hash if it's a JSON string
+      @season.settings = JSON.parse(@season.settings) if @season.settings.is_a?(String)
+
+      # Store venue_count in settings
+      @season.settings = @season.settings.merge("venue_count" => params[:season][:venue_count].to_i)
     end
   end
 

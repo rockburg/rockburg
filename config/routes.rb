@@ -28,8 +28,12 @@ Rails.application.routes.draw do
     resources :seasons do
       member do
         post :generate_artists
+        post :regenerate_venues
       end
     end
+    resources :venues
+    post "recalculate_venue_stats", to: "dashboard#recalculate_venue_stats"
+    post "regenerate_venues", to: "dashboard#regenerate_venues"
   end
 
   # Artists
@@ -39,6 +43,17 @@ Rails.application.routes.draw do
       post :cancel_activity
       post :schedule_activity
       delete :cancel_scheduled_activity
+    end
+
+    # Nested route for booking performances for a specific artist
+    resources :performances, only: [ :new, :create ]
+  end
+
+  # Performances
+  resources :performances, only: [ :index, :show ] do
+    member do
+      post :cancel
+      post :complete
     end
   end
 

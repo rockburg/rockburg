@@ -1,0 +1,307 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Book a Performance for <%= @artist.name %></h1>
+    <%= link_to "Back to Performances", performances_path, class: "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" %>
+  </div>
+
+  <% if alert.present? %>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+      <span class="block sm:inline"><%= alert %></span>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Booking Form -->
+    <div class="md:col-span-2">
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <%= form_with(model: [@artist, @performance], class: "space-y-6") do |form| %>
+          <% if @performance.errors.any? %>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <strong class="font-bold">Error:</strong>
+              <span class="block sm:inline">Please correct the following <%= pluralize(@performance.errors.count, "error") %>:</span>
+              <ul class="list-disc ml-5 mt-2">
+                <% @performance.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= form.label :venue_id, "Venue", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.select :venue_id, 
+                  options_from_collection_for_select(@venues, :id, :name), 
+                  { include_blank: "Select a venue" }, 
+                  { class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    data: { action: "change->booking#updateVenueDetails" } } %>
+            </div>
+
+            <div>
+              <%= form.label :scheduled_for, "Performance Date & Time", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.datetime_field :scheduled_for, 
+                  min: Date.today, 
+                  value: 1.day.from_now.strftime("%Y-%m-%dT%H:%M"), 
+                  class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+              <p class="mt-1 text-sm text-gray-500">Must be at least 24 hours in the future</p>
+            </div>
+
+            <div>
+              <%= form.label :duration_minutes, "Duration (minutes)", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.number_field :duration_minutes, 
+                  min: 30, 
+                  max: 180, 
+                  value: 60, 
+                  class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+              <p class="mt-1 text-sm text-gray-500">Between 30 and 180 minutes</p>
+            </div>
+
+            <div>
+              <%= form.label :ticket_price, "Ticket Price ($)", class: "block text-sm font-medium text-gray-700" %>
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-500 sm:text-sm">$</span>
+                </div>
+                <%= form.number_field :ticket_price, 
+                    min: 0, 
+                    step: 0.01, 
+                    value: 10, 
+                    class: "pl-7 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                    data: { action: "input->booking#updateEstimates" } %>
+              </div>
+              <p class="mt-1 text-sm text-gray-500">Higher prices may reduce attendance</p>
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-3 mt-6">
+            <%= link_to "Cancel", performances_path, class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            <%= form.submit "Book Performance", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Artist and Venue Info -->
+    <div class="md:col-span-1">
+      <!-- Artist Card -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Artist Information
+          </h3>
+        </div>
+        <div class="border-t border-gray-200">
+          <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Name
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @artist.name %>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Skill
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @artist.skill %> / 100
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Popularity
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @artist.popularity %> / 100
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Energy
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @artist.energy %> / 100
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Balance
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                $<%= @artist.manager.balance %>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Venue Details (will be populated via JavaScript) -->
+      <div id="venue-details" class="bg-white shadow overflow-hidden sm:rounded-lg mb-6 hidden">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Venue Details
+          </h3>
+        </div>
+        <div class="border-t border-gray-200">
+          <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Capacity
+              </dt>
+              <dd id="venue-capacity" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                -
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Booking Cost
+              </dt>
+              <dd id="venue-cost" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                -
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Min. Ticket Price
+              </dt>
+              <dd id="min-ticket" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                -
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Suggested Price
+              </dt>
+              <dd id="suggested-ticket" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                -
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Estimates (will be populated via JavaScript) -->
+      <div id="performance-estimates" class="bg-white shadow overflow-hidden sm:rounded-lg hidden">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Performance Estimates
+          </h3>
+        </div>
+        <div class="border-t border-gray-200">
+          <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Est. Attendance
+              </dt>
+              <dd id="est-attendance" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                -
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Est. Revenue
+              </dt>
+              <dd id="est-revenue" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                -
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Cache DOM elements
+    const venueSelect = document.querySelector('#performance_venue_id');
+    const ticketPriceInput = document.querySelector('#performance_ticket_price');
+    const venueDetailsDiv = document.querySelector('#venue-details');
+    const estimatesDiv = document.querySelector('#performance-estimates');
+    
+    // Venue details elements
+    const venueCapacity = document.querySelector('#venue-capacity');
+    const venueCost = document.querySelector('#venue-cost');
+    const minTicket = document.querySelector('#min-ticket');
+    const suggestedTicket = document.querySelector('#suggested-ticket');
+    
+    // Estimate elements
+    const estAttendance = document.querySelector('#est-attendance');
+    const estRevenue = document.querySelector('#est-revenue');
+    
+    // Venue data (will be populated from server)
+    let venues = {};
+    
+    // Initialize venue data
+    <% @venues.each do |venue| %>
+      venues['<%= venue.id %>'] = {
+        capacity: <%= venue.capacity %>,
+        bookingCost: <%= venue.booking_cost %>,
+        minTicketPrice: <%= venue.minimum_ticket_price %>,
+        suggestedTicketPrice: <%= venue.suggested_ticket_price(@artist.popularity) %>
+      };
+    <% end %>
+    
+    // Update venue details when venue is selected
+    venueSelect.addEventListener('change', function() {
+      const venueId = this.value;
+      
+      if (venueId && venues[venueId]) {
+        // Show venue details
+        venueDetailsDiv.classList.remove('hidden');
+        
+        // Update venue details
+        const venue = venues[venueId];
+        venueCapacity.textContent = venue.capacity + ' people';
+        venueCost.textContent = '$' + venue.bookingCost;
+        minTicket.textContent = '$' + venue.minTicketPrice;
+        suggestedTicket.textContent = '$' + venue.suggestedTicketPrice;
+        
+        // Set ticket price to suggested price
+        ticketPriceInput.value = venue.suggestedTicketPrice;
+        
+        // Update estimates
+        updateEstimates(venueId, ticketPriceInput.value);
+      } else {
+        // Hide venue details if no venue selected
+        venueDetailsDiv.classList.add('hidden');
+        estimatesDiv.classList.add('hidden');
+      }
+    });
+    
+    // Update estimates when ticket price changes
+    ticketPriceInput.addEventListener('input', function() {
+      const venueId = venueSelect.value;
+      if (venueId) {
+        updateEstimates(venueId, this.value);
+      }
+    });
+    
+    // Function to update attendance and revenue estimates
+    function updateEstimates(venueId, ticketPrice) {
+      if (!venueId || !venues[venueId]) return;
+      
+      const venue = venues[venueId];
+      
+      // Simple estimate calculation (this would be more complex in a real app)
+      let attendance = Math.floor(venue.capacity * (1 - (ticketPrice / (venue.suggestedTicketPrice * 2))));
+      attendance = Math.max(0, Math.min(venue.capacity, attendance));
+      
+      const grossRevenue = attendance * ticketPrice;
+      const venueCut = grossRevenue * 0.2; // Assume 20% venue cut
+      const expenses = venue.bookingCost + (attendance * 2); // Booking cost + $2 per attendee
+      const merchRevenue = attendance * 5 * (<%= @artist.popularity %> / 100); // $5 per attendee scaled by popularity
+      const netRevenue = grossRevenue - venueCut - expenses + merchRevenue;
+      
+      // Show estimates
+      estimatesDiv.classList.remove('hidden');
+      
+      // Update estimate displays
+      estAttendance.textContent = attendance + ' / ' + venue.capacity + 
+                                 ' (' + Math.round(attendance / venue.capacity * 100) + '%)';
+      estRevenue.textContent = '$' + netRevenue.toFixed(2) + ' (after expenses)';
+    }
+  });
+</script>

@@ -5,40 +5,50 @@ one:
   genre: Rock
   talent: 50
   energy: 100
+  max_energy: 100
   popularity: 0
   user: one
+  manager: one
 
 two:
   name: Another Artist
   genre: Pop
   talent: 60
   energy: 90
+  max_energy: 100
   popularity: 5
   user: two
+  manager: two
 
 rock_artist:
   name: Rock Star
   genre: Rock
   energy: 80
+  max_energy: 100
   talent: 70
   skill: 50
   popularity: 30
   user: one
+  manager: one
 
 pop_artist:
   name: Pop Star
   genre: Pop
   energy: 90
+  max_energy: 100
   talent: 75
   skill: 60
   popularity: 40
   user: one
+  manager: one
 
 country_artist:
   name: Country Singer
   genre: Country
   energy: 70
+  max_energy: 100
   talent: 65
   skill: 55
   popularity: 25
-  user: two 
+  user: two
+  manager: two 
