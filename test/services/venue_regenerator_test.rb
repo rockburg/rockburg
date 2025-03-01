@@ -23,9 +23,9 @@ class VenueRegeneratorTest < ActiveSupport::TestCase
       description: "Another test venue"
     )
 
-    # Mock the OpenAI::VenueGenerator
+    # Mock the Openai::VenueGenerator
     @mock_generator = Minitest::Mock.new
-    @original_generator = OpenAI::VenueGenerator
+    @original_generator = Openai::VenueGenerator
 
     # Replace the generator with our mock
     silence_warnings do

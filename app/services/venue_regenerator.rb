@@ -18,7 +18,7 @@ class VenueRegenerator
 
       begin
         # Initialize the venue generator
-        venue_generator = OpenAI::VenueGenerator.new
+        venue_generator = Openai::VenueGenerator.new
 
         # Generate venues (default is 25 distributed across tiers)
         venue_data = venue_generator.generate_venues(count)

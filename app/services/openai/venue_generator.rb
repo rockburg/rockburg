@@ -1,6 +1,6 @@
 require "openai"
 
-module OpenAI
+module Openai
   class VenueGenerator
     attr_reader :client
 

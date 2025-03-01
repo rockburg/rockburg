@@ -1,9 +1,9 @@
 require "test_helper"
 require "minitest/mock"
 
-class OpenAI::VenueGeneratorTest < ActiveSupport::TestCase
+class Openai::VenueGeneratorTest < ActiveSupport::TestCase
   setup do
-    @generator = OpenAI::VenueGenerator.new
+    @generator = Openai::VenueGenerator.new
 
     # Mock the OpenAI client to avoid actual API calls
     @mock_client = Minitest::Mock.new
