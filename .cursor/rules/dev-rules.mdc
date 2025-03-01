@@ -15,4 +15,4 @@ alwaysApply: true
 - Do not run `rails credentials`
 - Write and run tests as you go to verify functionality in small pieces
 - Focus on simple solutions
-- Use `gpt-4o` model from OpenAI unless otherwise noted.
+- Use `gpt-4o-mini` model from OpenAI unless otherwise noted.
