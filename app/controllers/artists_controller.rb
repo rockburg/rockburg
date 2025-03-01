@@ -2,9 +2,10 @@ class ArtistsController < ApplicationController
   before_action :set_artist, only: [ :show, :edit, :update, :perform_activity, :cancel_activity, :schedule_activity, :cancel_scheduled_activity, :sign ]
   before_action :ensure_owner, only: [ :perform_activity, :cancel_activity, :schedule_activity, :cancel_scheduled_activity ]
   before_action :require_current_user, only: [ :sign ]
+  before_action :require_current_manager, only: [ :new, :create, :index ]
 
   def index
-    @artists = Current.user.artists
+    @artists = current_manager.artists
   end
 
   def show
@@ -15,10 +16,11 @@ class ArtistsController < ApplicationController
   end
 
   def create
-    @artist = Current.user.artists.build(artist_params)
+    # Create the artist through the manager to ensure proper associations
+    @artist = current_manager.create_artist(artist_params)
     process_traits_params
 
-    if @artist.save
+    if @artist.persisted?
       redirect_to @artist, notice: "Artist was successfully created."
     else
       render :new, status: :unprocessable_entity
@@ -99,13 +101,13 @@ class ArtistsController < ApplicationController
     end
 
     # Attempt to sign the artist
-    if Current.user.manager.sign_artist(@artist)
+    if current_manager.sign_artist(@artist)
       redirect_to @artist, notice: "You have successfully signed #{@artist.name}!"
     else
       # Get specific error reason
-      if !Current.user.manager.can_afford?(@artist.signing_cost)
+      if !current_manager.can_afford?(@artist.signing_cost)
         message = "You cannot afford to sign this artist."
-      elsif Current.user.manager.level < @artist.required_level
+      elsif current_manager.level < @artist.required_level
         message = "Your manager level is too low to sign this artist."
       else
         message = "Unable to sign this artist."
@@ -122,7 +124,8 @@ class ArtistsController < ApplicationController
   end
 
   def ensure_owner
-    unless @artist.user == Current.user
+    # Check ownership through the manager association
+    unless @artist&.manager && @artist.manager == current_manager
       redirect_to artists_path, alert: "You don't have permission to perform this action."
     end
   end

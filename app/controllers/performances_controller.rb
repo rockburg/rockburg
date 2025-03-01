@@ -1,13 +1,14 @@
 class PerformancesController < ApplicationController
   include ActionView::Helpers::NumberHelper
   before_action :require_current_user
+  before_action :require_current_manager
   before_action :set_performance, only: [ :show, :cancel, :complete ]
   before_action :ensure_owner, only: [ :cancel, :complete ]
 
   def index
-    @upcoming_performances = Current.user.manager.upcoming_performances
-    @past_performances = Current.user.manager.past_performances.limit(10)
-    @artists = Current.user.manager.artists
+    @upcoming_performances = current_manager.upcoming_performances
+    @past_performances = current_manager.past_performances.limit(10)
+    @artists = current_manager.artists
   end
 
   def show
@@ -18,15 +19,23 @@ class PerformancesController < ApplicationController
 
   def new
     @artist = find_resource(Artist)
-    redirect_to artists_path, alert: "You don't manage this artist." unless @artist.manager == Current.user.manager
 
-    @venues = Current.user.manager.available_venues
+    # Check if the artist is managed by the current manager
+    unless @artist&.manager && @artist.manager == current_manager
+      redirect_to artists_path, alert: "You don't manage this artist." and return
+    end
+
+    @venues = current_manager.available_venues
     @performance = Performance.new(artist: @artist)
   end
 
   def create
     @artist = find_resource(Artist, params[:artist_id])
-    redirect_to artists_path, alert: "You don't manage this artist." and return unless @artist.manager == Current.user.manager
+
+    # Check if the artist is managed by the current manager
+    unless @artist&.manager && @artist.manager == current_manager
+      redirect_to artists_path, alert: "You don't manage this artist." and return
+    end
 
     @venue = find_resource(Venue, params[:performance][:venue_id])
     scheduled_for = Time.zone.parse(params[:performance][:scheduled_for])
@@ -37,7 +46,7 @@ class PerformancesController < ApplicationController
     if @performance.persisted?
       redirect_to @performance, notice: "Performance booked successfully! You've been charged a booking fee of #{number_to_currency(@venue.booking_cost)}."
     else
-      @venues = Current.user.manager.available_venues
+      @venues = current_manager.available_venues
       render :new, status: :unprocessable_entity
     end
   end
@@ -67,7 +76,7 @@ class PerformancesController < ApplicationController
   end
 
   def ensure_owner
-    unless @performance.artist.manager == Current.user.manager
+    unless @performance&.artist&.manager && @performance.artist.manager == current_manager
       redirect_to performances_path, alert: "You don't manage the artist for this performance."
     end
   end

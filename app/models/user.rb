@@ -3,7 +3,8 @@ class User < ApplicationRecord
 
   has_secure_password
   has_many :sessions, dependent: :destroy
-  has_many :artists, dependent: :destroy
+  # Users no longer have a direct relationship to artists
+  # Access artists through manager: user.manager.artists
   has_one :manager, dependent: :destroy
 
   after_create :ensure_manager

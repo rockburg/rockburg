@@ -1,163 +1,232 @@
-<div class="container">
-  <h1 class="my-4">Dashboard</h1>
-  
-  <div class="row">
-    <div class="col-md-8">
-      <div class="card mb-4">
-        <div class="card-header">
-          <h5 class="mb-0">
-            <i class="fas fa-user mr-2"></i> Your Artists
-          </h5>
+<div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-6">
+  <div class="container mx-auto max-w-6xl">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Your Artists Card -->
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center">
+            <h3 class="text-xl font-bold text-gray-800">Your Artists</h3>
+          </div>
+          <div class="px-6 py-4">
+            <% if @artists.present? %>
+              <div class="space-y-3">
+                <% @artists.each do |artist| %>
+                  <%= link_to artist_path(artist), class: "block p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all" do %>
+                    <div class="flex justify-between items-center">
+                      <div>
+                        <h4 class="font-bold text-gray-800"><%= artist.name %></h4>
+                        <div class="flex gap-2 mt-1">
+                          <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700">Skill: <%= artist.skill %></span>
+                          <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">Popularity: <%= artist.popularity %></span>
+                          <span class="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700">Energy: <%= artist.energy %></span>
+                        </div>
+                      </div>
+                      <div>
+                        <% if artist.upcoming_performances.any? %>
+                          <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">Next show: <%= artist.upcoming_performances.first.scheduled_for.strftime("%b %d") %></span>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="rounded-lg bg-blue-50 p-4 text-blue-700">
+                You don't have any artists yet.
+                <%= link_to "Create your first artist", new_artist_path, class: "font-medium text-blue-700 underline hover:text-blue-800" %>
+              </div>
+            <% end %>
+          </div>
+          <div class="px-6 py-4 border-t border-gray-200 flex gap-3">
+            <%= link_to "View All Artists", artists_path, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+            <%= link_to "Create New Artist", new_artist_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+          </div>
         </div>
-        <div class="card-body">
-          <% if @artists.present? %>
-            <div class="list-group">
-              <% @artists.each do |artist| %>
-                <%= link_to artist_path(artist), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do %>
-                  <div>
-                    <h6 class="mb-1"><%= artist.name %></h6>
-                    <small>
-                      <span class="badge bg-primary">Skill: <%= artist.skill %></span>
-                      <span class="badge bg-success">Popularity: <%= artist.popularity %></span>
-                      <span class="badge bg-warning text-dark">Energy: <%= artist.energy %></span>
-                    </small>
+        
+        <!-- Upcoming Performances Card -->
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-xl font-bold text-gray-800">Upcoming Performances</h3>
+          </div>
+          <div class="px-6 py-4">
+            <% if @upcoming_performances.present? %>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artist</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Venue</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    <% @upcoming_performances.each do |performance| %>
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <%= link_to performance.artist.name, artist_path(performance.artist), class: "text-purple-600 hover:text-purple-800" %>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-700"><%= performance.venue.name %></td>
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-700"><%= performance.scheduled_for.strftime("%b %d, %Y") %></td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <span class="rounded-full px-2 py-1 text-xs font-medium <%= performance.status == 'scheduled' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
+                            <%= performance.status.humanize %>
+                          </span>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <div class="rounded-lg bg-blue-50 p-4 text-blue-700">
+                No upcoming performances scheduled.
+                <% if @artists.present? %>
+                  <div class="relative inline-block text-left mt-3">
+                    <button id="bookPerformanceDropdown" type="button" class="rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90 inline-flex items-center" 
+                           onclick="document.getElementById('bookPerformanceMenu').classList.toggle('hidden')">
+                      Book a performance
+                      <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <div id="bookPerformanceMenu" class="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden">
+                      <div class="py-1">
+                        <% @artists.each do |artist| %>
+                          <%= link_to artist.name, new_artist_performance_path(artist.id), class: "block px-4 py-2 text-gray-700 hover:bg-gray-100" %>
+                        <% end %>
+                      </div>
+                    </div>
                   </div>
-                  <div class="text-end">
-                    <% if artist.upcoming_performances.any? %>
-                      <span class="badge bg-info">Next show: <%= artist.upcoming_performances.first.scheduled_for.strftime("%b %d") %></span>
+                <% else %>
+                  <%= link_to "Create an artist first", new_artist_path, class: "font-medium text-blue-700 underline hover:text-blue-800" %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          <div class="px-6 py-4 border-t border-gray-200 flex flex-wrap gap-3">
+            <%= link_to "View All Performances", performances_path, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+            <% if @artists.present? %>
+              <div class="relative inline-block text-left">
+                <button id="bookPerformanceFooterDropdown" type="button" class="rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90 inline-flex items-center"
+                       onclick="document.getElementById('bookPerformanceFooterMenu').classList.toggle('hidden')">
+                  Book Performance
+                  <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div id="bookPerformanceFooterMenu" class="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden">
+                  <div class="py-1">
+                    <% @artists.each do |artist| %>
+                      <%= link_to artist.name, new_artist_performance_path(artist.id), class: "block px-4 py-2 text-gray-700 hover:bg-gray-100" %>
                     <% end %>
                   </div>
-                <% end %>
-              <% end %>
-            </div>
-          <% else %>
-            <div class="alert alert-info">
-              You don't have any artists yet.
-              <%= link_to "Create your first artist", new_artist_path, class: "alert-link" %>
-            </div>
-          <% end %>
+                </div>
+              </div>
+            <% else %>
+              <%= link_to "Create Artist First", new_artist_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+            <% end %>
+          </div>
         </div>
-        <div class="card-footer">
-          <%= link_to "View All Artists", artists_path, class: "btn btn-sm btn-outline-primary" %>
-          <%= link_to "Create New Artist", new_artist_path, class: "btn btn-sm btn-primary" %>
+        
+        <!-- Recent Performances Card -->
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-xl font-bold text-gray-800">Recent Performances</h3>
+          </div>
+          <div class="px-6 py-4">
+            <% if @past_performances.present? %>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artist</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Venue</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    <% @past_performances.each do |performance| %>
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <%= link_to performance.artist.name, artist_path(performance.artist), class: "text-purple-600 hover:text-purple-800" %>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-700"><%= performance.venue.name %></td>
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-700"><%= performance.scheduled_for.strftime("%b %d, %Y") %></td>
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-700"><%= performance.attendance || 'N/A' %></td>
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-700"><%= number_to_currency(performance.net_revenue) if performance.net_revenue %></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <div class="rounded-lg bg-blue-50 p-4 text-blue-700">
+                No past performances yet.
+              </div>
+            <% end %>
+          </div>
         </div>
       </div>
       
-      <div class="card mb-4">
-        <div class="card-header">
-          <h5 class="mb-0">
-            <i class="fas fa-calendar-alt mr-2"></i> Upcoming Performances
-          </h5>
-        </div>
-        <div class="card-body">
-          <% if @upcoming_performances.present? %>
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Artist</th>
-                    <th>Venue</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% @upcoming_performances.each do |performance| %>
-                    <tr>
-                      <td><%= link_to performance.artist.name, artist_path(performance.artist) %></td>
-                      <td><%= performance.venue.name %></td>
-                      <td><%= performance.scheduled_for.strftime("%b %d, %Y") %></td>
-                      <td><span class="badge bg-<%= performance.status == 'scheduled' ? 'success' : 'warning' %>"><%= performance.status.humanize %></span></td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
+      <div class="space-y-6">
+        <!-- Manager Status Card -->
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-xl font-bold text-gray-800">Manager Status</h3>
+          </div>
+          <div class="px-6 py-4">
+            <h4 class="text-lg font-bold text-gray-800 mb-4"><%= current_manager.user.email_address %></h4>
+            <div class="mb-4">
+              <div class="flex justify-between mb-1 text-sm">
+                <span class="font-medium">Level: <%= current_manager.level %></span>
+                <span><%= current_manager.xp %> XP</span>
+              </div>
+              <div class="h-2 rounded-full bg-gray-100">
+                <% xp_percentage = current_manager.level < 10 ? (current_manager.xp / (current_manager.level * 1000.0) * 100).round : 100 %>
+                <div class="h-full rounded-full bg-purple-500" style="width: <%= xp_percentage %>%"></div>
+              </div>
             </div>
-          <% else %>
-            <div class="alert alert-info">
-              No upcoming performances scheduled.
-              <%= link_to "Book a performance", new_performance_path, class: "alert-link" %>
-            </div>
-          <% end %>
-        </div>
-        <div class="card-footer">
-          <%= link_to "View All Performances", performances_path, class: "btn btn-sm btn-outline-primary" %>
-          <%= link_to "Book Performance", new_performance_path, class: "btn btn-sm btn-primary" %>
-        </div>
-      </div>
-      
-      <div class="card mb-4">
-        <div class="card-header">
-          <h5 class="mb-0">
-            <i class="fas fa-history mr-2"></i> Recent Performances
-          </h5>
-        </div>
-        <div class="card-body">
-          <% if @past_performances.present? %>
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Artist</th>
-                    <th>Venue</th>
-                    <th>Date</th>
-                    <th>Attendance</th>
-                    <th>Revenue</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% @past_performances.each do |performance| %>
-                    <tr>
-                      <td><%= link_to performance.artist.name, artist_path(performance.artist) %></td>
-                      <td><%= performance.venue.name %></td>
-                      <td><%= performance.scheduled_for.strftime("%b %d, %Y") %></td>
-                      <td><%= performance.attendance || 'N/A' %></td>
-                      <td><%= number_to_currency(performance.net_revenue) if performance.net_revenue %></td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
-          <% else %>
-            <div class="alert alert-info">
-              No past performances yet.
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-md-4">
-      <div class="card mb-4">
-        <div class="card-header">
-          <h5 class="mb-0">
-            <i class="fas fa-user-circle mr-2"></i> Manager Status
-          </h5>
-        </div>
-        <div class="card-body">
-          <h4><%= current_manager.name %></h4>
-          <div class="mb-3">
-            <div class="d-flex justify-content-between mb-1">
-              <span>Level: <%= current_manager.level %></span>
-              <span><%= current_manager.xp %> XP</span>
-            </div>
-            <div class="progress">
-              <% xp_percentage = current_manager.level < 10 ? (current_manager.xp / (current_manager.level * 1000.0) * 100).round : 100 %>
-              <div class="progress-bar bg-success" role="progressbar" style="width: <%= xp_percentage %>%" 
-                   aria-valuenow="<%= xp_percentage %>" aria-valuemin="0" aria-valuemax="100"></div>
+            
+            <div class="space-y-2 text-gray-700">
+              <div class="flex justify-between border-b border-gray-100 py-2">
+                <span class="font-medium">Account Balance:</span>
+                <span><%= number_to_currency(current_manager.budget) %></span>
+              </div>
+              <div class="flex justify-between border-b border-gray-100 py-2">
+                <span class="font-medium">Active Season:</span>
+                <span><%= @active_season.name %></span>
+              </div>
+              <div class="flex justify-between py-2">
+                <span class="font-medium">Artist Limit:</span>
+                <span><%= current_manager.level * 2 %></span>
+              </div>
             </div>
           </div>
-          
-          <p class="card-text">
-            <strong>Account Balance:</strong> <%= number_to_currency(current_manager.budget) %><br>
-            <strong>Active Season:</strong> <%= @active_season.name %><br>
-            <strong>Artist Limit:</strong> <%= current_manager.level * 2 %>
-          </p>
         </div>
+        
+        <%= render 'venue_statistics' %>
+        <%= render 'trending_venues' %>
       </div>
-      
-      <%= render 'venue_statistics' %>
-      <%= render 'trending_venues' %>
     </div>
   </div>
-</div> 
+</div>
+
+<script>
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('#bookPerformanceDropdown')) {
+      document.getElementById('bookPerformanceMenu').classList.add('hidden');
+    }
+    if (!event.target.closest('#bookPerformanceFooterDropdown')) {
+      document.getElementById('bookPerformanceFooterMenu').classList.add('hidden');
+    }
+    if (!event.target.closest('#bookPerformanceVenueDropdown')) {
+      document.getElementById('bookPerformanceVenueMenu').classList.add('hidden');
+    }
+  });
+</script> 

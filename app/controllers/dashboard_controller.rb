@@ -20,7 +20,7 @@ class DashboardController < ApplicationController
 
   def recalculate_venue_stats
     # Only allow admins to recalculate stats
-    if current_manager.admin?
+    if current_manager.user.admin?
       active_season = Season.active.first
 
       if active_season

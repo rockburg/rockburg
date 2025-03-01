@@ -5,8 +5,8 @@ class ArtistSelectionsController < ApplicationController
     # Ensure there are artists available for selection
     # ArtistPoolService.ensure_minimum_artists_available
 
-    # Get unassigned artists (artists not belonging to any user)
-    @artists = Artist.where(user_id: nil, manager_id: nil).order(created_at: :desc).limit(30)
+    # Get unassigned artists (artists not belonging to any manager)
+    @artists = Artist.where(manager_id: nil).order(created_at: :desc).limit(30)
   end
 
   def select

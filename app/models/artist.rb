@@ -1,7 +1,8 @@
 class Artist < ApplicationRecord
   include HasNanoId
 
-  belongs_to :user, optional: true
+  # The manager is the primary owner of an artist when signed
+  # Unsigned artists have no manager
   belongs_to :manager, optional: true
   has_many :scheduled_actions, dependent: :destroy
   has_many :transactions, dependent: :nullify
@@ -46,6 +47,11 @@ class Artist < ApplicationRecord
   # Check if artist is signed
   def signed?
     manager.present?
+  end
+
+  # Helper method to get the user through manager
+  def user
+    manager&.user
   end
 
   # Check if manager can afford to sign this artist

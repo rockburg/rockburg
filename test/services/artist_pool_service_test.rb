@@ -3,12 +3,12 @@ require "test_helper"
 class ArtistPoolServiceTest < ActiveSupport::TestCase
   setup do
     # Delete all unassigned artists to start with a clean slate
-    Artist.where(user_id: nil).delete_all
+    Artist.where(manager_id: nil).delete_all
   end
 
   test "generates artists when below minimum threshold" do
     # Ensure we have fewer than MIN_AVAILABLE_ARTISTS unassigned artists
-    current_count = Artist.where(user_id: nil).count
+    current_count = Artist.where(manager_id: nil).count
     assert current_count < ArtistPoolService::MIN_AVAILABLE_ARTISTS
 
     # Mock the ArtistGeneratorService to avoid actual API calls
@@ -20,7 +20,7 @@ class ArtistPoolServiceTest < ActiveSupport::TestCase
         genre: "Test Genre",
         energy: 70,
         talent: 60,
-        user: nil
+        manager: nil
       )
     end
 
@@ -38,7 +38,7 @@ class ArtistPoolServiceTest < ActiveSupport::TestCase
         genre: "Test Genre",
         energy: 70,
         talent: 60,
-        user: nil
+        manager: nil
       )
     end
 
@@ -51,7 +51,7 @@ class ArtistPoolServiceTest < ActiveSupport::TestCase
 
   test "handles errors gracefully" do
     # Ensure we have fewer than MIN_AVAILABLE_ARTISTS unassigned artists
-    Artist.where(user_id: nil).delete_all
+    Artist.where(manager_id: nil).delete_all
 
     # Mock an error in the generator service
     ArtistGeneratorService.expects(:generate_batch).raises(StandardError.new("Test error"))

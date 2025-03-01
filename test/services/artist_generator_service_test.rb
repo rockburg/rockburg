@@ -32,7 +32,7 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     assert_equal "Rock", artist.genre
     assert_equal 75, artist.energy
     assert_equal 65, artist.talent
-    assert_equal user, artist.user
+    assert_equal user, artist.manager
     assert_equal "Formed in a college dorm, The Midnight Echoes blend classic rock influences with modern production.", artist.background
   end
 
@@ -307,7 +307,7 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     assert_not_nil artist
     assert artist.persisted?
     assert_equal "No User Band", artist.name
-    assert_nil artist.user
+    assert_nil artist.manager
   end
 
   test "generates batch with nil user" do
@@ -350,8 +350,8 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     # Assert that the artists were created with no user
     assert_equal 2, artists.length
     assert artists.all?(&:persisted?)
-    assert_nil artists[0].user
-    assert_nil artists[1].user
+    assert_nil artists[0].manager
+    assert_nil artists[1].manager
     assert_equal "First indie band with no user.", artists[0].background
     assert_equal "Second indie band with no user.", artists[1].background
   end
@@ -399,5 +399,32 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
       assert artist.skill >= min_expected_skill, "Skill should be at least #{min_expected_skill} for talent #{talent}"
       assert artist.skill <= max_expected_skill, "Skill should be at most #{max_expected_skill} for talent #{talent}"
     end
+  end
+
+  test "generates an artist successfully" do
+    user = users(:one)
+
+    # Stub the fetch_artist_data method to return our mock data
+    ArtistGeneratorService.any_instance.stubs(:fetch_artist_data).returns({
+      name: "The Midnight Echoes",
+      genre: "Rock",
+      energy: 75,
+      talent: 65,
+      background: "Formed in a college dorm, The Midnight Echoes blend classic rock influences with modern production."
+    })
+
+    # Call the service with the user
+    artist = ArtistGeneratorService.generate(user)
+
+    # Assert that the artist was created with the correct attributes
+    assert_not_nil artist
+    assert artist.persisted?
+    assert_equal "The Midnight Echoes", artist.name
+    assert_equal "Rock", artist.genre
+    assert_equal 75, artist.energy
+    assert_equal 65, artist.talent
+    # Artists are now created unsigned (no manager)
+    assert_nil artist.manager
+    assert_equal "Formed in a college dorm, The Midnight Echoes blend classic rock influences with modern production.", artist.background
   end
 end

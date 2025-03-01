@@ -85,6 +85,13 @@ class Manager < ApplicationRecord
     level >= artist.required_level
   end
 
+  # Create a new artist for this manager
+  # This is the preferred way to create artists (rather than through user)
+  def create_artist(attributes = {})
+    # Ensure the artist is linked to both the manager and the user
+    artist = self.artists.create!(attributes.merge(user: user))
+  end
+
   # Sign an artist
   def sign_artist(artist)
     return false unless can_sign_artist?(artist)
@@ -93,8 +100,8 @@ class Manager < ApplicationRecord
       # Deduct signing cost
       deduct_funds(artist.signing_cost, "Signed artist: #{artist.name}", artist)
 
-      # Associate artist with manager
-      artist.update!(manager: self, user: user)
+      # Associate artist with manager only
+      artist.update!(manager: self)
     end
 
     true

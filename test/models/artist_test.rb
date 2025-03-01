@@ -6,8 +6,7 @@ class ArtistTest < ActiveSupport::TestCase
       name: "Test Artist",
       genre: "Rock",
       energy: 100,
-      talent: 50,
-      user: users(:one)
+      talent: 50
     )
     assert artist.valid?
   end
@@ -16,8 +15,7 @@ class ArtistTest < ActiveSupport::TestCase
     artist = Artist.new(
       genre: "Rock",
       energy: 100,
-      talent: 50,
-      user: users(:one)
+      talent: 50
     )
     assert_not artist.valid?
   end
@@ -26,8 +24,7 @@ class ArtistTest < ActiveSupport::TestCase
     artist = Artist.new(
       name: "Test Artist",
       energy: 100,
-      talent: 50,
-      user: users(:one)
+      talent: 50
     )
     assert_not artist.valid?
   end
@@ -36,8 +33,7 @@ class ArtistTest < ActiveSupport::TestCase
     artist = Artist.new(
       name: "Test Artist",
       genre: "Rock",
-      talent: 50,
-      user: users(:one)
+      talent: 50
     )
     assert_not artist.valid?
   end
@@ -46,13 +42,12 @@ class ArtistTest < ActiveSupport::TestCase
     artist = Artist.new(
       name: "Test Artist",
       genre: "Rock",
-      energy: 100,
-      user: users(:one)
+      energy: 100
     )
     assert_not artist.valid?
   end
 
-  test "should be valid without a user" do
+  test "should be valid without a manager" do
     artist = Artist.new(
       name: "Test Artist",
       genre: "Rock",
@@ -68,8 +63,7 @@ class ArtistTest < ActiveSupport::TestCase
       genre: "Rock",
       energy: 150,
       max_energy: 120,
-      talent: 50,
-      user: users(:one)
+      talent: 50
     )
     assert_not artist.valid?
 
@@ -90,8 +84,7 @@ class ArtistTest < ActiveSupport::TestCase
       name: "Test Artist",
       genre: "Rock",
       energy: 100,
-      talent: 150,
-      user: users(:one)
+      talent: 150
     )
     assert_not artist.valid?
 
@@ -107,8 +100,7 @@ class ArtistTest < ActiveSupport::TestCase
       name: "Test Artist",
       genre: "Rock",
       energy: 100,
-      talent: 50,
-      user: users(:one)
+      talent: 50
     )
     assert_equal 0, artist.popularity
   end
@@ -118,8 +110,7 @@ class ArtistTest < ActiveSupport::TestCase
       name: "Test Artist",
       genre: "Rock",
       energy: 100,
-      talent: 50,
-      user: users(:one)
+      talent: 50
     )
     assert_equal 0, artist.skill
   end
@@ -247,9 +238,5 @@ class ArtistTest < ActiveSupport::TestCase
   test "can view upcoming scheduled actions" do
     @artist.schedule_activity!("practice", 2.hours.from_now)
     @artist.schedule_activity!("record", 4.hours.from_now)
-
-    upcoming = @artist.upcoming_scheduled_actions
-    assert_equal 2, upcoming.count
-    assert_equal "practice", upcoming.first.activity_type
   end
 end

@@ -4,123 +4,84 @@
   venue_stats = active_season&.venue_stats || {}
 %>
 
-<div class="card mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">
-      <i class="fas fa-building mr-2"></i> Venue Statistics
-    </h5>
+<div class="rounded-lg border border-gray-200 bg-white shadow-sm mb-6">
+  <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+    <h3 class="text-xl font-bold text-gray-800">Venue Statistics</h3>
     <% if venue_stats.present? %>
-      <small class="text-muted">
+      <span class="text-xs text-gray-500">
         Updated: <%= venue_stats["generated_at"] ? time_ago_in_words(Time.parse(venue_stats["generated_at"])) + " ago" : "Never" %>
-      </small>
+      </span>
     <% end %>
   </div>
   
-  <div class="card-body">
+  <div class="px-6 py-4">
     <% if venue_stats.blank? %>
-      <div class="alert alert-info">
+      <div class="rounded-lg bg-blue-50 p-4 text-blue-700">
         No venue statistics are available yet. Statistics will be generated after venue regeneration.
       </div>
     <% else %>
-      <div class="row mb-4">
-        <div class="col-md-4">
-          <div class="card bg-light">
-            <div class="card-body text-center">
-              <h3 class="h2 mb-0"><%= venue_stats["venue_count"] || 0 %></h3>
-              <p class="text-muted mb-0">Total Venues</p>
-            </div>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-gray-50 rounded-lg p-4 text-center">
+          <h3 class="text-2xl font-bold text-gray-800 mb-1"><%= venue_stats["venue_count"] || 0 %></h3>
+          <p class="text-sm text-gray-500">Total Venues</p>
         </div>
         
-        <div class="col-md-8">
-          <h6 class="mb-3">Venues by Tier</h6>
-          <div class="progress-stacked mb-3">
+        <div class="md:col-span-2">
+          <h6 class="text-sm font-medium text-gray-700 mb-3">Venues by Tier</h6>
+          <div class="h-2 rounded-full bg-gray-100 mb-2">
             <% total_venues = venue_stats["venue_count"] || 0 %>
-            <% (1..3).each do |tier| %>
-              <% 
+            <% 
+              tier_percentages = (1..3).map do |tier|
                 tier_data = venue_stats.dig("performances_by_tier", tier.to_s) 
                 tier_count = tier_data ? tier_data["venues"] : 0
                 percentage = total_venues > 0 ? (tier_count.to_f / total_venues * 100).round : 0
                 
-                # Colors for tiers
+                # Color classes for tiers
                 color = case tier
-                  when 1 then "bg-info"
-                  when 2 then "bg-primary"
-                  when 3 then "bg-success"
-                  else "bg-secondary"
+                  when 1 then "bg-blue-500"
+                  when 2 then "bg-purple-500"
+                  when 3 then "bg-green-500"
+                  else "bg-gray-500"
                 end
-              %>
-              <div class="progress-bar <%= color %>" role="progressbar" style="width: <%= percentage %>%" 
-                   aria-valuenow="<%= percentage %>" aria-valuemin="0" aria-valuemax="100" 
-                   data-bs-toggle="tooltip" title="Tier <%= tier %>: <%= tier_count %> venues (<%= percentage %>%)">
-              </div>
-            <% end %>
+                
+                { tier: tier, percentage: percentage, color: color, count: tier_count }
+              end
+            %>
+            
+            <div class="flex h-full">
+              <% tier_percentages.each do |tier| %>
+                <div class="h-full <%= tier[:color] %> first:rounded-l-full last:rounded-r-full" style="width: <%= tier[:percentage] %>%" title="Tier <%= tier[:tier] %>: <%= tier[:count] %> venues (<%= tier[:percentage] %>%)"></div>
+              <% end %>
+            </div>
           </div>
-          <div class="d-flex justify-content-between small">
-            <span class="text-info">Tier 1</span>
-            <span class="text-primary">Tier 2</span>
-            <span class="text-success">Tier 3</span>
+          <div class="flex justify-between text-xs">
+            <span class="text-blue-600">Tier 1</span>
+            <span class="text-purple-600">Tier 2</span>
+            <span class="text-green-600">Tier 3</span>
           </div>
         </div>
       </div>
       
       <% if venue_stats.dig("performances_by_tier").present? %>
-        <h6 class="mb-3">Performance Statistics by Venue Tier</h6>
-        <div class="table-responsive">
-          <table class="table table-sm table-bordered">
-            <thead class="table-light">
+        <h6 class="text-sm font-medium text-gray-700 mb-3">Performance Statistics by Venue Tier</h6>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
               <tr>
-                <th>Tier</th>
-                <th>Performances</th>
-                <th>Average Attendance</th>
-                <th>Total Revenue</th>
+                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tier</th>
+                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performances</th>
+                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Average Attendance</th>
+                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Revenue</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-200">
               <% (1..3).each do |tier| %>
                 <% tier_data = venue_stats.dig("performances_by_tier", tier.to_s) %>
-                <% if tier_data %>
-                  <tr>
-                    <td>Tier <%= tier %></td>
-                    <td><%= tier_data["performances"] %></td>
-                    <td><%= number_to_percentage(tier_data["avg_attendance_percentage"], precision: 1) %></td>
-                    <td><%= number_to_currency(tier_data["total_revenue"]) %></td>
-                  </tr>
-                <% else %>
-                  <tr>
-                    <td>Tier <%= tier %></td>
-                    <td>0</td>
-                    <td>0%</td>
-                    <td>$0.00</td>
-                  </tr>
-                <% end %>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% end %>
-      
-      <% if venue_stats.dig("most_popular_venues").present? && venue_stats["most_popular_venues"].any? %>
-        <h6 class="mt-4 mb-3">Most Popular Venues</h6>
-        <div class="table-responsive">
-          <table class="table table-sm">
-            <thead class="table-light">
-              <tr>
-                <th>Venue</th>
-                <th>Tier</th>
-                <th>Performances</th>
-                <th>Avg. Attendance</th>
-                <th>Total Revenue</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% venue_stats["most_popular_venues"].each do |venue| %>
-                <tr>
-                  <td><%= venue["name"] %></td>
-                  <td><%= venue["tier"] %></td>
-                  <td><%= venue["performance_count"] %></td>
-                  <td><%= venue["avg_attendance"] %> people</td>
-                  <td><%= number_to_currency(venue["total_revenue"]) %></td>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-700">Tier <%= tier %></td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700"><%= tier_data ? tier_data["performances"] : 0 %></td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700"><%= number_to_percentage(tier_data ? tier_data["avg_attendance_percentage"] : 0, precision: 1) %></td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700"><%= number_to_currency(tier_data ? tier_data["total_revenue"] : 0) %></td>
                 </tr>
               <% end %>
             </tbody>
@@ -128,35 +89,60 @@
         </div>
       <% end %>
       
-      <% if current_manager.admin? %>
-        <div class="mt-4">
-          <%= button_to "Recalculate Venue Statistics", recalculate_venue_stats_path, method: :post, class: "btn btn-sm btn-outline-primary" %>
+      <% if venue_stats.dig("most_popular_venues").present? && venue_stats["most_popular_venues"].any? %>
+        <h6 class="text-sm font-medium text-gray-700 mt-6 mb-3">Most Popular Venues</h6>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Venue</th>
+                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tier</th>
+                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performances</th>
+                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg. Attendance</th>
+                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Revenue</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <% venue_stats["most_popular_venues"].each do |venue| %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-700"><%= venue["name"] %></td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700"><%= venue["tier"] %></td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700"><%= venue["performance_count"] %></td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700"><%= venue["avg_attendance"] %> people</td>
+                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700"><%= number_to_currency(venue["total_revenue"]) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+      
+      <% if current_manager.user.admin? %>
+        <div class="mt-6">
+          <%= button_to "Recalculate Venue Statistics", recalculate_venue_stats_path, method: :post, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
         </div>
       <% end %>
     <% end %>
   </div>
 </div>
 
-<div class="card mb-4">
-  <div class="card-header">
-    <h5 class="mb-0">
-      <i class="fas fa-building mr-2"></i> Venue Opportunities
-    </h5>
+<div class="rounded-lg border border-gray-200 bg-white shadow-sm mb-6">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h3 class="text-xl font-bold text-gray-800">Venue Opportunities</h3>
   </div>
-  <div class="card-body">
+  <div class="px-6 py-4">
     <% 
       venue_count = Venue.count
       available_venues = current_manager&.available_venues&.count || 0
       percentage = (available_venues.to_f / venue_count * 100).round if venue_count > 0
     %>
     
-    <div class="mb-3">
+    <div class="mb-4">
       <p class="mb-1 text-sm font-medium text-gray-700">Venues Available</p>
       <div class="flex items-center">
         <div class="flex-grow">
-          <div class="progress" style="height: 8px;">
-            <div class="progress-bar bg-success" role="progressbar" style="width: <%= percentage %>%;" 
-                 aria-valuenow="<%= percentage %>" aria-valuemin="0" aria-valuemax="100"></div>
+          <div class="h-2 rounded-full bg-gray-100">
+            <div class="h-full rounded-full bg-green-500" style="width: <%= percentage %>%;"></div>
           </div>
         </div>
         <span class="ml-2 text-sm font-medium text-gray-700"><%= available_venues %>/<%= venue_count %></span>
@@ -167,34 +153,55 @@
     </div>
     
     <% if current_manager.artists.present? && current_manager.available_venues.present? %>
-      <div class="mt-4">
-        <h6 class="text-sm font-semibold mb-2">Recommended Venues</h6>
-        <div class="space-y-2">
+      <div class="mt-6">
+        <h6 class="text-sm font-medium text-gray-700 mb-3">Recommended Venues</h6>
+        <div class="space-y-3">
           <% current_manager.available_venues.order(prestige: :desc).limit(3).each do |venue| %>
-            <%= link_to venue_path(venue), class: "flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200" do %>
-              <div>
-                <p class="font-medium text-gray-900"><%= venue.name %></p>
-                <p class="text-xs text-gray-500">Tier <%= venue.tier %>, <%= venue.capacity %> capacity</p>
+            <%= link_to venue_path(venue), class: "block p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all" do %>
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="font-medium text-gray-800"><%= venue.name %></p>
+                  <p class="text-xs text-gray-500">Tier <%= venue.tier %>, <%= venue.capacity %> capacity</p>
+                </div>
+                <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">Prestige: <%= venue.prestige %></span>
               </div>
-              <span class="badge bg-info text-white">Prestige: <%= venue.prestige %></span>
             <% end %>
           <% end %>
         </div>
         
-        <div class="mt-4 text-center">
-          <%= link_to "View All Venues", venues_path, class: "btn btn-sm btn-outline-primary" %>
+        <div class="mt-4 flex flex-wrap gap-3 justify-center">
+          <%= link_to "View All Venues", venues_path, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
           <% if current_manager.upcoming_performances.any? %>
-            <%= link_to "View Performances", performances_path, class: "btn btn-sm btn-primary" %>
+            <%= link_to "View Performances", performances_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
           <% else %>
-            <%= link_to "Book Performance", new_performance_path, class: "btn btn-sm btn-primary" %>
+            <% if current_manager.artists.present? %>
+              <div class="relative inline-block text-left">
+                <button id="bookPerformanceVenueDropdown" type="button" class="rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90 inline-flex items-center"
+                       onclick="document.getElementById('bookPerformanceVenueMenu').classList.toggle('hidden')">
+                  Book Performance
+                  <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div id="bookPerformanceVenueMenu" class="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden">
+                  <div class="py-1">
+                    <% current_manager.artists.each do |artist| %>
+                      <%= link_to artist.name, new_artist_performance_path(artist.id), class: "block px-4 py-2 text-gray-700 hover:bg-gray-100" %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% else %>
+              <%= link_to "Create Artist First", new_artist_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+            <% end %>
           <% end %>
         </div>
       </div>
     <% else %>
-      <div class="alert alert-info mb-0">
+      <div class="rounded-lg bg-blue-50 p-4 text-blue-700">
         <% if current_manager.artists.empty? %>
           You need to sign artists before you can book venues.
-          <%= link_to "Create your first artist", new_artist_path, class: "alert-link" %>
+          <%= link_to "Create your first artist", new_artist_path, class: "font-medium text-blue-700 underline hover:text-blue-800" %>
         <% else %>
           No venues are available for your artists yet. Keep developing your artists to unlock venues.
         <% end %>

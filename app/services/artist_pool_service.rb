@@ -2,7 +2,7 @@ class ArtistPoolService
   MIN_AVAILABLE_ARTISTS = 10
 
   def self.ensure_minimum_artists_available
-    available_count = Artist.where(user_id: nil).count
+    available_count = Artist.where(manager_id: nil).count
 
     if available_count < MIN_AVAILABLE_ARTISTS
       count_to_generate = MIN_AVAILABLE_ARTISTS - available_count

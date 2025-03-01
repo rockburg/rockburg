@@ -4,12 +4,12 @@ class ArtistSelectionsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
     sign_in_as(@user)
+    # Create an unassigned artist (no manager)
     @unassigned_artist = Artist.create!(
       name: "Unassigned Artist",
       genre: "Alternative",
       energy: 80,
-      talent: 70,
-      user: nil
+      talent: 70
     )
   end
 
@@ -22,25 +22,36 @@ class ArtistSelectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should select an artist" do
-    assert_nil @unassigned_artist.user
+    # Verify artist starts with no manager
+    assert_nil @unassigned_artist.manager
 
     post select_artist_url(@unassigned_artist)
 
     @unassigned_artist.reload
-    assert_equal @user.id, @unassigned_artist.user_id
+    # Now artist should be associated with the current user's manager
+    assert_equal @user.manager, @unassigned_artist.manager
     assert_redirected_to artist_path(@unassigned_artist)
   end
 
   test "should not select an already assigned artist" do
-    # Assign the artist to another user
+    # Assign the artist to another user's manager
     other_user = users(:two)
-    @unassigned_artist.update!(user: other_user)
+    other_manager = other_user.manager || other_user.create_manager(
+      budget: 1000.00,
+      level: 1,
+      xp: 0,
+      skill_points: 0,
+      traits: {},
+      nano_id: SecureRandom.alphanumeric(10)
+    )
+    @unassigned_artist.update!(manager: other_manager)
 
     post select_artist_url(@unassigned_artist)
 
     @unassigned_artist.reload
-    assert_equal other_user.id, @unassigned_artist.user_id
+    # Artist should still be associated with the other manager
+    assert_equal other_manager, @unassigned_artist.manager
     assert_redirected_to artists_path
-    assert_match "already been selected", flash[:alert]
+    assert_match "already been signed", flash[:alert]
   end
 end

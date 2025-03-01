@@ -162,6 +162,8 @@ module Openai
           ]
         }
       PROMPT
+
+      prompt
     end
 
     def generate_fallback_venues(tier, count)

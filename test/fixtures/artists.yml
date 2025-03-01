@@ -7,7 +7,6 @@ one:
   energy: 100
   max_energy: 100
   popularity: 0
-  user: one
   manager: one
 
 two:
@@ -17,7 +16,6 @@ two:
   energy: 90
   max_energy: 100
   popularity: 5
-  user: two
   manager: two
 
 rock_artist:
@@ -28,7 +26,6 @@ rock_artist:
   talent: 70
   skill: 50
   popularity: 30
-  user: one
   manager: one
 
 pop_artist:
@@ -39,7 +36,6 @@ pop_artist:
   talent: 75
   skill: 60
   popularity: 40
-  user: one
   manager: one
 
 country_artist:
@@ -50,5 +46,4 @@ country_artist:
   talent: 65
   skill: 55
   popularity: 25
-  user: two
   manager: two 

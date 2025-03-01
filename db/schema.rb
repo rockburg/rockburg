@@ -10,18 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_193728) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_01_214042) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
-  create_table "artists", force: :cascade do |t|
+  create_table "artists", comment: "Artists are associated with managers. Unsigned artists have no manager.", force: :cascade do |t|
     t.string "name", null: false
     t.string "genre", null: false
     t.integer "energy", null: false
     t.integer "talent", null: false
     t.integer "skill", default: 0, null: false
     t.integer "popularity", default: 0, null: false
-    t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "traits", default: {}, null: false
@@ -45,7 +44,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_193728) do
     t.index ["revenue"], name: "index_artists_on_revenue"
     t.index ["signing_cost"], name: "index_artists_on_signing_cost"
     t.index ["traits"], name: "index_artists_on_traits", using: :gin
-    t.index ["user_id"], name: "index_artists_on_user_id"
   end
 
   create_table "managers", force: :cascade do |t|
@@ -173,7 +171,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_193728) do
   end
 
   add_foreign_key "artists", "managers"
-  add_foreign_key "artists", "users"
   add_foreign_key "managers", "users"
   add_foreign_key "performances", "artists"
   add_foreign_key "performances", "venues"

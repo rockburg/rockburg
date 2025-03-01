@@ -21,7 +21,6 @@ class VenueStatsServiceTest < ActiveSupport::TestCase
       # Create an artist for performances
       @artist = Artist.create!(
         manager: @manager,
-        user: @user,
         name: "Test Artist",
         skill: 60,
         energy: 100,
