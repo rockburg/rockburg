@@ -1,0 +1,2 @@
+module ArtistGeneratorHelper
+end

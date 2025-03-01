@@ -52,14 +52,14 @@ class ArtistTest < ActiveSupport::TestCase
     assert_not artist.valid?
   end
 
-  test "should not be valid without a user" do
+  test "should be valid without a user" do
     artist = Artist.new(
       name: "Test Artist",
       genre: "Rock",
       energy: 100,
       talent: 50
     )
-    assert_not artist.valid?
+    assert artist.valid?
   end
 
   test "energy should be between 0 and 100" do

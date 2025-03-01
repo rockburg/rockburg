@@ -1,4 +1,13 @@
+require "sidekiq/web"
+
 Rails.application.routes.draw do
+  mount Sidekiq::Web => "/sidekiq"
+
+  # Artist Generator
+  get "artist_generator/new", as: :new_artist_generator
+  post "artist_generator/create", as: :create_artist_generator
+  post "artist_generator/batch", to: "artist_generator#batch", as: :batch_artist_generator
+
   # Static pages
   root "pages#home"
   get "about" => "pages#about"
@@ -12,7 +21,12 @@ Rails.application.routes.draw do
   # Admin routes
   namespace :admin do
     root to: "dashboard#index"
-    resources :seasons
+    resources :artists
+    resources :seasons do
+      member do
+        post :generate_artists
+      end
+    end
   end
 
   # Artists

@@ -42,6 +42,35 @@
       <p class="mt-1 text-sm text-gray-500">Energy level (1-100)</p>
     </div>
 
+    <div>
+      <h3 class="mb-3 text-lg font-medium text-gray-700">Traits</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <%= form.label :charisma, "Charisma", class: "mb-1 block text-sm font-medium text-gray-700" %>
+          <%= form.number_field :charisma, value: artist.traits["charisma"], class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500", min: 0, max: 100 %>
+          <p class="mt-1 text-sm text-gray-500">Stage presence and fan interaction (0-100)</p>
+        </div>
+
+        <div>
+          <%= form.label :creativity, "Creativity", class: "mb-1 block text-sm font-medium text-gray-700" %>
+          <%= form.number_field :creativity, value: artist.traits["creativity"], class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500", min: 0, max: 100 %>
+          <p class="mt-1 text-sm text-gray-500">Songwriting and artistic innovation (0-100)</p>
+        </div>
+
+        <div>
+          <%= form.label :resilience, "Resilience", class: "mb-1 block text-sm font-medium text-gray-700" %>
+          <%= form.number_field :resilience, value: artist.traits["resilience"], class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500", min: 0, max: 100 %>
+          <p class="mt-1 text-sm text-gray-500">Ability to handle setbacks (0-100)</p>
+        </div>
+
+        <div>
+          <%= form.label :discipline, "Discipline", class: "mb-1 block text-sm font-medium text-gray-700" %>
+          <%= form.number_field :discipline, value: artist.traits["discipline"], class: "w-full rounded-lg border border-gray-200 p-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500", min: 0, max: 100 %>
+          <p class="mt-1 text-sm text-gray-500">Work ethic and reliability (0-100)</p>
+        </div>
+      </div>
+    </div>
+
     <div class="flex gap-3 mt-8">
       <%= form.submit class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
       <%= link_to "Cancel", artist.new_record? ? artists_path : artist_path(artist), class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>

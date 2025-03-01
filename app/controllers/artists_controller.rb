@@ -15,6 +15,7 @@ class ArtistsController < ApplicationController
 
   def create
     @artist = Current.user.artists.build(artist_params)
+    process_traits_params
 
     if @artist.save
       redirect_to @artist, notice: "Artist was successfully created."
@@ -28,6 +29,8 @@ class ArtistsController < ApplicationController
 
   def update
     if @artist.update(artist_params)
+      process_traits_params
+      @artist.save
       redirect_to @artist, notice: "Artist was successfully updated."
     else
       render :edit, status: :unprocessable_entity
@@ -65,5 +68,17 @@ class ArtistsController < ApplicationController
 
   def artist_params
     params.require(:artist).permit(:name, :genre, :energy, :talent)
+  end
+
+  def process_traits_params
+    # Initialize traits as an empty hash if it doesn't exist
+    @artist.traits ||= {}
+
+    # Process each trait from the params
+    [ :charisma, :creativity, :resilience, :discipline ].each do |trait|
+      if params[:artist][trait].present?
+        @artist.traits[trait.to_s] = params[:artist][trait].to_i
+      end
+    end
   end
 end

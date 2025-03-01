@@ -82,6 +82,37 @@
     </div>
   </div>
   
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Artist Generation</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Generate AI artists for this season</p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+      <div class="mb-4">
+        <p class="text-sm text-gray-700">
+          <% if @season.settings.is_a?(Hash) && @season.settings.dig('artist_count').present? %>
+            This season is configured to generate <%= @season.settings['artist_count'] %> artists when activated.
+          <% else %>
+            No artist count has been configured for this season. Edit the season to set the number of artists to generate.
+          <% end %>
+        </p>
+      </div>
+      
+      <%= form_with url: generate_artists_admin_season_path(@season), method: :post, class: "mt-5" do |form| %>
+        <div class="flex items-end space-x-4">
+          <div>
+            <%= form.label :count, "Number of artists to generate:", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.number_field :count, min: 1, max: 1000, value: (@season.settings.is_a?(Hash) ? @season.settings.dig('artist_count') : nil) || 10, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+            </div>
+          </div>
+          <%= form.submit "Generate Artists", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+        </div>
+        <p class="mt-2 text-xs text-gray-500">This will generate artists in the background. Check the logs for progress.</p>
+      <% end %>
+    </div>
+  </div>
+  
   <div class="flex justify-between">
     <%= link_to "Edit", edit_admin_season_path(@season), class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
     <%= link_to "Delete Season", admin_season_path(@season), method: :delete, data: { confirm: "Are you sure you want to delete this season?" }, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
