@@ -11,6 +11,11 @@ module HasNanoId
       find_by(nano_id: id)
     end
 
+    # Class method to find by either id or nano_id
+    def self.find_by_id_or_nano_id(id)
+      find_by(id: id) || find_by(nano_id: id)
+    end
+
     # Override to_param to use nano_id in URLs
     def to_param
       nano_id

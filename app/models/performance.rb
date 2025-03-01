@@ -26,8 +26,11 @@ class Performance < ApplicationRecord
     # Ensure the artist has a manager
     return false unless artist.manager.present?
 
+    # Ensure the venue is present
+    return false unless venue.present?
+
     # Check if the venue is available for the artist based on level
-    return false unless venue.class.available_for_artist(artist).include?(venue)
+    return false unless Venue.available_for_artist(artist).include?(venue)
 
     # Check if the artist can afford the booking cost
     return false unless artist.manager.can_afford?(venue.booking_cost)

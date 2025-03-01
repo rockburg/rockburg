@@ -37,7 +37,16 @@ class PerformancesController < ApplicationController
       redirect_to artists_path, alert: "You don't manage this artist." and return
     end
 
-    @venue = find_resource(Venue, params[:performance][:venue_id])
+    @venue = Venue.find_by_id_or_nano_id(params[:performance][:venue_id])
+
+    # Check if the venue exists
+    unless @venue.present?
+      @venues = current_manager.available_venues
+      @performance = Performance.new(artist: @artist)
+      flash.now[:alert] = "The selected venue could not be found."
+      return render :new, status: :unprocessable_entity
+    end
+
     scheduled_for = Time.zone.parse(params[:performance][:scheduled_for])
     ticket_price = params[:performance][:ticket_price].to_f
 
