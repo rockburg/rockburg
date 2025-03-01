@@ -112,6 +112,6 @@ This project follows Test-Driven Development (TDD) principles. Run the tests wit
 rails test
 ```
 
-## License
+## Copyright & license
 
-This project is licensed under the MIT License.
+Rockburg is distributed under an [AGPLv3 license](https://github.com/rockburg/rockburg/blob/main/LICENSE).
