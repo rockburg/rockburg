@@ -3,10 +3,12 @@ description: Miscellaneous rules to get the AI to behave
 globs: 
 alwaysApply: true
 ---
-- Use TDD principles using minitest.
+- Always use red/green/refactor TDD principles using minitest.
 - Use the latest version of Rails 8.
 - Use importmaps
 - Use Sidekiq through ActiveJobs
+- Always use `rails g migration` for migrations. Never manually create migration files.
+- Schema is the single-source of truth for the state of the database, NOT migration files.
 - Do NOT use solid_cache, solid_queue or solid_cable
 - Do not run `rails server` in your responses.
 - Do not run `touch tmp/restart.txt`
