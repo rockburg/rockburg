@@ -18,7 +18,7 @@ class PerformancesController < ApplicationController
   end
 
   def new
-    @artist = find_resource(Artist)
+    @artist = find_resource(Artist, :artist_id)
 
     # Check if the artist is managed by the current manager
     unless @artist&.manager && @artist.manager == current_manager
@@ -30,7 +30,7 @@ class PerformancesController < ApplicationController
   end
 
   def create
-    @artist = find_resource(Artist, params[:artist_id])
+    @artist = find_resource(Artist, :artist_id)
 
     # Check if the artist is managed by the current manager
     unless @artist&.manager && @artist.manager == current_manager

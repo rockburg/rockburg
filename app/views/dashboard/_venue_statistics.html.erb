@@ -186,7 +186,7 @@
                 <div id="bookPerformanceVenueMenu" class="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden">
                   <div class="py-1">
                     <% current_manager.artists.each do |artist| %>
-                      <%= link_to artist.name, new_artist_performance_path(artist.id), class: "block px-4 py-2 text-gray-700 hover:bg-gray-100" %>
+                      <%= link_to artist.name, new_artist_performance_path(artist), class: "block px-4 py-2 text-gray-700 hover:bg-gray-100" %>
                     <% end %>
                   </div>
                 </div>
