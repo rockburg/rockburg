@@ -14,7 +14,7 @@ class ArtistsController < ApplicationController
   def edit
     # Handle the case where the route doesn't exist
     if @artist.nil?
-      render file: "#{Rails.root}/public/404.html", status: :not_found
+      redirect_to artists_path, alert: "Artist not found."
     else
       redirect_to @artist, alert: "Editing artists is not permitted."
     end
@@ -23,7 +23,7 @@ class ArtistsController < ApplicationController
   def update
     # Handle the case where the route doesn't exist
     if @artist.nil?
-      render file: "#{Rails.root}/public/404.html", status: :not_found
+      redirect_to artists_path, alert: "Artist not found."
     else
       redirect_to @artist, alert: "Editing artists is not permitted."
     end

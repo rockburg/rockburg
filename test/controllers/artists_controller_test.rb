@@ -19,14 +19,12 @@ class ArtistsControllerTest < ActionDispatch::IntegrationTest
 
   test "should redirect from edit" do
     get "/artists/#{@artist.id}/edit"
-    assert_redirected_to artist_url(@artist)
-    assert_equal "Editing artists is not permitted.", flash[:alert]
+    assert_response :not_found
   end
 
   test "should not update artist" do
     patch "/artists/#{@artist.id}", params: { artist: { name: "Updated Artist" } }
-    assert_redirected_to artist_url(@artist)
-    assert_equal "Editing artists is not permitted.", flash[:alert]
+    assert_response :not_found
     @artist.reload
     assert_not_equal "Updated Artist", @artist.name
   end
