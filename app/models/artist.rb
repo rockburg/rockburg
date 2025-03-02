@@ -65,6 +65,8 @@ class Artist < ApplicationRecord
   end
 
   # List of valid activities
+  # Note: "rest" is kept for backward compatibility but is no longer used in the UI
+  # as energy now regenerates automatically when artists are idle via RegenerateArtistEnergyJob
   VALID_ACTIVITIES = %w[practice record promote rest].freeze
 
   # Activity durations in minutes
@@ -242,7 +244,8 @@ class Artist < ApplicationRecord
   end
 
   def energy=(value)
-    capped_value = [ value.to_i, max_energy.to_i, 100 ].compact.min
+    # Cap energy between 0 and max_energy
+    capped_value = [ [ value.to_i, 0 ].max, max_energy.to_i ].min
     super(capped_value)
   end
 
@@ -325,6 +328,8 @@ class Artist < ApplicationRecord
   end
 
   # Rest: increases energy
+  # Note: This method is kept for backward compatibility but is no longer used in the UI
+  # as energy now regenerates automatically when artists are idle via RegenerateArtistEnergyJob
   def rest!
     # Calculate energy gain
     energy_gain = 25

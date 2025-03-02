@@ -61,22 +61,25 @@ class ArtistTest < ActiveSupport::TestCase
     artist = Artist.new(
       name: "Test Artist",
       genre: "Rock",
-      energy: 150,
       max_energy: 120,
+      energy: 150,
       talent: 50
     )
-    assert_not artist.valid?
+
+    # Energy should be capped at max_energy by the energy= method
+    assert_equal 120, artist.energy
 
     artist.energy = -10
-    assert_not artist.valid?
+    # Energy should be capped at 0 by the energy= method
+    assert_equal 0, artist.energy
 
     artist.energy = 80
-    assert artist.valid?
+    assert_equal 80, artist.energy
 
     # Energy can be higher than 100 if max_energy allows it
-    artist.energy = 120
     artist.max_energy = 150
-    assert artist.valid?
+    artist.energy = 120
+    assert_equal 120, artist.energy
   end
 
   test "talent should be between 0 and 100" do

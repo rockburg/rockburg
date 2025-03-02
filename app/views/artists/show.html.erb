@@ -149,8 +149,8 @@
           <%= button_to "Practice (30m)", perform_activity_artist_path(@artist, activity: "practice"), method: :post, class: "rounded-lg bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700 transition-all hover:bg-purple-200" %>
           <%= button_to "Record (1h)", perform_activity_artist_path(@artist, activity: "record"), method: :post, class: "rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition-all hover:bg-green-200" %>
           <%= button_to "Promote (45m)", perform_activity_artist_path(@artist, activity: "promote"), method: :post, class: "rounded-lg bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 transition-all hover:bg-blue-200" %>
-          <%= button_to "Rest (20m)", perform_activity_artist_path(@artist, activity: "rest"), method: :post, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50" %>
         </div>
+        <p class="text-sm text-gray-500 mt-3">Energy regenerates automatically when your artist is idle.</p>
       <% end %>
     </div>
   </div>

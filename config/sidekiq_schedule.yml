@@ -8,4 +8,10 @@ check_expired_artist_actions:
   cron: '*/5 * * * *' # Run every 5 minutes
   class: CheckExpiredArtistActionsJob
   queue: default
-  description: "Checks for any artist actions that may have expired but weren't completed" 
+  description: "Checks for any artist actions that may have expired but weren't completed"
+
+regenerate_artist_energy:
+  cron: '*/3 * * * *' # Run every 3 minutes
+  class: RegenerateArtistEnergyJob
+  queue: default
+  description: "Regenerates energy for idle artists who are not performing any actions" 
