@@ -2,7 +2,7 @@ class RegenerateArtistEnergyJob < ApplicationJob
   queue_as :default
 
   # Amount of energy to regenerate per interval
-  ENERGY_REGEN_AMOUNT = 2
+  ENERGY_REGEN_AMOUNT = 1
 
   def perform
     # Find all artists who are not busy (no current action)
