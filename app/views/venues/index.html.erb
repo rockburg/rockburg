@@ -26,7 +26,7 @@
       
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <% @available_venues.each do |venue| %>
-          <%= link_to venue_path(venue), class: "flex flex-col rounded-lg shadow-md overflow-hidden bg-white hover:shadow-lg transition-shadow duration-300" do %>
+          <%= link_to venue_path(venue), class: "flex flex-col rounded-xl border-2 border-[#E2E8F0] overflow-hidden bg-white hover:border-[#3B82F6] transition-all" do %>
             <div class="px-6 py-5">
               <div class="flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-900"><%= venue.name %></h3>
@@ -62,7 +62,7 @@
         
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <% venues.each do |venue| %>
-            <%= link_to venue_path(venue), class: "flex flex-col rounded-lg shadow-md overflow-hidden bg-white hover:shadow-lg transition-shadow duration-300" do %>
+            <%= link_to venue_path(venue), class: "flex flex-col rounded-xl border-2 border-[#E2E8F0] overflow-hidden bg-white hover:border-[#3B82F6] transition-all" do %>
               <div class="px-6 py-5">
                 <div class="flex items-center justify-between">
                   <h3 class="text-lg font-semibold text-gray-900"><%= venue.name %></h3>

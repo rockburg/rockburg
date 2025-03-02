@@ -5,6 +5,117 @@
  * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
  * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
  * depending on specificity.
- *
+ *  
  * Consider organizing styles into separate files for maintainability.
  */
+
+:root {
+  /* Primary colors from design system */
+  --color-primary: #3B82F6;
+  --color-primary-border: #2563EB;
+  --color-buy: #38BDF8;
+  --color-buy-border: #0EA5E9;
+  --color-buy-bottom: #0284C7;
+  
+  /* Card and background colors */
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #E2E8F0;
+  --color-bg-gray: #EDF2F7;
+  
+  /* Font families */
+  --font-heading: 'Roboto', sans-serif;
+  --font-body: 'Archivo', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-primary-border);
+  border-bottom-width: 4px;
+  color: white;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: transform 0.2s, border-bottom-width 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+.btn-buy {
+  background-color: var(--color-buy);
+  border: 2px solid var(--color-buy-border);
+  border-bottom: 4px solid var(--color-buy-bottom);
+  color: white;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: transform 0.2s, border-bottom-width 0.2s;
+}
+
+.btn-buy:hover {
+  transform: translateY(-2px);
+}
+
+.btn-buy:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+.btn-secondary {
+  background-color: white;
+  border: 2px solid var(--color-card-border);
+  color: #4A5568;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-bg-gray);
+}
+
+.btn-purple {
+  background-color: #E9D8FD;
+  border: 2px solid #D6BCFA;
+  color: #6B46C1;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  transition: background-color 0.2s;
+}
+
+.btn-purple:hover {
+  background-color: #D6BCFA;
+}
+
+.btn-blue {
+  background-color: #EBF8FF;
+  border: 2px solid #BEE3F8;
+  color: #3182CE;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  transition: background-color 0.2s;
+}
+
+.btn-blue:hover {
+  background-color: #BEE3F8;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--color-card-bg);
+  border: 2px solid var(--color-card-border);
+  border-radius: 0.75rem;
+}

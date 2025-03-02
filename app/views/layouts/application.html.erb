@@ -9,37 +9,41 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
 
-  <meta name="msapplication-TileColor" content="#9333ea">
-  <meta name="theme-color" content="#9333ea">
+  <meta name="msapplication-TileColor" content="#3B82F6">
+  <meta name="theme-color" content="#3B82F6">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
   <%= stylesheet_link_tag :app, "data-turbo-track": Rails.env.production? ? "reload" : "" %>
   <%= javascript_importmap_tags %>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+<body class="min-h-screen bg-[#FAFAFA]">
   <%= render "shared/season_header" %>
-  <header class="bg-white shadow-sm">
+  <header class="bg-white border-b-2 border-[#E2E8F0]">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 justify-between items-center">
         <div class="flex-shrink-0">
-          <a href="/" class="font-bold text-2xl text-purple-700">Rockburg</a>
+          <a href="/" class="font-bold text-2xl text-[#3B82F6]">Rockburg</a>
         </div>
         <div class="flex items-center space-x-4">
           <nav class="flex space-x-8">
             <% if Current.user %>
-            <%= link_to "Dashboard", dashboard_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-            <%= link_to "My Artists", artists_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-            <%= link_to "Venues", venues_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-            <%= link_to "Performances", performances_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+            <%= link_to "Dashboard", dashboard_path, class: "border-transparent text-gray-500 hover:border-[#3B82F6] hover:text-[#3B82F6] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+            <%= link_to "My Artists", artists_path, class: "border-transparent text-gray-500 hover:border-[#3B82F6] hover:text-[#3B82F6] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+            <%= link_to "Venues", venues_path, class: "border-transparent text-gray-500 hover:border-[#3B82F6] hover:text-[#3B82F6] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+            <%= link_to "Performances", performances_path, class: "border-transparent text-gray-500 hover:border-[#3B82F6] hover:text-[#3B82F6] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
             <% if Current.user.admin? %>
-            <%= link_to "Admin", admin_root_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+            <%= link_to "Admin", admin_root_path, class: "border-transparent text-gray-500 hover:border-[#3B82F6] hover:text-[#3B82F6] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
             <% end %>
-            <%= button_to "Sign out", session_path, method: :delete, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+            <%= button_to "Sign out", session_path, method: :delete, class: "btn-secondary px-4 py-2" %>
             <% else %>
-            <%= link_to "Home", root_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-            <%= link_to "About", about_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-            <%= link_to "Sign in", new_session_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-            <%= link_to "Sign up", new_registration_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+            <%= link_to "Home", root_path, class: "border-transparent text-gray-500 hover:border-[#3B82F6] hover:text-[#3B82F6] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+            <%= link_to "About", about_path, class: "border-transparent text-gray-500 hover:border-[#3B82F6] hover:text-[#3B82F6] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+            <%= link_to "Sign in", new_session_path, class: "border-transparent text-gray-500 hover:border-[#3B82F6] hover:text-[#3B82F6] inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+            <%= link_to "Sign up", new_registration_path, class: "rounded-xl bg-[#3B82F6] border-2 border-[#2563EB] border-b-4 px-4 py-2 font-medium text-white transition-all hover:-translate-y-0.5 active:translate-y-0.5 active:border-b-2" %>
             <% end %>
           </nav>
         </div>
@@ -49,7 +53,7 @@
 
   <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <% if notice %>
-    <div class="rounded-lg bg-green-50 p-4 mb-6">
+    <div class="rounded-xl bg-green-50 p-4 mb-6 border-2 border-green-200">
       <div class="flex">
         <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -64,7 +68,7 @@
     <% end %>
 
     <% if alert %>
-    <div class="rounded-lg bg-red-50 p-4 mb-6">
+    <div class="rounded-xl bg-red-50 p-4 mb-6 border-2 border-red-200">
       <div class="flex">
         <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
@@ -81,15 +85,15 @@
     <%= yield %>
   </main>
 
-  <footer class="bg-white mt-auto border-t border-gray-200">
+  <footer class="bg-white mt-auto border-t-2 border-[#E2E8F0]">
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <div class="flex flex-col-reverse justify-between sm:flex-row">
         <p class="text-sm text-gray-500">&copy; <%= Date.current.year %> Rockburg. All rights reserved.</p>
         <div class="space-x-6 mb-4 sm:mb-0">
-          <%= link_to "Terms", terms_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
-          <%= link_to "Privacy", privacy_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
-          <a href="https://github.com/joshpigford/rockburg" class="text-sm text-gray-500 hover:text-gray-700" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://x.com/rockburggame" class="text-sm text-gray-500 hover:text-gray-700" target="_blank" rel="noopener noreferrer">X</a>
+          <%= link_to "Terms", terms_path, class: "text-sm text-gray-500 hover:text-[#3B82F6]" %>
+          <%= link_to "Privacy", privacy_path, class: "text-sm text-gray-500 hover:text-[#3B82F6]" %>
+          <a href="https://github.com/joshpigford/rockburg" class="text-sm text-gray-500 hover:text-[#3B82F6]" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://x.com/rockburggame" class="text-sm text-gray-500 hover:text-[#3B82F6]" target="_blank" rel="noopener noreferrer">X</a>
         </div>
       </div>
     </div>

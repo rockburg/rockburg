@@ -1,11 +1,11 @@
-<div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-6">
+<div class="min-h-screen p-6">
   <div class="container mx-auto max-w-6xl">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
     
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 space-y-6">
         <!-- Your Artists Card -->
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div class="rounded-lg border-2 border-[#E2E8F0] bg-white hover:border-[#3B82F6] transition-all">
           <div class="px-6 py-4 border-b border-gray-200 flex items-center">
             <h3 class="text-xl font-bold text-gray-800">Your Artists</h3>
           </div>
@@ -13,7 +13,7 @@
             <% if @artists.present? %>
               <div class="space-y-3">
                 <% @artists.each do |artist| %>
-                  <%= link_to artist_path(artist), class: "block p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all" do %>
+                  <%= link_to artist_path(artist), class: "block p-4 rounded-lg border border-gray-200 hover:bg-blue-50 transition-all" do %>
                     <div class="flex justify-between items-center">
                       <div>
                         <h4 class="font-bold text-gray-800"><%= artist.name %></h4>
@@ -47,13 +47,13 @@
             <% end %>
           </div>
           <div class="px-6 py-4 border-t border-gray-200 flex gap-3">
-            <%= link_to "View All Artists", artists_path, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
-            <%= link_to "Select New Artist", artist_selections_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+            <%= link_to "View All Artists", artists_path, class: "btn-secondary px-4 py-2" %>
+            <%= link_to "Select New Artist", artist_selections_path, class: "btn-primary px-4 py-2" %>
           </div>
         </div>
         
         <!-- Upcoming Performances Card -->
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div class="rounded-lg border-2 border-[#E2E8F0] bg-white hover:border-[#3B82F6] transition-all">
           <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-xl font-bold text-gray-800">Upcoming Performances</h3>
           </div>
@@ -92,14 +92,14 @@
                 No upcoming performances scheduled.
                 <% if @artists.present? %>
                   <div class="relative inline-block text-left mt-3">
-                    <button id="bookPerformanceDropdown" type="button" class="rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90 inline-flex items-center" 
+                    <button id="bookPerformanceDropdown" type="button" class="btn-primary px-4 py-2 inline-flex items-center" 
                            onclick="document.getElementById('bookPerformanceMenu').classList.toggle('hidden')">
                       Book a performance
                       <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
-                    <div id="bookPerformanceMenu" class="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden">
+                    <div id="bookPerformanceMenu" class="absolute right-0 mt-2 w-56 rounded-xl bg-white border-2 border-[#E2E8F0] hidden">
                       <div class="py-1">
                         <% @artists.each do |artist| %>
                           <%= link_to artist.name, new_artist_performance_path(artist), class: "block px-4 py-2 text-gray-700 hover:bg-gray-100" %>
@@ -114,17 +114,17 @@
             <% end %>
           </div>
           <div class="px-6 py-4 border-t border-gray-200 flex flex-wrap gap-3">
-            <%= link_to "View All Performances", performances_path, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+            <%= link_to "View All Performances", performances_path, class: "btn-secondary px-4 py-2" %>
             <% if @artists.present? %>
               <div class="relative inline-block text-left">
-                <button id="bookPerformanceFooterDropdown" type="button" class="rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90 inline-flex items-center"
+                <button id="bookPerformanceFooterDropdown" type="button" class="btn-primary px-4 py-2 inline-flex items-center"
                        onclick="document.getElementById('bookPerformanceFooterMenu').classList.toggle('hidden')">
                   Book Performance
                   <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div id="bookPerformanceFooterMenu" class="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden">
+                <div id="bookPerformanceFooterMenu" class="absolute right-0 mt-2 w-56 rounded-xl bg-white border-2 border-[#E2E8F0] hidden">
                   <div class="py-1">
                     <% @artists.each do |artist| %>
                       <%= link_to artist.name, new_artist_performance_path(artist), class: "block px-4 py-2 text-gray-700 hover:bg-gray-100" %>
@@ -133,13 +133,13 @@
                 </div>
               </div>
             <% else %>
-              <%= link_to "Select Artist First", artist_selections_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+              <%= link_to "Select Artist First", artist_selections_path, class: "btn-primary px-4 py-2" %>
             <% end %>
           </div>
         </div>
         
         <!-- Recent Performances Card -->
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div class="rounded-lg border-2 border-[#E2E8F0] bg-white hover:border-[#3B82F6] transition-all">
           <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-xl font-bold text-gray-800">Recent Performances</h3>
           </div>
@@ -182,7 +182,7 @@
       
       <div class="space-y-6">
         <!-- Manager Status Card -->
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div class="rounded-lg border-2 border-[#E2E8F0] bg-white">
           <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-xl font-bold text-gray-800">Manager Status</h3>
           </div>

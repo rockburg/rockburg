@@ -6,7 +6,7 @@
       meets_level = artist.eligible_for?(manager)
       can_sign = can_afford && meets_level
     %>
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md relative">
+    <div class="rounded-lg border-2 border-[#E2E8F0] bg-white p-6 transition-all hover:border-[#E752CE] relative">
       <h3 class="font-bold text-lg"><%= artist.name %></h3>
       <p class="text-sm text-gray-500 mb-2"><%= artist.genre %></p>
       
@@ -67,7 +67,7 @@
       
       <div class="mt-2 flex justify-end">
         <%= button_to "Sign Artist", select_artist_path(artist), method: :post, 
-            class: "rounded-lg #{can_sign ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-gray-300 cursor-not-allowed'} px-4 py-2 text-sm font-medium text-white transition-all hover:opacity-90",
+            class: "#{can_sign ? 'btn-primary' : 'bg-gray-300 cursor-not-allowed'} px-4 py-2 text-sm font-medium text-white rounded-lg",
             disabled: !can_sign,
             title: !can_sign ? (can_afford ? "Your level is too low" : "You can't afford this artist") : nil %>
       </div>

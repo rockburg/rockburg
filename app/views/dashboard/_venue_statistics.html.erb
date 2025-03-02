@@ -4,7 +4,7 @@
   venue_stats = active_season&.venue_stats || {}
 %>
 
-<div class="rounded-lg border border-gray-200 bg-white shadow-sm mb-6">
+<div class="rounded-lg border-2 border-[#E2E8F0] bg-white mb-6 hover:border-[#3B82F6] transition-all">
   <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
     <h3 class="text-xl font-bold text-gray-800">Venue Statistics</h3>
     <% if venue_stats.present? %>
@@ -119,14 +119,14 @@
       
       <% if current_manager.user.admin? %>
         <div class="mt-6">
-          <%= button_to "Recalculate Venue Statistics", recalculate_venue_stats_path, method: :post, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+          <%= button_to "Recalculate Venue Statistics", recalculate_venue_stats_path, method: :post, class: "btn-secondary px-4 py-2" %>
         </div>
       <% end %>
     <% end %>
   </div>
 </div>
 
-<div class="rounded-lg border border-gray-200 bg-white shadow-sm mb-6">
+<div class="rounded-lg border-2 border-[#E2E8F0] bg-white mb-6">
   <div class="px-6 py-4 border-b border-gray-200">
     <h3 class="text-xl font-bold text-gray-800">Venue Opportunities</h3>
   </div>
@@ -157,7 +157,7 @@
         <h6 class="text-sm font-medium text-gray-700 mb-3">Recommended Venues</h6>
         <div class="space-y-3">
           <% current_manager.available_venues.order(prestige: :desc).limit(3).each do |venue| %>
-            <%= link_to venue_path(venue), class: "block p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-all" do %>
+            <%= link_to venue_path(venue), class: "block p-4 rounded-lg border border-gray-200 hover:bg-blue-50 transition-all" do %>
               <div class="flex justify-between items-center">
                 <div>
                   <p class="font-medium text-gray-800"><%= venue.name %></p>
@@ -170,20 +170,20 @@
         </div>
         
         <div class="mt-4 flex flex-wrap gap-3 justify-center">
-          <%= link_to "View All Venues", venues_path, class: "rounded-lg border border-gray-200 bg-white px-4 py-2 font-medium text-gray-700 transition-all hover:bg-gray-50" %>
+          <%= link_to "View All Venues", venues_path, class: "btn-secondary px-4 py-2" %>
           <% if current_manager.upcoming_performances.any? %>
-            <%= link_to "View Performances", performances_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+            <%= link_to "View Performances", performances_path, class: "btn-primary px-4 py-2" %>
           <% else %>
             <% if current_manager.artists.present? %>
               <div class="relative inline-block text-left">
-                <button id="bookPerformanceVenueDropdown" type="button" class="rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90 inline-flex items-center"
+                <button id="bookPerformanceVenueDropdown" type="button" class="btn-primary px-4 py-2 inline-flex items-center"
                        onclick="document.getElementById('bookPerformanceVenueMenu').classList.toggle('hidden')">
                   Book Performance
                   <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div id="bookPerformanceVenueMenu" class="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 hidden">
+                <div id="bookPerformanceVenueMenu" class="absolute right-0 mt-2 w-56 rounded-xl bg-white border-2 border-[#E2E8F0] hidden">
                   <div class="py-1">
                     <% current_manager.artists.each do |artist| %>
                       <%= link_to artist.name, new_artist_performance_path(artist), class: "block px-4 py-2 text-gray-700 hover:bg-gray-100" %>
@@ -192,7 +192,7 @@
                 </div>
               </div>
             <% else %>
-              <%= link_to "Select Artist First", artist_selections_path, class: "rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 font-medium text-white transition-all hover:opacity-90" %>
+              <%= link_to "Select Artist First", artist_selections_path, class: "btn-primary px-4 py-2" %>
             <% end %>
           <% end %>
         </div>
