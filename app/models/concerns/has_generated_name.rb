@@ -75,7 +75,7 @@ module HasGeneratedName
     # Filter out adjectives and nouns with special characters
     valid_adjectives = ADJECTIVES.select { |adj| adj.match?(/\A[\w']+\z/) }
     valid_nouns = NOUNS.select { |noun| noun.match?(/\A[\w']+\z/) }
-    
+
     adjective = valid_adjectives.sample
     noun = valid_nouns.sample
     self.name = "#{adjective} #{noun}"

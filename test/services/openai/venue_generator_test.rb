@@ -24,7 +24,7 @@ class Openai::VenueGeneratorTest < ActiveSupport::TestCase
         }
       ]
     }
-    
+
     mock_response = {
       "choices" => [
         {

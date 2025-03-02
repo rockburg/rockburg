@@ -10,7 +10,7 @@ class VenueRegeneratorTest < ActiveSupport::TestCase
     Performance.delete_all
     Venue.delete_all
     Artist.delete_all
-    
+
     # Create some test venues
     @venue1 = Venue.create!(
       name: "Test Venue 1",
@@ -33,7 +33,7 @@ class VenueRegeneratorTest < ActiveSupport::TestCase
       genre: "pop",
       talent: 75
     )
-    
+
     # Verify we have exactly 2 venues to start
     assert_equal 2, Venue.count
 
@@ -78,7 +78,7 @@ class VenueRegeneratorTest < ActiveSupport::TestCase
   test "regenerates venues without performances" do
     # Initial count
     assert_equal 2, Venue.count
-    
+
     # Store original venue IDs
     original_venue_ids = Venue.pluck(:id)
 
@@ -94,7 +94,7 @@ class VenueRegeneratorTest < ActiveSupport::TestCase
     # Check that the venues have been replaced
     assert_not_equal @venue1.id, Venue.first.id
     assert_not_equal @venue2.id, Venue.last.id
-    
+
     # Check that we have new venues (different IDs)
     new_venues = Venue.where.not(id: original_venue_ids)
     assert_equal 5, new_venues.count, "Expected 5 new venues with different IDs"
@@ -103,10 +103,10 @@ class VenueRegeneratorTest < ActiveSupport::TestCase
   test "keeps venues with performances" do
     # Create a performance for venue1
     artist = Artist.create!(
-      name: "Test Artist", 
-      skill: 50, 
-      energy: 100, 
-      genre: "rock", 
+      name: "Test Artist",
+      skill: 50,
+      energy: 100,
+      genre: "rock",
       talent: 60,
       max_energy: 100
     )
@@ -118,7 +118,7 @@ class VenueRegeneratorTest < ActiveSupport::TestCase
       ticket_price: 10,
       status: "scheduled"
     )
-    
+
     # Store original venue IDs
     original_venue_ids = Venue.pluck(:id)
 
@@ -139,9 +139,9 @@ class VenueRegeneratorTest < ActiveSupport::TestCase
 
     # Check that venue2 was replaced
     assert_not Venue.exists?(@venue2.id)
-    
+
     # Check that we have new venues (different IDs)
-    new_venues = Venue.where.not(id: [@venue1.id])
+    new_venues = Venue.where.not(id: [ @venue1.id ])
     assert_equal 5, new_venues.count, "Expected 5 new venues with different IDs"
   end
 end

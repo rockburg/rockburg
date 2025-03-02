@@ -241,13 +241,13 @@ class ArtistTest < ActiveSupport::TestCase
   test "can view upcoming scheduled actions" do
     @artist.schedule_activity!("practice", 2.hours.from_now)
     @artist.schedule_activity!("record", 4.hours.from_now)
-    
+
     # Get upcoming scheduled actions
     upcoming = @artist.upcoming_scheduled_actions
-    
+
     # Assert that we have the correct number of scheduled actions
     assert_equal 2, upcoming.count
-    
+
     # Assert that the actions are in the correct order (by start time)
     assert_equal "practice", upcoming.first.activity_type
     assert_equal "record", upcoming.last.activity_type

@@ -123,10 +123,10 @@ class ArtistSelectionsControllerTest < ActionDispatch::IntegrationTest
   test "should sort artists by talent" do
     get artist_selections_url, params: { sort: "talent" }
     assert_response :success
-    
+
     # Get the artists from the response
     artists = assigns(:artists)
-    
+
     # Check that they are sorted by talent in descending order
     # Compare talent values directly instead of IDs
     assert artists.each_cons(2).all? { |a, b| a.talent >= b.talent }, "Artists are not sorted by talent in descending order"

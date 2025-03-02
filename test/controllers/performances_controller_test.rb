@@ -46,10 +46,10 @@ class PerformancesControllerTest < ActionDispatch::IntegrationTest
   test "should create performance" do
     # Ensure artist has enough energy to perform
     @artist.update(energy: 50, popularity: 50)
-    
+
     # Ensure the manager has enough funds to book the venue
     @manager.update(budget: 1000)
-    
+
     # Ensure the venue has a valid booking cost and other required attributes
     @venue.update(
       booking_cost: 100,
@@ -58,11 +58,11 @@ class PerformancesControllerTest < ActionDispatch::IntegrationTest
       tier: 2,
       genre: "Rock",
       talent: 50
-    ) 
-    
+    )
+
     # Make sure the artist is managed by the current manager
     @artist.update(manager: @manager) unless @artist.manager == @manager
-    
+
     assert_difference("Performance.count") do
       post artist_performances_path(@artist.id), params: {
         performance: {
@@ -73,7 +73,7 @@ class PerformancesControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    
+
     # Since the performance is created but the controller returns a 422 status,
     # we'll assert that the performance was created and the status is 422
     assert_response :unprocessable_entity
@@ -100,12 +100,12 @@ class PerformancesControllerTest < ActionDispatch::IntegrationTest
       merch_revenue: 300,
       net_revenue: 950  # gross_revenue - venue_cut - expenses + merch_revenue
     )
-    
+
     # Make sure the artist has a manager
     @artist.update(manager: @manager) unless @artist.manager
-    
+
     post complete_performance_path(@performance)
-    
+
     # The controller redirects to the performance page
     assert_redirected_to performance_path(@performance)
     @performance.reload

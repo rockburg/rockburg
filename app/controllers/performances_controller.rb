@@ -99,7 +99,7 @@ class PerformancesController < ApplicationController
         "Booking fee for performance at #{@venue.name}",
         @artist
       )
-      
+
       # Calculate estimated revenue for success message
       estimated_revenue = @venue.estimate_revenue(@artist.popularity, ticket_price)
 
