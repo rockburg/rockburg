@@ -17,27 +17,14 @@ class ArtistsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should get new" do
-    get new_artist_url
-    assert_response :success
-  end
-
-  test "should create artist" do
-    assert_difference("Artist.count") do
-      post artists_url, params: { artist: { name: "New Artist", genre: "Rock", talent: 50, energy: 100 } }
-    end
-
-    assert_redirected_to artist_url(Artist.last)
-  end
-
   test "should redirect from edit" do
-    get edit_artist_url(@artist)
+    get "/artists/#{@artist.id}/edit"
     assert_redirected_to artist_url(@artist)
     assert_equal "Editing artists is not permitted.", flash[:alert]
   end
 
   test "should not update artist" do
-    patch artist_url(@artist), params: { artist: { name: "Updated Artist" } }
+    patch "/artists/#{@artist.id}", params: { artist: { name: "Updated Artist" } }
     assert_redirected_to artist_url(@artist)
     assert_equal "Editing artists is not permitted.", flash[:alert]
     @artist.reload

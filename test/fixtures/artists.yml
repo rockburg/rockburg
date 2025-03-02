@@ -8,6 +8,7 @@ one:
   max_energy: 100
   popularity: 0
   manager: one
+  nano_id: artist_one_nanoid
 
 two:
   name: Another Artist
@@ -17,6 +18,7 @@ two:
   max_energy: 100
   popularity: 5
   manager: two
+  nano_id: artist_two_nanoid
 
 rock_artist:
   name: Rock Star
@@ -27,6 +29,7 @@ rock_artist:
   skill: 50
   popularity: 30
   manager: one
+  nano_id: rock_artist_nanoid
 
 pop_artist:
   name: Pop Star
@@ -37,6 +40,7 @@ pop_artist:
   skill: 60
   popularity: 40
   manager: one
+  nano_id: pop_artist_nanoid
 
 country_artist:
   name: Country Singer
@@ -46,4 +50,5 @@ country_artist:
   talent: 65
   skill: 55
   popularity: 25
-  manager: two 
+  manager: two
+  nano_id: country_artist_nanoid 

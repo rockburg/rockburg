@@ -38,6 +38,8 @@ class Season < ApplicationRecord
   def prepare_activation
     # Set activation timestamp
     self.activated_at = Time.current
+    self.started_at = Time.current
+    self.transition_ends_at = Time.current + 7.days
   end
 
   def complete_activation
@@ -49,7 +51,10 @@ class Season < ApplicationRecord
 
   def handle_deactivation
     # Set deactivation timestamp
-    update_column(:deactivated_at, Time.current)
+    update_columns(
+      deactivated_at: Time.current,
+      ended_at: Time.current
+    )
   end
 
   def generate_genres

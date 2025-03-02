@@ -44,12 +44,16 @@ class PerformancesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create performance" do
+    # Ensure artist has enough energy to perform
+    @artist.update(energy: 50)
+    
     assert_difference("Performance.count") do
       post artist_performances_path(@artist.id), params: {
         performance: {
           venue_id: @venue.id,
-          scheduled_for: 1.day.from_now,
-          ticket_price: 9.99
+          scheduled_for: 2.days.from_now,
+          ticket_price: 9.99,
+          duration_minutes: 60
         }
       }
     end

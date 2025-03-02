@@ -7,6 +7,7 @@ class ArtistSelectionsControllerTest < ActionDispatch::IntegrationTest
 
     # Ensure the user has a manager
     @user.ensure_manager
+    @user.manager.update!(name: "Test Manager")
 
     # Create an unassigned artist (no manager)
     @unassigned_artist = Artist.create!(
@@ -33,13 +34,16 @@ class ArtistSelectionsControllerTest < ActionDispatch::IntegrationTest
 
     @unassigned_artist.reload
     # Now artist should be associated with the current user's manager
-    assert_equal @user.manager, @unassigned_artist.manager
+    assert_equal @user.manager.id, @unassigned_artist.manager_id
     assert_redirected_to artist_path(@unassigned_artist)
   end
 
   test "should deduct manager's budget when signing an artist" do
     # Verify artist starts with no manager
     assert_nil @unassigned_artist.manager
+
+    # Set a specific signing cost for the test
+    @unassigned_artist.update!(signing_cost: 3750.0)
 
     # Record the initial budget
     initial_budget = @user.manager.budget
@@ -119,8 +123,13 @@ class ArtistSelectionsControllerTest < ActionDispatch::IntegrationTest
   test "should sort artists by talent" do
     get artist_selections_url, params: { sort: "talent" }
     assert_response :success
-    sorted_artists = assigns(:artists).sort_by(&:talent).reverse
-    assert_equal sorted_artists, assigns(:artists)
+    
+    # Get the artists from the response
+    artists = assigns(:artists)
+    
+    # Check that they are sorted by talent in descending order
+    # Compare talent values directly instead of IDs
+    assert artists.each_cons(2).all? { |a, b| a.talent >= b.talent }, "Artists are not sorted by talent in descending order"
   end
 
   test "select should deduct funds from manager's budget" do
@@ -130,7 +139,7 @@ class ArtistSelectionsControllerTest < ActionDispatch::IntegrationTest
 
     # Ensure the user has a manager with a budget
     manager = user.ensure_manager
-    manager.update!(budget: 1000.00)
+    manager.update!(budget: 1000.00, name: "Test Manager")
 
     # Create an unassigned artist with a signing cost
     artist = Artist.create!(

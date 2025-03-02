@@ -9,6 +9,7 @@ one:
   genre_trends: {}
   settings: {}
   description: "The first test season"
+  nano_id: "season_one_nanoid"
 
 two:
   name: "Season Two"
@@ -19,3 +20,4 @@ two:
   genre_trends: {}
   settings: {}
   description: "The second test season"
+  nano_id: "season_two_nanoid"

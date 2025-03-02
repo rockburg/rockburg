@@ -47,11 +47,11 @@ module Admin
     private
 
     def set_venue
-      @venue = Venue.find(params[:id])
+      @venue = find_resource(Venue)
     end
 
     def venue_params
-      params.require(:venue).permit(:name, :capacity, :booking_cost, :prestige, :tier, :description, preferences: {})
+      params.require(:venue).permit(:name, :capacity, :booking_cost, :prestige, :tier, :description, :genre, :talent, preferences: {})
     end
   end
 end

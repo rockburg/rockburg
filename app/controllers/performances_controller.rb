@@ -27,12 +27,12 @@ class PerformancesController < ApplicationController
 
     # Get venues available for this artist
     @venues = current_manager.available_venues
-    
+
     # Check if the artist has enough energy to perform
     if !@artist.can_perform?
       flash.now[:alert] = "Your artist doesn't have enough energy to perform. They need at least 20 energy."
     end
-    
+
     @performance = Performance.new(artist: @artist)
   end
 
@@ -64,7 +64,7 @@ class PerformancesController < ApplicationController
 
     scheduled_for = Time.zone.parse(params[:performance][:scheduled_for])
     ticket_price = params[:performance][:ticket_price].to_f
-    duration_minutes = params[:performance][:duration_minutes].to_i
+    duration_minutes = params[:performance][:duration_minutes].to_i || 60
 
     # Check if the scheduled date is valid
     if scheduled_for < 24.hours.from_now
@@ -75,23 +75,38 @@ class PerformancesController < ApplicationController
     end
 
     # Check if the manager can afford the booking cost
-    unless @artist.manager.can_afford?(@venue.booking_cost)
+    unless current_manager.can_afford?(@venue.booking_cost)
       @venues = current_manager.available_venues
       @performance = Performance.new(artist: @artist)
       flash.now[:alert] = "You don't have enough funds to book this venue. It costs #{number_to_currency(@venue.booking_cost)}."
       return render :new, status: :unprocessable_entity
     end
 
-    @performance = @artist.book_performance(@venue, scheduled_for, ticket_price, { duration_minutes: duration_minutes })
+    # Create the performance directly instead of using book_performance
+    @performance = Performance.new(
+      artist: @artist,
+      venue: @venue,
+      scheduled_for: scheduled_for,
+      ticket_price: ticket_price,
+      duration_minutes: duration_minutes,
+      status: "scheduled"
+    )
 
-    if @performance.persisted?
+    if @performance.save
+      # Deduct the booking cost from the manager's budget
+      current_manager.deduct_funds(
+        @venue.booking_cost,
+        "Booking fee for performance at #{@venue.name}",
+        @artist
+      )
+      
       # Calculate estimated revenue for success message
       estimated_revenue = @venue.estimate_revenue(@artist.popularity, ticket_price)
-      
+
       redirect_to @performance, notice: "Performance booked successfully! You've been charged a booking fee of #{number_to_currency(@venue.booking_cost)}. Estimated attendance: #{estimated_revenue[:attendance]} people."
     else
       @venues = current_manager.available_venues
-      flash.now[:alert] = "There was a problem booking the performance."
+      flash.now[:alert] = "There was a problem booking the performance: #{@performance.errors.full_messages.join(', ')}"
       render :new, status: :unprocessable_entity
     end
   end

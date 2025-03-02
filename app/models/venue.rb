@@ -8,6 +8,8 @@ class Venue < ApplicationRecord
   validates :booking_cost, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :prestige, presence: true, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
   validates :tier, presence: true, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 5 }
+  validates :genre, presence: true
+  validates :talent, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
 
   # Scopes
   scope :by_tier, ->(tier) { where(tier: tier) }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_235958) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_02_005630) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -114,6 +114,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_235958) do
     t.datetime "updated_at", null: false
     t.string "nano_id"
     t.jsonb "venue_stats"
+    t.datetime "activated_at"
+    t.datetime "deactivated_at"
     t.index ["active"], name: "index_seasons_on_active"
     t.index ["nano_id"], name: "index_seasons_on_nano_id", unique: true
   end
@@ -167,6 +169,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_235958) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "nano_id"
+    t.string "genre", default: "rock", null: false
+    t.integer "talent", default: 50, null: false
     t.index ["capacity"], name: "index_venues_on_capacity"
     t.index ["nano_id"], name: "index_venues_on_nano_id"
     t.index ["tier"], name: "index_venues_on_tier"

@@ -72,8 +72,12 @@ module HasGeneratedName
 
   # Generate a random name by combining an adjective and a noun
   def generate_name
-    adjective = ADJECTIVES.sample
-    noun = NOUNS.sample
+    # Filter out adjectives and nouns with special characters
+    valid_adjectives = ADJECTIVES.select { |adj| adj.match?(/\A[\w']+\z/) }
+    valid_nouns = NOUNS.select { |noun| noun.match?(/\A[\w']+\z/) }
+    
+    adjective = valid_adjectives.sample
+    noun = valid_nouns.sample
     self.name = "#{adjective} #{noun}"
   end
 end

@@ -12,11 +12,21 @@ class ArtistsController < ApplicationController
   end
 
   def edit
-    redirect_to @artist, alert: "Editing artists is not permitted."
+    # Handle the case where the route doesn't exist
+    if @artist.nil?
+      render file: "#{Rails.root}/public/404.html", status: :not_found
+    else
+      redirect_to @artist, alert: "Editing artists is not permitted."
+    end
   end
 
   def update
-    redirect_to @artist, alert: "Editing artists is not permitted."
+    # Handle the case where the route doesn't exist
+    if @artist.nil?
+      render file: "#{Rails.root}/public/404.html", status: :not_found
+    else
+      redirect_to @artist, alert: "Editing artists is not permitted."
+    end
   end
 
   def perform_activity

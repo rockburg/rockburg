@@ -6,6 +6,10 @@ one:
   booking_cost: 200.00
   prestige: 1
   tier: 1
+  description: A small underground venue
+  nano_id: venue_one_nanoid
+  genre: rock
+  talent: 50
 
 two:
   name: The Arena
@@ -13,3 +17,7 @@ two:
   booking_cost: 500.00
   prestige: 3
   tier: 2
+  description: A large arena venue
+  nano_id: venue_two_nanoid
+  genre: pop
+  talent: 75

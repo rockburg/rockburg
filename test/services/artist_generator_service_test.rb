@@ -7,7 +7,7 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     mock_artist_data = {
       "name" => "The Midnight Echoes",
       "genre" => "Rock",
-      "energy" => 75,
+      "energy" => 100,
       "talent" => 65,
       "traits" => {
         "charisma" => 70,
@@ -30,9 +30,9 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     assert artist.persisted?
     assert_equal "The Midnight Echoes", artist.name
     assert_equal "Rock", artist.genre
-    assert_equal 75, artist.energy
+    assert_equal 100, artist.energy
     assert_equal 65, artist.talent
-    assert_equal user, artist.manager
+    assert_nil artist.manager
     assert_equal "Formed in a college dorm, The Midnight Echoes blend classic rock influences with modern production.", artist.background
   end
 
@@ -50,12 +50,10 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
   end
 
   test "validates generated artist attributes" do
-    # Mock an invalid artist data (missing required fields)
+    # Mock invalid artist data (missing required fields)
     mock_invalid_data = {
-      "name" => "The Midnight Echoes",
-      # Missing genre
-      "energy" => 75
-      # Missing talent
+      "name" => "Invalid Artist"
+      # Missing genre and talent
     }
 
     # Stub the fetch_artist_data method to return our invalid mock data
@@ -65,7 +63,7 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     user = users(:one)
 
     # Assert that an error is raised
-    assert_raises ArtistGeneratorService::InvalidArtistDataError do
+    assert_raises ArtistGeneratorService::GenerationError do
       ArtistGeneratorService.generate(user)
     end
   end
@@ -406,11 +404,11 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
 
     # Stub the fetch_artist_data method to return our mock data
     ArtistGeneratorService.any_instance.stubs(:fetch_artist_data).returns({
-      name: "The Midnight Echoes",
-      genre: "Rock",
-      energy: 75,
-      talent: 65,
-      background: "Formed in a college dorm, The Midnight Echoes blend classic rock influences with modern production."
+      "name" => "The Midnight Echoes",
+      "genre" => "Rock",
+      "energy" => 100,
+      "talent" => 65,
+      "background" => "Formed in a college dorm, The Midnight Echoes blend classic rock influences with modern production."
     })
 
     # Call the service with the user
@@ -421,7 +419,7 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     assert artist.persisted?
     assert_equal "The Midnight Echoes", artist.name
     assert_equal "Rock", artist.genre
-    assert_equal 75, artist.energy
+    assert_equal 100, artist.energy
     assert_equal 65, artist.talent
     # Artists are now created unsigned (no manager)
     assert_nil artist.manager

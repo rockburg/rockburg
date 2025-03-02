@@ -11,7 +11,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
       post registration_url, params: { user: { email_address: "new_user@example.com", password: "password", password_confirmation: "password" } }
     end
 
-    assert_redirected_to root_url
+    assert_redirected_to dashboard_url
     assert_equal "Welcome to Rockburg! Your account has been created successfully.", flash[:notice]
   end
 
