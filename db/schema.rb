@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_235110) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_01_235958) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -82,6 +82,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_235110) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "nano_id"
+    t.integer "manager_xp_gain"
     t.index ["artist_id"], name: "index_performances_on_artist_id"
     t.index ["nano_id"], name: "index_performances_on_nano_id"
     t.index ["scheduled_for"], name: "index_performances_on_scheduled_for"

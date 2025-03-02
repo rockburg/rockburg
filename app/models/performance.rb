@@ -173,6 +173,9 @@ class Performance < ApplicationRecord
     base_popularity_gain = 3 + (venue.prestige * 2)
     self.popularity_gain = (base_popularity_gain * attendance_factor).round
 
+    # Calculate manager XP gain
+    self.manager_xp_gain = (base_xp * attendance_factor).round
+
     save
   end
 
@@ -187,6 +190,11 @@ class Performance < ApplicationRecord
     # Decrease energy from performance (performing is tiring)
     energy_cost = 20 + (duration_minutes / 15)
     artist.energy = [ artist.energy - energy_cost, 0 ].max
+
+    # Award XP to the manager
+    if artist.manager.present? && manager_xp_gain.present? && manager_xp_gain > 0
+      artist.manager.add_xp(manager_xp_gain)
+    end
 
     artist.save
   end

@@ -28,7 +28,24 @@ class ArtistsController < ApplicationController
     end
 
     if @artist.start_activity!(activity)
-      redirect_to @artist, notice: "#{activity.capitalize} activity started. It will complete in #{@artist.formatted_time_remaining}."
+      # Activity started successfully
+      activity_message = "#{activity.capitalize} activity started. It will complete in #{@artist.formatted_time_remaining}."
+
+      # Check if the activity completion will be immediate (for testing purposes)
+      if @artist.action_ends_at <= Time.current
+        # Complete the activity immediately
+        result = @artist.complete_activity!
+
+        # Check for level up
+        level_up_message = current_manager.check_level_up
+        if level_up_message
+          redirect_to @artist, notice: "#{activity_message} #{level_up_message}"
+        else
+          redirect_to @artist, notice: activity_message
+        end
+      else
+        redirect_to @artist, notice: activity_message
+      end
     else
       redirect_to @artist, alert: "Not enough energy to perform #{activity}."
     end
@@ -86,7 +103,14 @@ class ArtistsController < ApplicationController
 
     # Attempt to sign the artist
     if current_manager.sign_artist(@artist)
-      redirect_to @artist, notice: "You have successfully signed #{@artist.name}!"
+      # Check for level up
+      level_up_message = current_manager.check_level_up
+
+      if level_up_message
+        redirect_to @artist, notice: "You have successfully signed #{@artist.name}! #{level_up_message}"
+      else
+        redirect_to @artist, notice: "You have successfully signed #{@artist.name}!"
+      end
     else
       # Get specific error reason
       if !current_manager.can_afford?(@artist.signing_cost)

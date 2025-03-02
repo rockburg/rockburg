@@ -272,6 +272,10 @@ class Artist < ApplicationRecord
 
     self.skill += skill_gain
     self.energy -= 10
+
+    # Award XP to manager
+    manager.add_xp(3) if manager.present?
+
     save
   end
 
@@ -292,6 +296,10 @@ class Artist < ApplicationRecord
     self.skill += skill_gain
     self.popularity += popularity_gain
     self.energy -= 15
+
+    # Award XP to manager
+    manager.add_xp(5) if manager.present?
+
     save
   end
 
@@ -309,6 +317,10 @@ class Artist < ApplicationRecord
 
     self.popularity += popularity_gain
     self.energy -= 20
+
+    # Award XP to manager
+    manager.add_xp(4) if manager.present?
+
     save
   end
 
@@ -324,6 +336,10 @@ class Artist < ApplicationRecord
 
     # Cap energy at max_energy
     self.energy = [ energy + energy_gain, max_energy ].min
+
+    # Award XP to manager (small amount for resting)
+    manager.add_xp(1) if manager.present?
+
     save
   end
 end

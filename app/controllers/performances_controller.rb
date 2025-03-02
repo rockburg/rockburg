@@ -72,7 +72,15 @@ class PerformancesController < ApplicationController
     if @performance.complete!
       revenue = number_to_currency(@performance.net_revenue)
       attendees = @performance.attendance
-      redirect_to @performance, notice: "Performance completed successfully with #{attendees} attendees and #{revenue} in revenue!"
+
+      # Check for level up
+      level_up_message = current_manager.check_level_up
+
+      if level_up_message
+        redirect_to @performance, notice: "Performance completed successfully with #{attendees} attendees and #{revenue} in revenue! #{level_up_message}"
+      else
+        redirect_to @performance, notice: "Performance completed successfully with #{attendees} attendees and #{revenue} in revenue!"
+      end
     else
       redirect_to @performance, alert: "Unable to complete this performance."
     end

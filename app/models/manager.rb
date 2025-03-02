@@ -104,35 +104,41 @@ class Manager < ApplicationRecord
 
       # Associate artist with manager only
       artist.update!(manager: self)
+
+      # Award XP based on artist's required level and talent
+      xp_reward = 10 + (artist.required_level * 5) + (artist.talent / 10)
+      add_xp(xp_reward.to_i)
     end
 
     true
   end
 
-  # Add XP to manager
+  # Add XP to the manager
   def add_xp(amount)
-    return false if amount <= 0
+    return false unless amount.is_a?(Integer) && amount > 0
 
-    transaction do
-      self.xp += amount
-      check_level_up
-      save!
-    end
-
-    true
+    self.xp += amount
+    save
+    check_level_up
   end
 
-  # Check if manager should level up
+  # Check if the manager has enough XP to level up
   def check_level_up
+    return false if level >= 10 # Max level is 10
+
     next_level = level + 1
+    required_xp = LEVEL_XP_REQUIREMENTS[next_level]
 
-    # Cap at level 10
-    return if level >= 10
+    if xp >= required_xp
+      # Level up
+      self.level += 1
+      self.skill_points += 3 # Award skill points on level up
+      save
 
-    # Check if we have enough XP for the next level
-    if LEVEL_XP_REQUIREMENTS.key?(next_level) && xp >= LEVEL_XP_REQUIREMENTS[next_level]
-      self.level = next_level
-      self.skill_points += 3 # Award skill points for leveling up
+      # Return a message for notification
+      "Congratulations! You've reached Level #{level}! You've been awarded 3 skill points."
+    else
+      false
     end
   end
 
