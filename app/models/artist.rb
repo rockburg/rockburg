@@ -10,12 +10,11 @@ class Artist < ApplicationRecord
 
   validates :name, presence: true
   validates :genre, presence: true
-  validates :energy, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :energy, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   validates :talent, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   validates :required_level, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :signing_cost, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :max_energy, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 100 }
-  validate :energy_cannot_exceed_max_energy
 
   # Default values for new records
   attribute :skill, :integer, default: 0
@@ -244,21 +243,12 @@ class Artist < ApplicationRecord
   end
 
   def energy=(value)
-    # Cap energy between 0 and max_energy
-    capped_value = [ [ value.to_i, 0 ].max, max_energy.to_i ].min
+    # Cap energy between 0 and 100
+    capped_value = [ [ value.to_i, 0 ].max, 100 ].min
     super(capped_value)
   end
 
   private
-
-  # Custom validation to ensure energy doesn't exceed max_energy
-  def energy_cannot_exceed_max_energy
-    return unless energy.present? && max_energy.present?
-
-    if energy > max_energy
-      errors.add(:energy, "cannot exceed max_energy (#{max_energy})")
-    end
-  end
 
   # Practice: increases skill, decreases energy
   def practice!

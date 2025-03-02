@@ -242,8 +242,16 @@ class ArtistGeneratorService
         value = data[field]
       end
 
-      unless value.is_a?(Numeric) && value >= 0 && value <= 100
-        raise InvalidArtistDataError, "#{field} must be a number between 0 and 100, got: #{value.inspect}"
+      # For talent, enforce 0-100 range
+      if field == "talent"
+        unless value.is_a?(Numeric) && value >= 0 && value <= 100
+          raise InvalidArtistDataError, "#{field} must be a number between 0 and 100, got: #{value.inspect}"
+        end
+      # For energy, enforce 0-100 range (energy is a percentage and cannot exceed 100)
+      elsif field == "energy"
+        unless value.is_a?(Numeric) && value >= 0 && value <= 100
+          raise InvalidArtistDataError, "#{field} must be a number between 0 and 100, got: #{value.inspect}"
+        end
       end
     end
 
@@ -323,8 +331,8 @@ class ArtistGeneratorService
     base_skill = [ base_skill, max_starting_skill ].min
 
     # Calculate energy values
-    max_energy = 100 + (resilience_value * 0.5).to_i + (required_level * 5)
-
+    max_energy = 100
+    
     # Determine minimum energy percent based on resilience
     min_energy_percent = if resilience_value < 30
                            0.6 # 60% minimum for low resilience
@@ -336,6 +344,9 @@ class ArtistGeneratorService
 
     # Starting energy is a random value between minimum and maximum
     starting_energy = ((max_energy * min_energy_percent) + rand(0..(max_energy * (1 - min_energy_percent)).to_i)).to_i
+    
+    # Ensure starting_energy doesn't exceed max_energy
+    starting_energy = [starting_energy, max_energy].min
 
     # Create the artist - no user or manager associated yet
     Artist.create!(
@@ -488,7 +499,7 @@ class ArtistGeneratorService
       Each artist must have these attributes:
       - name: A realistic band or artist name appropriate to their genre
       - genre: A specific music genre (not just "rock" but "indie rock" or "post-punk")
-      - energy: A value from 40-100 representing their current energy level
+      - energy: A percentage value from 40-100 representing their current energy level (MUST NOT exceed 100)
       - talent: A value from 1-100 representing their natural musical ability
       - required_level: Manager level needed to sign them (1-5)
       - traits: An object with these traits, each with values from 1-100:
@@ -520,6 +531,11 @@ class ArtistGeneratorService
       - NO artist with talent below 30 should cost more than $1,000
       - Many artists should be in the $800-$1,000 range for new players
 
+      ENERGY REQUIREMENTS:
+      - Energy is a percentage that MUST be between 40-100
+      - Energy MUST NOT exceed 100 under any circumstances
+      - Energy represents how much stamina/energy the artist has available for activities
+
       TRAIT BALANCE REQUIREMENTS:
       - Most artists should have a primary trait that's slightly higher than their others
       - Low talent artists (1-30) should generally have lower trait values (5-40 range)
@@ -541,6 +557,11 @@ class ArtistGeneratorService
       - Ensure at least 60% of artists have talent in the 1-30 range
       - Only about 15% should have talent above 60
       - At least 80% should be level 1 (required for new players)
+
+      ENERGY REQUIREMENTS:
+      - Energy is a percentage that MUST be between 40-100
+      - Energy MUST NOT exceed 100 under any circumstances
+      - Energy represents how much stamina/energy the artist has available for activities
 
       AFFORDABILITY REQUIREMENTS:
       - At least 50% of artists must be affordable for new players (under $1,000 to sign)

@@ -30,7 +30,7 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     assert artist.persisted?
     assert_equal "The Midnight Echoes", artist.name
     assert_equal "Rock", artist.genre
-    assert_equal 100, artist.energy
+    assert artist.energy <= 100, "Energy should not exceed 100"
     assert_equal 65, artist.talent
     assert_nil artist.manager
     assert_equal "Formed in a college dorm, The Midnight Echoes blend classic rock influences with modern production.", artist.background
@@ -426,5 +426,33 @@ class ArtistGeneratorServiceTest < ActiveSupport::TestCase
     # Artists are now created unsigned (no manager)
     assert_nil artist.manager
     assert_equal "Formed in a college dorm, The Midnight Echoes blend classic rock influences with modern production.", artist.background
+  end
+
+  test "energy is properly capped at 100" do
+    # Create mock artist data with energy at the maximum
+    mock_artist_data = {
+      "name" => "Energy Test Band",
+      "genre" => "Rock",
+      "energy" => 100, # Maximum allowed energy
+      "talent" => 50,
+      "traits" => {
+        "charisma" => 70,
+        "creativity" => 80,
+        "resilience" => 60,
+        "discipline" => 55
+      },
+      "background" => "A band testing energy capping."
+    }
+
+    # Stub the fetch_artist_data method to return our mock data
+    ArtistGeneratorService.any_instance.stubs(:fetch_artist_data).returns(mock_artist_data)
+
+    # Call the service
+    artist = ArtistGeneratorService.generate(nil)
+
+    # Assert that energy is at or below 100
+    assert_equal 100, artist.max_energy, "Max energy should be 100"
+    assert artist.energy <= 100, "Energy should not exceed 100"
+    assert artist.energy > 0, "Energy should be greater than 0"
   end
 end

@@ -13,7 +13,7 @@ class RegenerateArtistEnergyJob < ApplicationJob
 
       idle_artists.each do |artist|
         # Skip artists who already have max energy
-        next if artist.energy >= artist.max_energy
+        next if artist.energy >= 100
 
         # Calculate energy gain based on artist traits
         energy_gain = ENERGY_REGEN_AMOUNT
@@ -24,8 +24,8 @@ class RegenerateArtistEnergyJob < ApplicationJob
           energy_gain += resilience_bonus
         end
 
-        # Cap energy at max_energy
-        new_energy = [ artist.energy + energy_gain, artist.max_energy ].min
+        # Cap energy at 100
+        new_energy = [ artist.energy + energy_gain, 100 ].min
 
         # Only update if there's an actual change
         if new_energy > artist.energy

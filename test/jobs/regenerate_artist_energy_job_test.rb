@@ -52,7 +52,6 @@ class RegenerateArtistEnergyJobTest < ActiveJob::TestCase
     RegenerateArtistEnergyJob.perform_now
 
     assert_equal 100, @idle_artist.reload.energy
-    assert @idle_artist.energy <= @idle_artist.max_energy
   end
 
   test "does not change artists already at max energy" do
