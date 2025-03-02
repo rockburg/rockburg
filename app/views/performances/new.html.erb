@@ -10,11 +10,25 @@
     </div>
   <% end %>
 
+  <!-- Main Content -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <!-- Booking Form -->
     <div class="md:col-span-2">
       <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <%= form_with(model: [@artist, @performance], class: "space-y-6") do |form| %>
+        <%= form_with(model: [@artist, @performance], 
+                      class: "space-y-6", 
+                      data: { 
+                        controller: "booking",
+                        booking_artist_popularity: @artist.popularity,
+                        booking_artist_skill: @artist.skill,
+                        venues: @venues.map { |v| [v.id, {
+                          capacity: v.capacity,
+                          bookingCost: v.booking_cost,
+                          minTicketPrice: v.minimum_ticket_price,
+                          suggestedTicketPrice: v.suggested_ticket_price(@artist.popularity),
+                          prestige: v.prestige
+                        }] }.to_h.to_json
+                      }) do |form| %>
           <% if @performance.errors.any? %>
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
               <strong class="font-bold">Error:</strong>
@@ -27,36 +41,81 @@
             </div>
           <% end %>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <%= form.label :venue_id, "Venue", class: "block text-sm font-medium text-gray-700" %>
-              <%= form.select :venue_id, 
-                  options_from_collection_for_select(@venues, :id, :name), 
-                  { include_blank: "Select a venue" }, 
-                  { class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
-                    data: { action: "change->booking#updateVenueDetails" } } %>
+          <!-- Venue Selection -->
+          <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">Choose a Venue</h2>
+            <p class="text-sm text-gray-600 mb-4">Select a venue that matches your artist's popularity and your budget. Higher prestige venues can boost your artist's career but cost more to book.</p>
+            
+            <%= form.hidden_field :venue_id, data: { booking_target: "venueSelect" } %>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-booking-target="venueContainer">
+              <% @venues.each do |venue| %>
+                <div class="border rounded-lg p-4 bg-white cursor-pointer transition-all hover:shadow-md"
+                     data-booking-target="venueCard"
+                     data-venue-id="<%= venue.id %>"
+                     data-action="click->booking#selectVenue">
+                  <div class="flex justify-between items-start">
+                    <h3 class="font-medium text-gray-900"><%= venue.name %></h3>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Tier <%= venue.tier %>
+                    </span>
+                  </div>
+                  <div class="mt-2 text-sm text-gray-500">
+                    <div class="flex justify-between">
+                      <span>Capacity:</span>
+                      <span class="font-medium"><%= venue.capacity %></span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Booking Cost:</span>
+                      <span class="font-medium">$<%= venue.booking_cost %></span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Prestige:</span>
+                      <span class="font-medium">
+                        <% venue.prestige.times do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 inline text-yellow-400">
+                            <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+                          </svg>
+                        <% end %>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
             </div>
+          </div>
 
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Performance Date & Time -->
             <div>
               <%= form.label :scheduled_for, "Performance Date & Time", class: "block text-sm font-medium text-gray-700" %>
               <%= form.datetime_field :scheduled_for, 
                   min: Date.today, 
                   value: 1.day.from_now.strftime("%Y-%m-%dT%H:%M"), 
-                  class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-              <p class="mt-1 text-sm text-gray-500">Must be at least 24 hours in the future</p>
+                  class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                  data: { booking_target: "dateTime", action: "change->booking#updateDateHelp" } %>
+              <p class="mt-1 text-sm text-gray-500" data-booking-target="dateHelp">Must be at least 24 hours in the future</p>
             </div>
 
+            <!-- Duration -->
             <div>
               <%= form.label :duration_minutes, "Duration (minutes)", class: "block text-sm font-medium text-gray-700" %>
               <%= form.number_field :duration_minutes, 
                   min: 30, 
                   max: 180, 
                   value: 60, 
-                  class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-              <p class="mt-1 text-sm text-gray-500">Between 30 and 180 minutes</p>
+                  class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+                  data: { booking_target: "duration" } %>
+              <div class="mt-1 flex justify-between text-xs text-gray-500">
+                <span>30 min</span>
+                <span>60 min</span>
+                <span>180 min</span>
+              </div>
+              <p class="mt-1 text-sm text-gray-500">Longer performances can be more tiring but may generate more revenue</p>
             </div>
 
-            <div>
+            <!-- Ticket Price -->
+            <div class="md:col-span-2">
               <%= form.label :ticket_price, "Ticket Price ($)", class: "block text-sm font-medium text-gray-700" %>
               <div class="mt-1 relative rounded-md shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -67,15 +126,27 @@
                     step: 0.01, 
                     value: 10, 
                     class: "pl-7 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
-                    data: { action: "input->booking#updateEstimates" } %>
+                    data: { booking_target: "ticketPrice", action: "input->booking#updateEstimates" } %>
               </div>
-              <p class="mt-1 text-sm text-gray-500">Higher prices may reduce attendance</p>
+              
+              <div class="mt-2">
+                <input type="range" min="0" max="100" value="10" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                       data-booking-target="priceSlider">
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>Min</span>
+                  <span data-booking-target="priceValue">$10</span>
+                  <span>Max</span>
+                </div>
+              </div>
+              
+              <p class="mt-1 text-sm text-gray-500">Higher prices may reduce attendance but increase per-ticket revenue</p>
             </div>
           </div>
 
           <div class="flex justify-end space-x-3 mt-6">
             <%= link_to "Cancel", performances_path, class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
-            <%= form.submit "Book Performance", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            <%= form.submit "Book Performance", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                data: { booking_target: "submitButton" } %>
           </div>
         <% end %>
       </div>
@@ -85,10 +156,13 @@
     <div class="md:col-span-1">
       <!-- Artist Card -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6">
+        <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-blue-50 to-indigo-50">
           <h3 class="text-lg leading-6 font-medium text-gray-900">
             Artist Information
           </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Current stats that affect performance outcomes
+          </p>
         </div>
         <div class="border-t border-gray-200">
           <dl>
@@ -105,7 +179,12 @@
                 Skill
               </dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= @artist.skill %> / 100
+                <div class="flex items-center">
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: <%= @artist.skill %>%"></div>
+                  </div>
+                  <span class="ml-2"><%= @artist.skill %> / 100</span>
+                </div>
               </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -113,7 +192,12 @@
                 Popularity
               </dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= @artist.popularity %> / 100
+                <div class="flex items-center">
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-purple-600 h-2.5 rounded-full" style="width: <%= @artist.popularity %>%"></div>
+                  </div>
+                  <span class="ml-2"><%= @artist.popularity %> / 100</span>
+                </div>
               </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -121,7 +205,12 @@
                 Energy
               </dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= @artist.energy %> / 100
+                <div class="flex items-center">
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-green-600 h-2.5 rounded-full" style="width: <%= @artist.energy * 100 / @artist.max_energy %>%"></div>
+                  </div>
+                  <span class="ml-2"><%= @artist.energy %> / <%= @artist.max_energy %></span>
+                </div>
               </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -136,12 +225,15 @@
         </div>
       </div>
 
-      <!-- Venue Details (will be populated via JavaScript) -->
-      <div id="venue-details" class="bg-white shadow overflow-hidden sm:rounded-lg mb-6 hidden">
-        <div class="px-4 py-5 sm:px-6">
+      <!-- Venue Details -->
+      <div id="venue-details" data-booking-target="venueDetails" class="bg-white shadow overflow-hidden sm:rounded-lg mb-6 hidden">
+        <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-yellow-50 to-amber-50">
           <h3 class="text-lg leading-6 font-medium text-gray-900">
             Venue Details
           </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Information about the selected venue
+          </p>
         </div>
         <div class="border-t border-gray-200">
           <dl>
@@ -149,7 +241,7 @@
               <dt class="text-sm font-medium text-gray-500">
                 Capacity
               </dt>
-              <dd id="venue-capacity" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dd id="venue-capacity" data-booking-target="venueCapacity" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 -
               </dd>
             </div>
@@ -157,7 +249,7 @@
               <dt class="text-sm font-medium text-gray-500">
                 Booking Cost
               </dt>
-              <dd id="venue-cost" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dd id="venue-cost" data-booking-target="venueCost" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 -
               </dd>
             </div>
@@ -165,7 +257,7 @@
               <dt class="text-sm font-medium text-gray-500">
                 Min. Ticket Price
               </dt>
-              <dd id="min-ticket" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dd id="min-ticket" data-booking-target="minTicket" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 -
               </dd>
             </div>
@@ -173,7 +265,7 @@
               <dt class="text-sm font-medium text-gray-500">
                 Suggested Price
               </dt>
-              <dd id="suggested-ticket" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dd id="suggested-ticket" data-booking-target="suggestedTicket" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 -
               </dd>
             </div>
@@ -181,12 +273,15 @@
         </div>
       </div>
 
-      <!-- Estimates (will be populated via JavaScript) -->
-      <div id="performance-estimates" class="bg-white shadow overflow-hidden sm:rounded-lg hidden">
-        <div class="px-4 py-5 sm:px-6">
+      <!-- Performance Estimates -->
+      <div id="performance-estimates" data-booking-target="estimatesPanel" class="bg-white shadow overflow-hidden sm:rounded-lg hidden">
+        <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-green-50 to-emerald-50">
           <h3 class="text-lg leading-6 font-medium text-gray-900">
             Performance Estimates
           </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Projected outcomes based on your selections
+          </p>
         </div>
         <div class="border-t border-gray-200">
           <dl>
@@ -194,7 +289,7 @@
               <dt class="text-sm font-medium text-gray-500">
                 Est. Attendance
               </dt>
-              <dd id="est-attendance" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dd id="est-attendance" data-booking-target="estAttendance" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 -
               </dd>
             </div>
@@ -202,106 +297,50 @@
               <dt class="text-sm font-medium text-gray-500">
                 Est. Revenue
               </dt>
-              <dd id="est-revenue" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dd id="est-revenue" data-booking-target="estRevenue" class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 font-semibold">
+                -
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Skill Gain
+              </dt>
+              <dd id="est-skill-gain" data-booking-target="estSkillGain" class="mt-1 text-sm text-green-600 font-semibold sm:mt-0 sm:col-span-2">
+                -
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Popularity Gain
+              </dt>
+              <dd id="est-popularity-gain" data-booking-target="estPopularityGain" class="mt-1 text-sm text-purple-600 font-semibold sm:mt-0 sm:col-span-2">
                 -
               </dd>
             </div>
           </dl>
         </div>
       </div>
+      
+      <!-- Tips Card -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-blue-50 to-cyan-50">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2 text-blue-500">
+              <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+            </svg>
+            Booking Tips
+          </h3>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+          <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+            <li>Higher prestige venues can boost your artist's popularity more</li>
+            <li>Book at least a week in advance for better attendance</li>
+            <li>Set ticket prices based on your artist's popularity and venue tier</li>
+            <li>Ensure your artist has enough energy for the performance</li>
+            <li>Balance ticket price between attendance and revenue per ticket</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Cache DOM elements
-    const venueSelect = document.querySelector('#performance_venue_id');
-    const ticketPriceInput = document.querySelector('#performance_ticket_price');
-    const venueDetailsDiv = document.querySelector('#venue-details');
-    const estimatesDiv = document.querySelector('#performance-estimates');
-    
-    // Venue details elements
-    const venueCapacity = document.querySelector('#venue-capacity');
-    const venueCost = document.querySelector('#venue-cost');
-    const minTicket = document.querySelector('#min-ticket');
-    const suggestedTicket = document.querySelector('#suggested-ticket');
-    
-    // Estimate elements
-    const estAttendance = document.querySelector('#est-attendance');
-    const estRevenue = document.querySelector('#est-revenue');
-    
-    // Venue data (will be populated from server)
-    let venues = {};
-    
-    // Initialize venue data
-    <% @venues.each do |venue| %>
-      venues['<%= venue.id %>'] = {
-        capacity: <%= venue.capacity %>,
-        bookingCost: <%= venue.booking_cost %>,
-        minTicketPrice: <%= venue.minimum_ticket_price %>,
-        suggestedTicketPrice: <%= venue.suggested_ticket_price(@artist.popularity) %>
-      };
-    <% end %>
-    
-    // Update venue details when venue is selected
-    venueSelect.addEventListener('change', function() {
-      const venueId = this.value;
-      
-      if (venueId && venues[venueId]) {
-        // Show venue details
-        venueDetailsDiv.classList.remove('hidden');
-        
-        // Update venue details
-        const venue = venues[venueId];
-        venueCapacity.textContent = venue.capacity + ' people';
-        venueCost.textContent = '$' + venue.bookingCost;
-        minTicket.textContent = '$' + venue.minTicketPrice;
-        suggestedTicket.textContent = '$' + venue.suggestedTicketPrice;
-        
-        // Set ticket price to suggested price
-        ticketPriceInput.value = venue.suggestedTicketPrice;
-        
-        // Update estimates
-        updateEstimates(venueId, ticketPriceInput.value);
-      } else {
-        // Hide venue details if no venue selected
-        venueDetailsDiv.classList.add('hidden');
-        estimatesDiv.classList.add('hidden');
-      }
-    });
-    
-    // Update estimates when ticket price changes
-    ticketPriceInput.addEventListener('input', function() {
-      const venueId = venueSelect.value;
-      if (venueId) {
-        updateEstimates(venueId, this.value);
-      }
-    });
-    
-    // Function to update attendance and revenue estimates
-    function updateEstimates(venueId, ticketPrice) {
-      if (!venueId || !venues[venueId]) return;
-      
-      const venue = venues[venueId];
-      
-      // Simple estimate calculation (this would be more complex in a real app)
-      let attendance = Math.floor(venue.capacity * (1 - (ticketPrice / (venue.suggestedTicketPrice * 2))));
-      attendance = Math.max(0, Math.min(venue.capacity, attendance));
-      
-      const grossRevenue = attendance * ticketPrice;
-      const venueCut = grossRevenue * 0.2; // Assume 20% venue cut
-      const expenses = venue.bookingCost + (attendance * 2); // Booking cost + $2 per attendee
-      const merchRevenue = attendance * 5 * (<%= @artist.popularity %> / 100); // $5 per attendee scaled by popularity
-      const netRevenue = grossRevenue - venueCut - expenses + merchRevenue;
-      
-      // Show estimates
-      estimatesDiv.classList.remove('hidden');
-      
-      // Update estimate displays
-      estAttendance.textContent = attendance + ' / ' + venue.capacity + 
-                                 ' (' + Math.round(attendance / venue.capacity * 100) + '%)';
-      estRevenue.textContent = '$' + netRevenue.toFixed(2) + ' (after expenses)';
-    }
-  });
-</script>
